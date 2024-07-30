@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { UserType } from "../models/userModel";
 
-export class UserService {
+export class UserService { // Export the class here
     private userRepository: UserRepository;
     private otpStore: { [key: string]: { otp: string; timestamp: number; userData: UserType } } = {};
 
@@ -74,7 +74,7 @@ export class UserService {
     async userLoginService(email: string){
         const user = await this.userRepository.findUser(email)
         if(!user){
-            return { message: "Invalid email"};
+            return "Invalid email"
         }
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
         const isMailSended = await sendMail(email, OTP);
@@ -87,5 +87,3 @@ export class UserService {
         }
     }
 }
-
-

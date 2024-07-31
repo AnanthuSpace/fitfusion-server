@@ -3,6 +3,7 @@ import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { UserType } from "../models/userModel";
+import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 
 export class UserService { // Export the class here
     private userRepository: UserRepository;
@@ -42,35 +43,43 @@ export class UserService { // Export the class here
         
         const storedData = this.otpStore[temperoryEmail];
         console.log("storedData: ", storedData); 
-
+    
         if (!storedData) {
             throw new Error("Invalid OTP");
         }
-
+    
         const currentTime = Date.now();
         const otpTime = storedData.timestamp;
         const difference = currentTime - otpTime;
-
+    
         if (difference > 2 * 60 * 1000) {
             throw new Error("OTP expired");
         }
-
+    
         if (storedData.otp !== otp) {
             throw new Error("Invalid OTP");
         }
-
+    
         console.log("OTP matched");
-
+    
         const userData = storedData.userData;
         const hashedPassword = await bcrypt.hash(userData.password, 10);
         userData.password = hashedPassword;
         userData.userId = v4();
         delete this.otpStore[temperoryEmail];
-
+    
         await this.userRepository.registerUser(userData);
-        return { message: "OTP verified", userData };
+        
+        const accessToken = generateAccessToken(userData.userId);
+        const refreshToken = generateRefreshToken(userData.userId);
+    
+        console.log(userData);
+        
+        // const { password, _id, ...userDataWithoutSensitiveInfo } = userData;
+    
+        return { message: "OTP verified", accessToken, refreshToken, userData };
     }
-
+    
     async userLoginService(email: string){
         const user = await this.userRepository.findUser(email)
         if(!user){

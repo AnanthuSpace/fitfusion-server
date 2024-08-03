@@ -24,4 +24,5 @@ export class UserRepository {
     async findEditingData(userId:string) {
         return await userModel.findOne({ userId: userId })
     }
+
 }

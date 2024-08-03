@@ -78,26 +78,32 @@ export class UserController {
     }
 
     async editUserData(req: CustomRequest, res: Response): Promise<any> {
-        try {    
-            const { name, phone, address, gender } = req.body;
+        try {
+            const { name, phone, address, gender, password } = req.body;
             const userId = req.id as string;
-            await userService.editUserService(name, phone, address, gender, userId)
-            return res.status(200).json({ success: true, message: "Updated successfully"});
+            const bcryptPass = await userService.verifyPassword(password, userId)
+            console.log(bcryptPass)
+            if(!bcryptPass){
+                res.status(403).json({ success: false, message: "Invalid password" });
+            }
+            await userService.editUserService(name, phone, address, gender, bcryptPass, password,  userId)
+            return res.status(200).json({ success: true, message: "Updated successfully" });
         } catch (error: any) {
-            if(error.message == "No changes found")
-            res.status(304).json({ success: false, message: "No changes found" });
+            if (error.message == "No changes found")
+                res.status(304).json({ success: false, message: "No changes found" });
             res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
 
-    async changeUserPass( req: CustomRequest, res: Response): Promise<any> {
-      try {
-         const { oldPassword, newPassword} = req.body
-         const userId = req.id as string;
-         await userService.changeUserPass(oldPassword,newPassword, userId)
-         return res.status(200).json({ success: true, message: "Updated successfully"});
-      } catch (error) {
-         res.status(500).json({ success: false, message: "Internal server error" });
-      }
+
+    async changeUserPass(req: CustomRequest, res: Response): Promise<any> {
+        try {
+            const { oldPassword, newPassword } = req.body
+            const userId = req.id as string;
+            await userService.changeUserPass(oldPassword, newPassword, userId)
+            return res.status(200).json({ success: true, message: "Updated successfully" });
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Internal server error" });
+        }
     }
 }

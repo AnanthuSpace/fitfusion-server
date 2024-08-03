@@ -129,14 +129,16 @@ export class UserService {
     }
 
 
-    async editUserService(name: string, phone: string, address: string, gender: string, userId: string) {
+    async editUserService(name: string, phone: string, address: string, gender: string, bcryptPass: boolean, password: string, userId: string) {
+        const hashPassword = await bcrypt.hash(password, 10);
         const editUserData: EditUserInterface = {
             name,
             phone,
             address,
-            gender
+            gender,
+            password: hashPassword,
         }
-        console.log("Edit user service : ",editUserData)
+        console.log("Edit user service : ", editUserData)
         const res = await this.userRepository.editUser(editUserData, userId)
         if (!res.modifiedCount) {
             throw new Error("No changes found")
@@ -144,10 +146,22 @@ export class UserService {
         return { message: "Updated successfully" };
     }
 
+    async verifyPassword(password: string, userId: string): Promise<boolean> {
+        try {
+          const user = await this.userRepository.findEditingData(userId);
+          const storedPassword = user?.password;
+          const bcryptPass = await bcrypt.compare(password, String(storedPassword));
+          return bcryptPass;
+        } catch (error) {
+          console.error("Error verifying password: ", error);
+          return false; 
+        }
+      }
+
     async changeUserPass(oldPassword: string, newPassword: string, userId: string) {
         const user = await this.userRepository.findEditingData(userId)
-        console.log("Edit find : ",user);
-        
+        console.log("Edit find : ", user);
+
         // const storedPassword = user.password;
         // const bcryptPass = await bcrypt.compare(oldPassword, storedPassword);
         // if(!bcrypt) throw new Error("Old password is not match")

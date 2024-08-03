@@ -10,6 +10,7 @@ router.post("/verify", userController.otpVerification);
 router.post("/login", userController.userLogin);
 router.post("/login-verify", userController.loginVerify);
 router.put('/edit-user', verifyToken,userController.editUserData);
+// router.post('/verify-password', verifyToken,userController.verifyPassword);
 router.patch('/change-userpass', verifyToken,userController.changeUserPass);
 
 

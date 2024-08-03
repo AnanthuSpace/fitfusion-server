@@ -3,4 +3,5 @@ export interface EditUserInterface {
     phone: string;
     address: string;
     gender: string;
+    password: string
 }

@@ -6,69 +6,98 @@ import { UserType } from "../models/userModel";
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 
+
+interface CustomRequest extends Request {
+    id?: string;
+}
+
 export class UserController {
-   async registerController(req: Request, res: Response): Promise<any> {
-      try {
-         const userData: UserType = req.body;
-         const serviceResponse = await userService.registerUserService(userData);
-         if (serviceResponse === "UserExist") {
+    async registerController(req: Request, res: Response): Promise<any> {
+        try {
+            const userData: UserType = req.body;
+            const serviceResponse = await userService.registerUserService(userData);
+            if (serviceResponse === "UserExist") {
+                console.log(serviceResponse);
+                return res.status(409).json({ success: false, message: "User already exists" });
+            } else {
+                return res.status(200).json({ success: true, message: "OTP sent", otp: serviceResponse });
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async otpVerification(req: Request, res: Response): Promise<any> {
+        try {
+            const { temperoryEmail, completeOtp } = req.body;
+            const serviceResponse = await userService.otpVerificationService(temperoryEmail, completeOtp);
+
+            if (serviceResponse.message === "OTP verified") {
+                return res.status(200).json(serviceResponse);
+            } else {
+                return res.status(400).json(serviceResponse);
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async userLogin(req: Request, res: Response): Promise<any> {
+        try {
+            const email: string = req.body.email;
+            const serviceResponse = await userService.userLoginService(email);
+            console.log("response :", serviceResponse);
+            if (serviceResponse === "Invalid email") {
+                return res.status(400).json({ success: false, message: "User not exist please register" });
+            }
+            return res.status(200).json({ success: true, message: "OTP sent", data: serviceResponse });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async loginVerify(req: Request, res: Response): Promise<any> {
+        try {
+            const { temperoryEmail, completeOtp } = req.body;
+            console.log("Email", temperoryEmail);
+            const serviceResponse = await userService.userLoginVerificationService(temperoryEmail, completeOtp);
             console.log(serviceResponse);
-            return res.status(409).json({ success: false, message: "User already exists" });
-         } else {
-            return res.status(200).json({ success: true, message: "OTP sent", otp: serviceResponse });
-         }
-      } catch (error) {
-         console.error(error);
-         return res.status(500).json({ success: false, message: "Internal server error" });
-      }
-   }
 
-   async otpVerification(req: Request, res: Response): Promise<any> {
+            if (serviceResponse.message === "OTP verified") {
+                return res.status(200).json(serviceResponse);
+            } else {
+                return res.status(400).json(serviceResponse);
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async editUserData(req: CustomRequest, res: Response): Promise<any> {
+        try {    
+            const { name, phone, address, gender } = req.body;
+            const userId = req.id as string;
+            await userService.editUserService(name, phone, address, gender, userId)
+            return res.status(200).json({ success: true, message: "Updated successfully"});
+        } catch (error: any) {
+            if(error.message == "No changes found")
+            res.status(304).json({ success: false, message: "No changes found" });
+            res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async changeUserPass( req: CustomRequest, res: Response): Promise<any> {
       try {
-         const { temperoryEmail, completeOtp } = req.body;
-         const serviceResponse = await userService.otpVerificationService(temperoryEmail, completeOtp);
-
-         if (serviceResponse.message === "OTP verified") {
-            return res.status(200).json(serviceResponse);
-         } else {
-            return res.status(400).json(serviceResponse);
-         }
+         const { oldPassword, newPassword} = req.body
+         const userId = req.id as string;
+         await userService.changeUserPass(oldPassword,newPassword, userId)
+         return res.status(200).json({ success: true, message: "Updated successfully"});
       } catch (error) {
-         console.error(error);
-         return res.status(500).json({ success: false, message: "Internal server error" });
+         res.status(500).json({ success: false, message: "Internal server error" });
       }
-   }
-
-   async userLogin(req: Request, res: Response): Promise<any> {
-      try {
-         const email: string = req.body.email;
-         const serviceResponse = await userService.userLoginService(email);
-         console.log("responds :", serviceResponse);
-         if (serviceResponse === "Invalid email") {
-            return res.status(400).json({ success: false, message: serviceResponse });
-         }
-         return res.status(200).json({ success: true, data: serviceResponse });
-      } catch (error) {
-         console.error(error);
-         return res.status(500).json({ success: false, message: "Internal server error" });
-      }
-   }
-
-   async loginVerify(req: Request, res: Response): Promise<any> {
-      try {
-         const { temperoryEmail, completeOtp } = req.body;
-         console.log("Email", temperoryEmail);
-         const serviceResponse = await userService.otpVerificationService(temperoryEmail, completeOtp);
-         console.log(serviceResponse);
-
-         if (serviceResponse.message === "OTP verified") {
-            return res.status(200).json(serviceResponse);
-         } else {
-            return res.status(400).json(serviceResponse);
-         }
-      } catch (error) {
-         console.error(error);
-         return res.status(500).json({ success: false, message: "Internal server error" });
-      }
-   }
+    }
 }

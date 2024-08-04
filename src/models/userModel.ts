@@ -10,6 +10,7 @@ type UserType = {
     password: string;
     isBlocked: boolean;
     profileIMG?: string;
+    address?: string;
     createdAt: Date;
     followed?: string[];
 };
@@ -47,6 +48,9 @@ const userSchema = new Schema<UserDocument>({
         default: false
     },
     profileIMG: {
+        type: String
+    },
+    address: {
         type: String
     },
     createdAt: {

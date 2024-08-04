@@ -148,23 +148,27 @@ export class UserService {
 
     async verifyPassword(password: string, userId: string): Promise<boolean> {
         try {
-          const user = await this.userRepository.findEditingData(userId);
-          const storedPassword = user?.password;
-          const bcryptPass = await bcrypt.compare(password, String(storedPassword));
-          return bcryptPass;
+            const user = await this.userRepository.findEditingData(userId);
+            const storedPassword = user?.password;
+            const bcryptPass = await bcrypt.compare(password, String(storedPassword));
+            return bcryptPass;
         } catch (error) {
-          console.error("Error verifying password: ", error);
-          return false; 
+            console.error("Error verifying password: ", error);
+            return false;
         }
-      }
+    }
 
-    async changeUserPass(oldPassword: string, newPassword: string, userId: string) {
-        const user = await this.userRepository.findEditingData(userId)
-        console.log("Edit find : ", user);
-
-        // const storedPassword = user.password;
-        // const bcryptPass = await bcrypt.compare(oldPassword, storedPassword);
-        // if(!bcrypt) throw new Error("Old password is not match")
-        // const res = await this.userRepository.changePass(newPassword, userId)
+    async changeUserPass(newPassword: string, userId: string) {
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            const res = await this.userRepository.changePass(hashedPassword, userId);
+            if (res.modifiedCount === 0) {
+                throw new Error("No changes found");
+            }
+            return { success: true, message: "Reset Password successfully" };
+        } catch (error: any) {
+            console.error("Error in reset password: ", error);
+            return { success: false, message: error.message || "Internal server error" };
+        }
     }
 }

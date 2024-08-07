@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { TrainerRepository } from "../repositories/trainerRepository";
 import { TrainerService } from "../services/trainerService";
 import { TrainerType } from "../models/trainerModel";
+import { generateAccessToken } from "../config/jwtConfig";
 
 
 const trainerRepository = new TrainerRepository();
@@ -16,7 +17,9 @@ export class TrainerController {
     async registerController(req: Request, res: Response): Promise<any> {
         try {
             const trainerData: TrainerType = req.body;
+            
             const serviceResponse = await trainerService.registerTrainerService(trainerData);
+
             if (serviceResponse === "UserExist") {
                 console.log(serviceResponse);
                 return res.status(409).json({ success: false, message: "User already exists" });
@@ -33,8 +36,8 @@ export class TrainerController {
     async otpVerification(req: Request, res: Response): Promise<any> {
         try {
             const { temperoryEmail, completeOtp } = req.body;
-            console.log("hi",temperoryEmail, completeOtp);
-            
+            console.log("hi", temperoryEmail, completeOtp);
+
             const serviceResponse = await trainerService.otpVerificationService(temperoryEmail, completeOtp);
 
             if (serviceResponse.message === "OTP verified") {
@@ -50,14 +53,23 @@ export class TrainerController {
 
     async trainerLogin(req: Request, res: Response): Promise<any> {
         try {
-            const {email, password} = req.body
-            console.log(email,password);
-            const serviceResponse = await trainerService.trainerLoginService(email,password)
-            console.log(serviceResponse);
-            if(!serviceResponse) {
+            const { email, password } = req.body
+            const serviceResponse = await trainerService.trainerLoginService(email, password)
+            console.log(console.log("trainer details : ", serviceResponse));
+
+            if(serviceResponse.trainerNotExisted){
+                return res.status(403).json({ success: false, message: "Invalid email id" });
+            }
+
+            if (!serviceResponse.bcryptPass) {
                 return res.status(403).json({ success: false, message: "Incorrect password" });
             }
-            return res.status(200).json({ success: true, message: "Login successfull" });
+
+            // if(!serviceResponse.verifiedTrainer){
+            //     return res.status(403).json({ success: false, message: "Please wait for the verification" });
+            // }
+
+            return res.status(200).json({ success: true, message: "Login successfull", trainerData: serviceResponse.trainerData, accessToken: serviceResponse.accessToken, refreshToken: serviceResponse.refreshToken });
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }

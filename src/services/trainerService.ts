@@ -75,25 +75,46 @@ export class TrainerService {
 
         await this.trainerRepository.registerTrainer(trainerData);
 
-        const accessToken = generateAccessToken(trainerData.trainerId);
-        const refreshToken = generateRefreshToken(trainerData.trainerId);
-
         const { password, ...trainerDataWithoutSensitiveInfo } = trainerData;
 
-        return { message: "OTP verified", accessToken, refreshToken, trainerData: trainerDataWithoutSensitiveInfo };
+        return { message: "OTP verified", trainerData: trainerDataWithoutSensitiveInfo };
     }
 
 
-    async trainerLoginService(email: string, password: string) {
+    async trainerLoginService(email: string, enteredPassword: string) {
         try {
             const trainerData = await this.trainerRepository.findTrainerInRegister(email);
-            console.log(trainerData);
-            const storedPassword = trainerData?.password;
-            const bcryptPass = await bcrypt.compare(password, String(storedPassword))
-            return bcryptPass
+
+            if (!trainerData) {
+                return {
+                    trainerNotExisted: true,
+                    trainerData: null,
+                    accessToken: null,
+                    refreshToken: null
+                };
+            }
+
+            const { password: hashedPassword, ...TrainerDataWithoutSensitiveData } = trainerData;
+            const bcryptPass = await bcrypt.compare(enteredPassword, hashedPassword);
+
+            const verifiedTrainer = trainerData.verified
+
+            const accessToken = generateAccessToken(trainerData.trainerId)
+            const refreshToken = generateRefreshToken(trainerData.trainerId)
+
+            return {
+                trainerData: TrainerDataWithoutSensitiveData,
+                bcryptPass,
+                accessToken,
+                refreshToken,
+                verifiedTrainer
+            };
         } catch (error) {
             console.error("Error verifying password: ", error);
-            return false;
+            return {
+                trainerData: null,
+                bcryptPass: false
+            };
         }
     }
 }

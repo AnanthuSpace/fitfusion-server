@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 
 type TrainerType = {
     trainerId: string;
@@ -19,10 +19,8 @@ type TrainerType = {
 }
 
 
-interface TrainerDocument extends TrainerType, Document { }
 
-
-const trainerSchema = new Schema<TrainerDocument> ({
+const trainerSchema = new Schema<TrainerType>({
     trainerId: {
         type: String,
         required: true
@@ -64,11 +62,11 @@ const trainerSchema = new Schema<TrainerDocument> ({
         type: String
     }],
     rating: {
-        type:Number
+        type: Number
     },
-    level : {
-        type:Number,
-        default:3
+    level: {
+        type: Number,
+        default: 3
     },
     verified: {
         type: Boolean,
@@ -77,6 +75,6 @@ const trainerSchema = new Schema<TrainerDocument> ({
 })
 
 
-const trainerModel = model<TrainerDocument>("Trainer", trainerSchema)
+const trainerModel = model<TrainerType>("Trainer", trainerSchema)
 
-export { trainerModel, TrainerType};
+export { trainerModel, TrainerType };

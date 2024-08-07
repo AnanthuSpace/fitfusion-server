@@ -112,4 +112,20 @@ export class UserController {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
+
+    async blockeAUser(req: Request, res: Response ): Promise<any> {
+        try {
+            const {userId} = req.body
+            console.log(userId)
+            const responds = await userRepository.blockUser(userId)
+            console.log(responds)
+            if(!responds.modifiedCount){
+                return res.status(304).json({success: false, message: "No change"})
+            } else {
+                return res.status(200).json({success: true, message: "User blocked"});
+            }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 }

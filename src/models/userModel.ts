@@ -16,10 +16,8 @@ type UserType = {
 };
 
 
-interface UserDocument extends UserType, Document { }
 
-
-const userSchema = new Schema<UserDocument>({
+const userSchema = new Schema<UserType>({
     userId: {
         type: String,
         required: true
@@ -63,7 +61,7 @@ const userSchema = new Schema<UserDocument>({
 });
 
 
-const userModel = model<UserDocument>("User", userSchema);
+const userModel = model<UserType>("User", userSchema);
 
 
 export { userModel, UserType };

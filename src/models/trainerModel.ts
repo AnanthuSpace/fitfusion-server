@@ -1,24 +1,27 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 
-
-type UserType = {
-    userId: string;
+type TrainerType = {
+    trainerId: string;
     name: string;
     email: string;
     phone?: string;
-    gender?: string;
     password: string;
+    gender?: string;
+    rating?: number;
+    followers?: string[];
     isBlocked: boolean;
-    profileIMG?: string;
-    address?: string;
+    level: number;
+    qualification?: string
     createdAt: Date;
-    followed?: string[];
-};
+    profileIMG?: string,
+    address?: string,
+    verified: boolean,
+}
 
 
 
-const userSchema = new Schema<UserType>({
-    userId: {
+const trainerSchema = new Schema<TrainerType>({
+    trainerId: {
         type: String,
         required: true
     },
@@ -55,13 +58,23 @@ const userSchema = new Schema<UserType>({
         type: Date,
         default: Date.now
     },
-    followed: [{
+    followers: [{
         type: String
-    }]
-});
+    }],
+    rating: {
+        type: Number
+    },
+    level: {
+        type: Number,
+        default: 3
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    }
+})
 
 
-const userModel = model<UserType>("User", userSchema);
+const trainerModel = model<TrainerType>("Trainer", trainerSchema)
 
-
-export { userModel, UserType };
+export { trainerModel, TrainerType };

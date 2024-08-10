@@ -99,6 +99,7 @@ export class TrainerService {
 
             const verifiedTrainer = trainerData.verified
 
+
             const accessToken = generateAccessToken(trainerData.trainerId)
             const refreshToken = generateRefreshToken(trainerData.trainerId)
 
@@ -107,7 +108,7 @@ export class TrainerService {
                 bcryptPass,
                 accessToken,
                 refreshToken,
-                verifiedTrainer
+                verifiedTrainer,
             };
         } catch (error) {
             console.error("Error verifying password: ", error);

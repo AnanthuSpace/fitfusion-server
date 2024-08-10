@@ -1,26 +1,28 @@
 import { Request, Response } from "express";
 import { AdminService } from "../services/adminService";
-import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
-
-const adminService = new AdminService();
+import { AdminRepository } from "../repositories/adminRepository";
 
 export class AdminController {
-    async adminLogin(req: Request, res: Response): Promise<any> {
+    private adminService: AdminService;
+
+    constructor() {
+        const adminRepository = new AdminRepository();
+        this.adminService = new AdminService(adminRepository);
+    }
+
+    adminLogin = async (req: Request, res: Response): Promise<any> => {
         try {
             const { username, password } = req.body;
-            const adminUsername = process.env.ADMIN_USERNAME;
-            const adminPassword = process.env.ADMIN_PASSWORD;
-            console.log(adminUsername, username);
-            
-            const accessToken = generateAccessToken(username)
-            const refreshToken = generateRefreshToken(username)
-            if (username === adminUsername && password === adminPassword) {
-                return res.status(200).json({ success: true, message: "Login successful", accessToken, refreshToken });
+            const result = await this.adminService.adminLoginService(username, password);
+
+            if (result.success) {
+                return res.status(200).json(result);
             } else {
-                return res.status(403).json({ success: false, message: "Invalid Username and password" });
+                return res.status(403).json(result);
             }
         } catch (error) {
+            console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
-    }
+    };
 }

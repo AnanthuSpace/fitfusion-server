@@ -57,4 +57,17 @@ export class AdminService {
             return { success: false, message: "User unblocking is failed" };
         }
     }
+
+    async isVerified( trainerId: string,isVerified: string ){
+        const result = await this.adminRepository.isVerified(trainerId, isVerified)
+        if(result.modifiedCount){
+           if(isVerified === "verified"){
+            return { success: true, message: "Trainer is verified"};
+           } else {
+            return { success: true, message: "Trainer is rejected"};
+           }
+        } else {
+            return { success: false, message: "User unblocking is failed" };
+        }
+    }
 }

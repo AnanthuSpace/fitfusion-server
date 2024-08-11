@@ -63,8 +63,7 @@ export class TrainerController {
                 return res.status(403).json({ success: false, message: "Incorrect password" });
             }
 
-
-            if (!serviceResponse.verifiedTrainer) {
+            if (serviceResponse.verifiedTrainer === "pending") {
                 return res.status(403).json({ success: false, message: "Please wait for the verification" });
             }
 

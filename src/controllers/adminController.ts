@@ -87,4 +87,19 @@ export class AdminController {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
+
+    isVerified = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const { trainerId, isVerified } = req.body
+            const result = await this.adminService.isVerified(trainerId, isVerified)
+            if (result.success) {
+                return res.status(200).json(result);
+            } else {
+                return res.status(403).json(result);
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 }

@@ -23,4 +23,38 @@ export class AdminService {
             return { success: false, message: "Invalid Username and password" };
         }
     }
+
+    async trainerBlock(trainerId: string){
+        const result = await this.adminRepository.blockTrainer(trainerId)
+        if(result.modifiedCount){
+            return { success: true, message: "Trainer is blocked"};
+        } else {
+            return { success: false, message: "Trainer blocking failed" };
+        }
+    }
+    async trainerUnBlock(trainerId: string){
+        const result = await this.adminRepository.unblockTrainer(trainerId)
+        if(result.modifiedCount){
+            return { success: true, message: "Trainer is unblocked"};
+        } else {
+            return { success: false, message: "Trainer unblocking is failed" };
+        }
+    }
+
+    async userBlock(userId: string){
+        const result = await this.adminRepository.blockUser(userId)
+        if(result.modifiedCount){
+            return { success: true, message: "User is blocked"};
+        } else {
+            return { success: false, message: "User blocking failed" };
+        }
+    }
+    async userUnBlock(userId: string){
+        const result = await this.adminRepository.unblockUser(userId)
+        if(result.modifiedCount){
+            return { success: true, message: "User is unblocked"};
+        } else {
+            return { success: false, message: "User unblocking is failed" };
+        }
+    }
 }

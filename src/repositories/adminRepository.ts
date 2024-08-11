@@ -42,4 +42,11 @@ export class AdminRepository {
             { $set: { isBlocked: false } },
         );
     }
+
+    async isVerified( trainerId: string, isVerified: string){
+        return trainerModel.updateOne(
+            {trainerId: trainerId},
+            {$set:{verified: isVerified}}
+        )
+    }
 }

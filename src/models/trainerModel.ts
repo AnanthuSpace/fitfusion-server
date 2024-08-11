@@ -15,7 +15,7 @@ type TrainerType = {
     createdAt: Date;
     profileIMG?: string,
     address?: string,
-    verified: boolean,
+    verified: string,
 }
 
 
@@ -69,8 +69,11 @@ const trainerSchema = new Schema<TrainerType>({
         default: 3
     },
     verified: {
-        type: Boolean,
-        default: false
+        type: String,
+        default: "pending"
+    },
+    qualification: {
+        type: String,
     }
 })
 

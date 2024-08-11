@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { TrainerRepository } from "../repositories/trainerRepository";
 import { TrainerService } from "../services/trainerService";
 import { TrainerType } from "../models/trainerModel";
-import { generateAccessToken } from "../config/jwtConfig";
 
 
 const trainerRepository = new TrainerRepository();
@@ -17,7 +16,7 @@ export class TrainerController {
     async registerController(req: Request, res: Response): Promise<any> {
         try {
             const trainerData: TrainerType = req.body;
-            
+
             const serviceResponse = await trainerService.registerTrainerService(trainerData);
 
             if (serviceResponse === "UserExist") {
@@ -55,9 +54,8 @@ export class TrainerController {
         try {
             const { email, password } = req.body
             const serviceResponse = await trainerService.trainerLoginService(email, password)
-            console.log(console.log("trainer details : ", serviceResponse));
 
-            if(serviceResponse.trainerNotExisted){
+            if (serviceResponse.trainerNotExisted) {
                 return res.status(403).json({ success: false, message: "Invalid email id" });
             }
 
@@ -65,9 +63,9 @@ export class TrainerController {
                 return res.status(403).json({ success: false, message: "Incorrect password" });
             }
 
-            // if(!serviceResponse.verifiedTrainer){
-            //     return res.status(403).json({ success: false, message: "Please wait for the verification" });
-            // }
+            if (serviceResponse.verifiedTrainer === "pending") {
+                return res.status(403).json({ success: false, message: "Please wait for the verification" });
+            }
 
             return res.status(200).json({ success: true, message: "Login successfull", trainerData: serviceResponse.trainerData, accessToken: serviceResponse.accessToken, refreshToken: serviceResponse.refreshToken });
         } catch (error) {

@@ -11,6 +11,12 @@ const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRATION!;
 
 interface JwtPayload {
     userId: string;
+    email?: string;
+}
+
+interface CustomRequest extends Request {
+    id?: string;
+    email?: string;
 }
 
 export const generateAccessToken = (userId: string): string => {
@@ -21,7 +27,7 @@ export const generateRefreshToken = (userId: string): string => {
     return jwt.sign({ userId }, refreshTokenSecret, { expiresIn: refreshTokenExpire });
 }
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = (req: CustomRequest, res: Response, next: NextFunction) => {
     const verificationHeader = req.headers.authorization;
     if (!verificationHeader) {
         return res.status(401).json({ message: 'Access denied. Access token not valid' });
@@ -36,8 +42,31 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
         if (err) {
             return res.status(401).json({ message: 'Access denied. Access token not valid' });
         } else {
-            (req as any).id = (decoded as JwtPayload).userId;
+            req.id = (decoded as JwtPayload).userId;
             next();
         }
     });
-}
+};
+
+export const adminVerification = (req: CustomRequest, res: Response, next: NextFunction) => {
+    const verificationHeader = req.headers.authorization;
+    
+    if (!verificationHeader) {
+        return res.status(401).json({ message: 'Access denied. Access token not valid' });
+    }
+
+    const accessToken = verificationHeader.split(' ')[1];
+    
+    if (!accessToken) {
+        return res.status(401).json({ message: 'Access denied. Access token not valid' });
+    }
+    jwt.verify(accessToken, accessTokenSecret, { algorithms: ['HS256'] }, (err, decoded) => {
+        if (err) {
+            console.log('JWT Verify Error:', err);
+            return res.status(401).json({ message: 'Access denied. Access token not valid' });
+        } else {
+            req.email = (decoded as JwtPayload).email;
+            next();
+        }
+    });
+};

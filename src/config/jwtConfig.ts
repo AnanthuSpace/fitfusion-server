@@ -29,6 +29,7 @@ export const generateRefreshToken = (userId: string): string => {
 
 export const verifyToken = (req: CustomRequest, res: Response, next: NextFunction) => {
     const verificationHeader = req.headers.authorization;
+    
     if (!verificationHeader) {
         return res.status(401).json({ message: 'Access denied. Access token not valid' });
     }

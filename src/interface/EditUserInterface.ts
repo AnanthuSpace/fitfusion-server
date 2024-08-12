@@ -5,3 +5,13 @@ export interface EditUserInterface {
     gender: string;
     password: string
 }
+
+
+export interface EditTrainerInterface {
+    name: string;
+    phone: string;
+    gender: string;
+    address: string;
+    qualification: string;
+    achivements: string;
+}

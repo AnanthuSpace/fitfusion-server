@@ -12,8 +12,6 @@ export class UserRepository {
     }
 
     async editUser(editUserData: EditUserInterface, userId: string){
-        console.log("EditRepo");
-        
         return await userModel.updateOne({userId}, {$set: editUserData})
     }
 
@@ -22,7 +20,6 @@ export class UserRepository {
             { userId: userId },
             { $set: { password: newPassword } }
         );
-        console.log(res)
         return res
     }
     

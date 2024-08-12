@@ -9,6 +9,8 @@ const trainerController = new TrainerController()
 router.post("/signup", trainerController.registerController);
 router.post("/verify", trainerController.otpVerification);
 router.post("/login", trainerController.trainerLogin);
+router.put("/edit-trainer", verifyToken, trainerController.editTrainerData)
+router.patch('/change-trainerpass', verifyToken,trainerController.changeTrainerPassword);
 
 
 export default router

@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { TrainerType } from "../models/trainerModel";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
+import { EditTrainerInterface } from "../interface/EditUserInterface";
 
 
 
@@ -115,6 +116,51 @@ export class TrainerService {
                 trainerData: null,
                 bcryptPass: false
             };
+        }
+    }
+
+
+    async editTrainerService(name: string, phone: string, address: string, gender: string,qualification: string, achivements: string, trainerId: string) {
+        const editTrainerData: EditTrainerInterface = {
+            name,
+            phone,
+            address,
+            gender,
+            achivements,
+            qualification
+        }
+        console.log("Edit trainer service : ", editTrainerData)
+        const res = await this.trainerRepository.editTrainer(editTrainerData, trainerId)
+        
+        if (!res.modifiedCount) {
+            throw new Error("No changes found")
+        }
+        return { message: "Updated successfully" };
+    }
+
+    async verifyPassword(password: string, trainerId: string): Promise<boolean> {
+        try {
+            const trainer = await this.trainerRepository.findEditingData(trainerId);
+            const storedPassword = trainer?.password;
+            const bcryptPass = await bcrypt.compare(password, String(storedPassword));
+            return bcryptPass;
+        } catch (error) {
+            console.error("Error verifying password: ", error);
+            return false;
+        }
+    }
+
+    async changeTrainerPass(newPassword: string, userId: string) {
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            const res = await this.trainerRepository.changePass(hashedPassword, userId);
+            if (res.modifiedCount === 0) {
+                throw new Error("No changes found");
+            }
+            return { success: true, message: "Reset Password successfully" };
+        } catch (error: any) {
+            console.error("Error in reset password: ", error);
+            return { success: false, message: error.message || "Internal server error" };
         }
     }
 }

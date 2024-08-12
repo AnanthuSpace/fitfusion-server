@@ -74,4 +74,45 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
+
+    
+    async editTrainerData(req: CustomRequest, res: Response): Promise<any> {
+        try {
+            console.log(req.body);
+            
+            const { name, phone, address, gender, qualification, achivements } = req.body;
+            const trainerId = req.id as string;
+            console.log(qualification);
+            
+            await trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId);
+            return res.status(200).json({ success: true, message: "Updated successfully" });
+        } catch (error: any) {
+            if (error.message === "No changes found") {
+                return res.status(304).json({ success: false, message: "No changes found" });
+            }
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+
+    async changeTrainerPassword(req: CustomRequest, res: Response): Promise<any> {
+        try {
+            console.log(req.body);
+            console.log(req.id);
+            
+            const { oldPassword, newPassword } = req.body;
+            const userId = req.id as string;
+            const bcryptPass = await trainerService.verifyPassword(oldPassword, userId);
+            if (!bcryptPass) {
+                return res.status(403).json({ success: false, message: "Current password is incorrect" });
+            }
+            const serviceResponse = await trainerService.changeTrainerPass(newPassword, userId);
+            if (serviceResponse.message === "No changes found") {
+                return res.status(304).json({ success: false, message: "No changes found" });
+            }
+            return res.status(200).json({ success: true, message: "Password updated successfully" });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 }

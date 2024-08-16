@@ -19,14 +19,21 @@ export class TrainerRepository {
     }
 
     async changePass(newPassword: string, trainerId: string) {
-        const res =  await trainerModel.updateOne(
+        const res = await trainerModel.updateOne(
             { trainerId: trainerId },
             { $set: { password: newPassword } }
         );
         return res
     }
 
-    async findEditingData(trainerId:string) {
-        return await trainerModel.findOne({ trainerId: trainerId }, {_id:0})
+    async findEditingData(trainerId: string) {
+        return await trainerModel.findOne({ trainerId: trainerId }, { _id: 0 })
     }
+    async profileUpdate(trainerId: string, profileImage: string) {
+        return await trainerModel.updateOne(
+            { trainerId: trainerId },
+            { $set: { profileIMG: profileImage } }
+        );
+    }
+
 }

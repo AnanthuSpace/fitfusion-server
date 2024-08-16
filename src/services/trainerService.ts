@@ -5,6 +5,7 @@ import { v4 } from "uuid";
 import { TrainerType } from "../models/trainerModel";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditTrainerInterface } from "../interface/EditUserInterface";
+import { UpdateResult } from 'mongodb';
 
 
 
@@ -99,6 +100,7 @@ export class TrainerService {
             const bcryptPass = await bcrypt.compare(enteredPassword, hashedPassword);
 
             const verifiedTrainer = trainerData.verified
+            const isBlocked = trainerData.isBlocked
 
 
             const accessToken = generateAccessToken(trainerData.trainerId)
@@ -110,6 +112,7 @@ export class TrainerService {
                 accessToken,
                 refreshToken,
                 verifiedTrainer,
+                isBlocked
             };
         } catch (error) {
             console.error("Error verifying password: ", error);
@@ -121,7 +124,7 @@ export class TrainerService {
     }
 
 
-    async editTrainerService(name: string, phone: string, address: string, gender: string,qualification: string, achivements: string, trainerId: string) {
+    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string) {
         const editTrainerData: EditTrainerInterface = {
             name,
             phone,
@@ -132,7 +135,8 @@ export class TrainerService {
         }
         console.log("Edit trainer service : ", editTrainerData)
         const res = await this.trainerRepository.editTrainer(editTrainerData, trainerId)
-        
+        console.log("Updation : ", res);
+
         if (!res.modifiedCount) {
             throw new Error("No changes found")
         }
@@ -162,6 +166,16 @@ export class TrainerService {
         } catch (error: any) {
             console.error("Error in reset password: ", error);
             return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+    async profileUpdate(trainerId: string, profileImage: string): Promise<UpdateResult | { success: boolean; message: string }> {
+        try {
+            const result = await this.trainerRepository.profileUpdate(trainerId, profileImage);
+            return result;
+        } catch (error: any) {
+            console.error('Error in profile update: ', error);
+            return { success: false, message: error.message || 'Internal server error' };
         }
     }
 }

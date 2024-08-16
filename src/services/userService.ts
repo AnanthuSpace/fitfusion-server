@@ -84,6 +84,10 @@ export class UserService {
         if (!user) {
             return "Invalid email";
         }
+
+        if(user.isBlocked){
+            return "User is blocked by Admin"
+        }
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
         const isMailSended = await sendMail(email, OTP);
         if (isMailSended) {
@@ -166,6 +170,17 @@ export class UserService {
                 throw new Error("No changes found");
             }
             return { success: true, message: "Reset Password successfully" };
+        } catch (error: any) {
+            console.error("Error in reset password: ", error);
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+
+    async fetchTrainers(){
+        try {
+            const trainers = await this.userRepository.fetchTrainers()
+            return trainers
         } catch (error: any) {
             console.error("Error in reset password: ", error);
             return { success: false, message: error.message || "Internal server error" };

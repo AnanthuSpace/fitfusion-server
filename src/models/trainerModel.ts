@@ -15,8 +15,9 @@ type TrainerType = {
     createdAt: Date;
     profileIMG?: string,
     address?: string,
+    achivements?: string,
+    verified: string,
 }
-
 
 
 const trainerSchema = new Schema<TrainerType>({
@@ -67,6 +68,16 @@ const trainerSchema = new Schema<TrainerType>({
         type: Number,
         default: 3
     },
+    achivements: {
+        type: String
+    },
+    qualification: {
+        type: String
+    },
+    verified: {
+        type: String,
+        default: "pending",
+    }
 })
 
 

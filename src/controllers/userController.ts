@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserRepository } from "../repositories/userRepository";
 import { UserService } from "../services/userService";
 import { UserType } from "../models/userModel";
+import { TrainerType } from "../models/trainerModel";
 
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
@@ -51,6 +52,11 @@ export class UserController {
             if (serviceResponse === "Invalid email") {
                 return res.status(400).json({ success: false, message: "User not exist please register" });
             }
+
+            if (serviceResponse === "User is blocked by Admin") {
+                return res.status(400).json({ success: false, message: "User is blocked by Admin" });
+            }
+
             return res.status(200).json({ success: true, message: "OTP sent", data: serviceResponse });
         } catch (error) {
             console.error(error);
@@ -113,18 +119,30 @@ export class UserController {
         }
     }
 
-    async blockeAUser(req: Request, res: Response ): Promise<any> {
+    async blockeAUser(req: Request, res: Response): Promise<any> {
         try {
-            const {userId} = req.body
+            const { userId } = req.body
             console.log(userId)
             const responds = await userRepository.blockUser(userId)
             console.log(responds)
-            if(!responds.modifiedCount){
-                return res.status(304).json({success: false, message: "No change"})
+            if (!responds.modifiedCount) {
+                return res.status(304).json({ success: false, message: "No change" })
             } else {
-                return res.status(200).json({success: true, message: "User blocked"});
+                return res.status(200).json({ success: true, message: "User blocked" });
             }
         } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async fetchTrainers(req: Request, res: Response): Promise<any> {
+        try {
+            const trainers = await userService.fetchTrainers()
+            if(trainers){
+                return res.status(200).json(trainers)
+            }
+        } catch (error: any) {
+            console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }

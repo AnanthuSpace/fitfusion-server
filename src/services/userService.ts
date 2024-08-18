@@ -186,4 +186,14 @@ export class UserService {
             return { success: false, message: error.message || "Internal server error" };
         }
     }
+
+
+    async addUserDetails(userId: string, userDetails: UserType) {
+        try {
+            const result = await this.userRepository.addUserDetails(userId, userDetails)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
 }

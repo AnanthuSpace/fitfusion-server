@@ -7,6 +7,12 @@ type UserType = {
     email: string;
     phone?: string;
     gender?: string;
+    weight?: string;
+    heigth?: string;
+    activityLevel?: string;
+    dietary?: string;
+    goals?: string;
+    medicalDetails?: string;
     password: string;
     isBlocked: boolean;
     profileIMG?: string;
@@ -35,6 +41,24 @@ const userSchema = new Schema<UserType>({
         type: String
     },
     gender: {
+        type: String
+    },
+    weight : {
+        type: String
+    },
+    heigth : {
+        type: String
+    },
+    activityLevel : {
+        type: String
+    },
+    dietary : {
+        type: String
+    },
+    goals : {
+        type: String
+    },
+    medicalDetails : {
         type: String
     },
     password: {

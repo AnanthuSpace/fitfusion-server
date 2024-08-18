@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { UserRepository } from "../repositories/userRepository";
 import { UserService } from "../services/userService";
 import { UserType } from "../models/userModel";
-import { TrainerType } from "../models/trainerModel";
 
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
@@ -138,10 +137,32 @@ export class UserController {
     async fetchTrainers(req: Request, res: Response): Promise<any> {
         try {
             const trainers = await userService.fetchTrainers()
-            if(trainers){
+            if (trainers) {
                 return res.status(200).json(trainers)
             }
         } catch (error: any) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    async addUserDetails(req: CustomRequest, res: Response): Promise<any> {
+        try {
+            const { userDetails } = req.body
+            const userId = req.id as string;
+            const response = await userService.addUserDetails(userId, userDetails)
+            console.log("Controller : ",response);
+            
+            if ('modifiedCount' in response) {
+                if (response.modifiedCount === 0) {
+                    return res.status(304).json({ success: false, message: 'No changes made' });
+                } else {
+                    return res.status(200).json({ success: true, message: 'Profile updated successfully' });
+                }
+            } else {
+                return res.status(500).json({ success: false, message: response.message });
+            }
+        } catch (error) {
             console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
         }

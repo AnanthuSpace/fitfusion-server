@@ -16,6 +16,10 @@ export class UserRepository {
         return await userModel.updateOne({ userId }, { $set: editUserData })
     }
 
+    async addUserDetails(userId: string, userDetails: UserType){
+        return await userModel.updateOne({userId}, {$set: userDetails})
+    }
+
     async changePass(newPassword: string, userId: string) {
         const res = await userModel.updateOne(
             { userId: userId },

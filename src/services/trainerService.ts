@@ -10,12 +10,8 @@ import { UpdateResult } from 'mongodb';
 
 
 export class TrainerService {
-    private trainerRepository: TrainerRepository;
+    private trainerRepository = new TrainerRepository();
     private otpStore: { [key: string]: { otp: string; timestamp: number; trainerData: TrainerType } } = {};
-
-    constructor(trainerRepository: TrainerRepository) {
-        this.trainerRepository = trainerRepository;
-    }
 
 
     async registerTrainerService(trainerData: TrainerType) {

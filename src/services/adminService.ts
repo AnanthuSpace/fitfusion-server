@@ -2,11 +2,9 @@ import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { AdminRepository } from "../repositories/adminRepository";
 
 export class AdminService {
-    private adminRepository: AdminRepository;
+    private adminRepository = new  AdminRepository();
 
-    constructor(adminRepository: AdminRepository) {
-        this.adminRepository = adminRepository;
-    }
+    
 
     async adminLoginService(username: string, password: string) {
         const adminUsername = process.env.ADMIN_USERNAME;

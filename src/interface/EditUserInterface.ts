@@ -3,7 +3,13 @@ export interface EditUserInterface {
     phone: string;
     address: string;
     gender: string;
-    password: string
+    password: string;
+    weight: string;
+    heigth: string;
+    activityLevel: string;
+    dietary: string;
+    goals: string;
+    medicalDetails?: string;
 }
 
 

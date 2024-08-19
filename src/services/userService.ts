@@ -7,12 +7,9 @@ import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditUserInterface } from "../interface/EditUserInterface";
 
 export class UserService {
-    private userRepository: UserRepository;
+    private userRepository = new UserRepository();
     private otpStore: { [key: string]: { otp: string; timestamp: number; userData: UserType } } = {};
 
-    constructor(userRepository: UserRepository) {
-        this.userRepository = userRepository;
-    }
 
     async registerUserService(userData: UserType) {
         const alreadyExists = await this.userRepository.findUser(userData.email);
@@ -21,11 +18,10 @@ export class UserService {
         }
 
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
-        console.log("Generated OTP: ", OTP);
+
         const isMailSended = await sendMail(userData.email, OTP);
         if (isMailSended) {
             this.storeOtp(userData.email, OTP, userData);
-            console.log("OTP stored successfully");
             return OTP;
         } else {
             return "OTP not sent";
@@ -39,11 +35,8 @@ export class UserService {
     }
 
     async otpVerificationService(temperoryEmail: string, otp: string) {
-        console.log("Current OTP store: ", this.otpStore);
-        console.log("Verifying OTP for email: ", temperoryEmail);
 
         const storedData = this.otpStore[temperoryEmail];
-        console.log("storedData: ", storedData);
 
         if (!storedData) {
             throw new Error("Invalid OTP");
@@ -61,7 +54,6 @@ export class UserService {
             throw new Error("Invalid OTP");
         }
 
-        console.log("OTP matched");
 
         const userData = storedData.userData;
         const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -92,7 +84,6 @@ export class UserService {
         const isMailSended = await sendMail(email, OTP);
         if (isMailSended) {
             this.storeOtp(email, OTP, user);
-            console.log("OTP stored successfully");
             return email;
         } else {
             return "OTP not sent";
@@ -133,7 +124,7 @@ export class UserService {
     }
 
 
-    async editUserService(name: string, phone: string, address: string, gender: string, bcryptPass: boolean, password: string, userId: string) {
+    async editUserService(name: string, phone: string, address: string, gender: string, password: string, userId: string, weight: string, heigth: string, activityLevel: string, goals: string, dietary : string, medicalDetails:string) {
         const hashPassword = await bcrypt.hash(password, 10);
         const editUserData: EditUserInterface = {
             name,
@@ -141,6 +132,12 @@ export class UserService {
             address,
             gender,
             password: hashPassword,
+            weight,
+            heigth,
+            activityLevel,
+            goals,
+            dietary,
+            medicalDetails
         }
         console.log("Edit user service : ", editUserData)
         const res = await this.userRepository.editUser(editUserData, userId)
@@ -191,6 +188,15 @@ export class UserService {
     async addUserDetails(userId: string, userDetails: UserType) {
         try {
             const result = await this.userRepository.addUserDetails(userId, userDetails)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+    async blockUser(userId: string) {
+        try {
+            const result = await this.userRepository.blockUser(userId)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || "Internal server error" };

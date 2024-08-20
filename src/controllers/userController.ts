@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import { UserRepository } from "../repositories/userRepository";
 import { UserService } from "../services/userService";
 import { UserType } from "../models/userModel";
 
-const userRepository = new UserRepository();
-const userService = new UserService(userRepository);
+
+const userService = new UserService();
 
 interface CustomRequest extends Request {
     id?: string;
@@ -16,7 +15,6 @@ export class UserController {
             const userData: UserType = req.body;
             const serviceResponse = await userService.registerUserService(userData);
             if (serviceResponse === "UserExist") {
-                console.log(serviceResponse);
                 return res.status(409).json({ success: false, message: "User already exists" });
             } else {
                 return res.status(200).json({ success: true, message: "OTP sent", otp: serviceResponse });
@@ -47,7 +45,7 @@ export class UserController {
         try {
             const email: string = req.body.email;
             const serviceResponse = await userService.userLoginService(email);
-            console.log("response :", serviceResponse);
+            
             if (serviceResponse === "Invalid email") {
                 return res.status(400).json({ success: false, message: "User not exist please register" });
             }
@@ -66,10 +64,9 @@ export class UserController {
     async loginVerify(req: Request, res: Response): Promise<any> {
         try {
             const { temperoryEmail, completeOtp } = req.body;
-            console.log("Email", temperoryEmail);
+            
             const serviceResponse = await userService.userLoginVerificationService(temperoryEmail, completeOtp);
-            console.log(serviceResponse);
-
+        
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
             } else {
@@ -83,14 +80,13 @@ export class UserController {
 
     async editUserData(req: CustomRequest, res: Response): Promise<any> {
         try {
-            const { name, phone, address, gender, password } = req.body;
+            const { name, phone, address, gender, password, weight, heigth, activityLevel, goals, dietary, medicalDetails } = req.body;
             const userId = req.id as string;
             const bcryptPass = await userService.verifyPassword(password, userId);
-            console.log(bcryptPass);
             if (!bcryptPass) {
                 return res.status(403).json({ success: false, message: "Invalid password" });
             }
-            await userService.editUserService(name, phone, address, gender, bcryptPass, password, userId);
+            await userService.editUserService(name, phone, address, gender, password, userId, weight, heigth, activityLevel, goals, dietary, medicalDetails);
             return res.status(200).json({ success: true, message: "Updated successfully" });
         } catch (error: any) {
             if (error.message === "No changes found") {
@@ -121,12 +117,8 @@ export class UserController {
     async blockeAUser(req: Request, res: Response): Promise<any> {
         try {
             const { userId } = req.body
-            console.log(userId)
-            const responds = await userRepository.blockUser(userId)
-            console.log(responds)
-            if (!responds.modifiedCount) {
-                return res.status(304).json({ success: false, message: "No change" })
-            } else {
+            const responds = await userService.blockUser(userId)
+            if (responds) {
                 return res.status(200).json({ success: true, message: "User blocked" });
             }
         } catch (error) {
@@ -151,8 +143,7 @@ export class UserController {
             const { userDetails } = req.body
             const userId = req.id as string;
             const response = await userService.addUserDetails(userId, userDetails)
-            console.log("Controller : ",response);
-            
+
             if ('modifiedCount' in response) {
                 if (response.modifiedCount === 0) {
                     return res.status(304).json({ success: false, message: 'No changes made' });

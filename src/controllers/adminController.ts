@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { AdminService } from "../services/adminService";
-import { AdminRepository } from "../repositories/adminRepository";
+
 
 export class AdminController {
     private adminService: AdminService;
 
     constructor() {
-        const adminRepository = new AdminRepository();
-        this.adminService = new AdminService(adminRepository);
+        
+        this.adminService = new AdminService();
     }
 
     adminLogin = async (req: Request, res: Response): Promise<any> => {

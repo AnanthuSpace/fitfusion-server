@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { TrainerRepository } from "../repositories/trainerRepository";
 import { TrainerService } from "../services/trainerService";
 import { TrainerType } from "../models/trainerModel";
 
 
-const trainerRepository = new TrainerRepository();
-const trainerService = new TrainerService(trainerRepository)
+
+const trainerService = new TrainerService()
 
 interface CustomRequest extends Request {
     id?: string;

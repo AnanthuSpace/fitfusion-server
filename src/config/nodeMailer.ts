@@ -4,6 +4,7 @@ const EMAIL_ID: string = process.env.EMAIL_ID as string;
 const EMAIL_PASS: string = process.env.EMAIL_PASS as string;
 
 export const sendMail = async (email: string, otp: string): Promise<boolean> => {
+    
     const transporter: Transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {

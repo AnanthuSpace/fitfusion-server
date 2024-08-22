@@ -5,6 +5,7 @@ import { v4 } from "uuid";
 import { UserType } from "../models/userModel";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditUserInterface } from "../interface/EditUserInterface";
+import stripe from "../config/stripeConfig";
 
 export class UserService {
     private userRepository = new UserRepository();
@@ -72,6 +73,7 @@ export class UserService {
     }
 
     async userLoginService(email: string) {
+        
         const user = await this.userRepository.findUser(email);
         if (!user) {
             return "Invalid email";
@@ -202,4 +204,19 @@ export class UserService {
             return { success: false, message: error.message || "Internal server error" };
         }
     }
+
+    async createPaymentIntent (trainerId: string, amount: number, userId: string) {
+        try {
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount, 
+            currency: 'usd',
+            metadata: { trainerId },
+          });
+          console.log("paymentIntent : ", paymentIntent);
+          
+          return paymentIntent.client_secret;
+        } catch (error: any) {
+          throw new Error(error.message);
+        }
+      };
 }

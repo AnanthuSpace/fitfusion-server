@@ -41,4 +41,11 @@ export class UserRepository {
     async fetchTrainers() {
         return await trainerModel.find({ verified: 'verified', }, { _id: 0, password: 0 })
     }
+
+    async updateUserAfterPayment(userId: string, trainerId: string): Promise<void> {
+        await userModel.findOneAndUpdate(
+            { userId: userId }, 
+            { $push: { subscribeList: trainerId } }
+        );
+    } 
 }

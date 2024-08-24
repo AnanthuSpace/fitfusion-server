@@ -1,3 +1,5 @@
+import Stripe from "stripe";
+
 export interface EditUserInterface {
     name: string;
     phone: string;
@@ -20,4 +22,13 @@ export interface EditTrainerInterface {
     address: string;
     qualification: string;
     achivements: string;
+    feePerMonth: string;
+    experience: string;
+}
+
+
+export interface PaymentSessionResponse {
+    session: Stripe.Checkout.Session;
+    userData: any; 
+    trainerData: any; 
 }

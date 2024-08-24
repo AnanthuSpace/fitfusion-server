@@ -1,19 +1,29 @@
+import { TrainerRepository } from "../repositories/trainerRepository";
 import { UserRepository } from "../repositories/userRepository";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { UserType } from "../models/userModel";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
-import { EditUserInterface } from "../interface/EditUserInterface";
-import stripe from "../config/stripeConfig";
+import { EditUserInterface, PaymentSessionResponse } from "../interface/EditUserInterface";
+import Stripe from "stripe";
+import dotenv from "dotenv";
+
+
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: '2024-06-20',
+});
 
 export class UserService {
     private userRepository = new UserRepository();
+    private trainerRepository = new TrainerRepository()
     private otpStore: { [key: string]: { otp: string; timestamp: number; userData: UserType } } = {};
 
 
     async registerUserService(userData: UserType) {
-        const alreadyExists = await this.userRepository.findUser(userData.email);
+        const alreadyExists = await this.userRepository.findEditingData(userData.email);
         if (alreadyExists) {
             return "UserExist";
         }
@@ -73,13 +83,13 @@ export class UserService {
     }
 
     async userLoginService(email: string) {
-        
+
         const user = await this.userRepository.findUser(email);
         if (!user) {
             return "Invalid email";
         }
 
-        if(user.isBlocked){
+        if (user.isBlocked) {
             return "User is blocked by Admin"
         }
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
@@ -126,7 +136,7 @@ export class UserService {
     }
 
 
-    async editUserService(name: string, phone: string, address: string, gender: string, password: string, userId: string, weight: string, heigth: string, activityLevel: string, goals: string, dietary : string, medicalDetails:string) {
+    async editUserService(name: string, phone: string, address: string, gender: string, password: string, userId: string, weight: string, heigth: string, activityLevel: string, goals: string, dietary: string, medicalDetails: string) {
         const hashPassword = await bcrypt.hash(password, 10);
         const editUserData: EditUserInterface = {
             name,
@@ -176,10 +186,22 @@ export class UserService {
     }
 
 
-    async fetchTrainers(){
+    async fetchTrainers() {
         try {
             const trainers = await this.userRepository.fetchTrainers()
             return trainers
+        } catch (error: any) {
+            console.error("Error in reset password: ", error);
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+
+    async fetchUserTrainer(userId: string) {
+        try {
+            const trainersData = await this.userRepository.fetchTrainers()
+            const userData = await this.userRepository.findEditingData(userId)
+            return { trainersData, userData}
         } catch (error: any) {
             console.error("Error in reset password: ", error);
             return { success: false, message: error.message || "Internal server error" };
@@ -205,18 +227,40 @@ export class UserService {
         }
     }
 
-    async createPaymentIntent (trainerId: string, amount: number, userId: string) {
-        try {
-          const paymentIntent = await stripe.paymentIntents.create({
-            amount, 
-            currency: 'usd',
-            metadata: { trainerId },
-          });
-          console.log("paymentIntent : ", paymentIntent);
-          
-          return paymentIntent.client_secret;
-        } catch (error: any) {
-          throw new Error(error.message);
+    async createCheckoutSession(trainerId: string, amount: number, userId: string
+    ): Promise<PaymentSessionResponse> {
+        const trainer = await this.trainerRepository.findEditingData(trainerId);
+        if (!trainer) {
+            throw new Error('Trainer not found');
         }
-      };
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            line_items: [
+                {
+                    price_data: {
+                        currency: "usd",
+                        product_data: {
+                            name: "Trainer Subscription",
+                            metadata: { trainerId },
+                        },
+                        unit_amount: amount * 100,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: "payment",
+            success_url: `${process.env.localhostURL}payment-success`,
+            cancel_url: `${process.env.localhostURL}payment-failed`,
+            metadata: {
+                trainerId,
+                userId
+            }
+        });
+
+        const userData = await this.userRepository.updateUserAfterPayment(userId, trainerId);
+        const trainerData = await this.trainerRepository.updateTrainerSubscription(trainerId, userId);
+
+        return { session, userData, trainerData };
+    }
+
 }

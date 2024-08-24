@@ -14,6 +14,7 @@ router.patch('/change-userpass', verifyToken, userController.changeUserPassword)
 router.put('/user-details', verifyToken, userController.addUserDetails)
 router.post('/blockuser', userController.blockeAUser)
 router.get('/fetch-trainers', userController.fetchTrainers)
+router.get('/fetch-user-trainer', userController.fetchUserTrainer)
 router.post('/create-checkout-session', verifyToken,userController.createCheckoutSession)
 
 export default router

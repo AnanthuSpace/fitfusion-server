@@ -88,10 +88,10 @@ export class TrainerController {
         try {
             console.log(req.body);
 
-            const { name, phone, address, gender, qualification, achivements } = req.body;
+            const { name, phone, address, gender, qualification, achivements, feePerMonth, experience } = req.body;
             const trainerId = req.id as string;
 
-            const data = await trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId);
+            const data = await trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience );
             console.log("Data : ", data);
 
             return res.status(200).json({ success: true, message: "Updated successfully" });

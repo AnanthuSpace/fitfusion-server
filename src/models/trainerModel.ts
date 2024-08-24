@@ -17,6 +17,10 @@ type TrainerType = {
     address?: string,
     achivements?: string,
     verified: string,
+    feePerMonth?: string,
+    payedUsers?: string[],
+    experience?: string,
+    subscribedUsers?: string[]
 }
 
 
@@ -77,7 +81,20 @@ const trainerSchema = new Schema<TrainerType>({
     verified: {
         type: String,
         default: "pending",
-    }
+    },
+    feePerMonth: {
+        type: String,
+    },
+    payedUsers: [{
+        type: String,
+    }],
+    experience: {
+        type: String
+    },
+    subscribedUsers: [{
+        type: String,
+        unique: true
+    }],
 })
 
 

@@ -36,4 +36,11 @@ export class TrainerRepository {
         );
     }
 
+    async updateTrainerSubscription(trainerId: string, userId: string): Promise<void> {
+        await trainerModel.findOneAndUpdate(
+            { trainerId: trainerId }, 
+            { $push: { subscribedUsers: userId } }
+        );
+    }
+    
 }

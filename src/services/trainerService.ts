@@ -120,14 +120,16 @@ export class TrainerService {
     }
 
 
-    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string) {
+    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string ) {
         const editTrainerData: EditTrainerInterface = {
             name,
             phone,
             address,
             gender,
             achivements,
-            qualification
+            qualification,
+            feePerMonth,
+            experience
         }
         console.log("Edit trainer service : ", editTrainerData)
         const res = await this.trainerRepository.editTrainer(editTrainerData, trainerId)

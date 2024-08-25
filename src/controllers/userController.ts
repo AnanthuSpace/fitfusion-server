@@ -1,14 +1,7 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { UserType } from "../models/userModel";
-import Stripe from "stripe";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-    apiVersion: '2024-06-20',
-  });
 
 const userService = new UserService();
 
@@ -145,6 +138,17 @@ export class UserController {
         }
     }
 
+    async fetchUserTrainer(req: CustomRequest, res: Response): Promise<any> {
+        try {
+            const userId = req.id as string
+            const response = await userService.fetchUserTrainer(userId)
+            return res.status(200).json(response)
+        } catch (error: any) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
     async addUserDetails(req: CustomRequest, res: Response): Promise<any> {
         try {
             const { userDetails } = req.body
@@ -166,48 +170,22 @@ export class UserController {
         }
     }
 
-    async createPayment(req: CustomRequest, res: Response) {
+
+    async createCheckoutSession(req: CustomRequest, res: Response): Promise<void> {
         try {
             const { trainerId, amount }: { trainerId: string; amount: number } = req.body;
             const userId = req.id as string;
-            const clientSecret = await userService.createPaymentIntent(trainerId, amount, userId);
-            res.send({ clientSecret });
+
+            const result = await userService.createCheckoutSession(trainerId, amount, userId);
+
+            res.status(200).json({ sessionId: result.session.id, trainerData: result.trainerData, userData: result.userData });
         } catch (error: any) {
-            res.status(500).send({
-                message: 'Failed to create payment intent',
+            console.log(error);
+
+            res.status(500).json({
+                message: "Failed to create checkout session",
                 error: error.message,
             });
         }
-    };
-
-    async createCheckoutSession(req: CustomRequest, res: Response) {
-        try {
-          const { trainerId, amount }: { trainerId: string; amount: number } = req.body;
-          const session = await stripe.checkout.sessions.create({
-            payment_method_types: ["card"],
-            line_items: [
-              {
-                price_data: {
-                  currency: "usd",
-                  product_data: {
-                    name: "Trainer Subscription",
-                    metadata: { trainerId },
-                  },
-                  unit_amount: amount * 100, 
-                },
-                quantity: 1,
-              },
-            ],
-            mode: "payment",
-            success_url: `${process.env.localhostURL}trainer-view/${trainerId}`,
-            cancel_url: `${process.env.localhostURL}/cancel`,
-          });
-          res.send({ sessionId: session.id });
-        } catch (error: any) {
-          res.status(500).send({
-            message: "Failed to create checkout session",
-            error: error.message,
-          });
-        }
-      }
+    }
 }

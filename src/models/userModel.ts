@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 
 
 type UserType = {
@@ -19,6 +19,7 @@ type UserType = {
     address?: string;
     createdAt: Date;
     followed?: string[];
+    subscribeList?: string[];
 };
 
 
@@ -80,6 +81,9 @@ const userSchema = new Schema<UserType>({
         default: Date.now
     },
     followed: [{
+        type: String
+    }],
+    subscribeList: [{
         type: String
     }]
 });

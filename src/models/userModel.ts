@@ -20,6 +20,7 @@ type UserType = {
     createdAt: Date;
     followed?: string[];
     subscribeList?: string[];
+    alreadychattedTrainers?: string [];
 };
 
 
@@ -84,6 +85,9 @@ const userSchema = new Schema<UserType>({
         type: String
     }],
     subscribeList: [{
+        type: String
+    }],
+    alreadychattedTrainers: [{
         type: String
     }]
 });

@@ -42,5 +42,17 @@ export class TrainerRepository {
             { $push: { subscribedUsers: userId } }
         );
     }
+
+
+    async addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string) {
+        try {
+          return await trainerModel.updateOne(
+            { trainerId: trainerId }, 
+            { $addToSet: { alreadychattedUsers: userId } } 
+          );
+        } catch (error: any) {
+          throw new Error(`Error adding connection: ${error.message}`);
+        }
+      }
     
 }

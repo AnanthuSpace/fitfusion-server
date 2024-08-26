@@ -65,8 +65,9 @@ export class UserController {
         try {
             const { temperoryEmail, completeOtp } = req.body;
 
+            console.log(temperoryEmail);
             const serviceResponse = await userService.userLoginVerificationService(temperoryEmail, completeOtp);
-
+            
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
             } else {

@@ -29,6 +29,25 @@ export interface EditTrainerInterface {
 
 export interface PaymentSessionResponse {
     session: Stripe.Checkout.Session;
-    userData: any; 
-    trainerData: any; 
+    userData: any;
+    trainerData: any;
+}
+
+
+export interface MessageType {
+    chatMembers: string[];
+    details: {
+        senderID: string;
+        receiverID: string;
+        messages: string;
+        time?: Date;
+    }[];
+}
+
+
+export interface MessageDetailType {
+    senderID: string;
+    receiverID: string;
+    messages: string;
+    time?: Date;
 }

@@ -1,34 +1,52 @@
-import { Server as SocketIOServer, Socket } from 'socket.io';
-import chatService from '../services/chatService';
+import { Server as SocketServer } from "socket.io";
+import { Server as HttpServer } from "http";
+import { ChatService } from "../services/chatService";
 
-export default (io: SocketIOServer) => {
-  io.on('connection', (socket: Socket) => {
+const chatServiceInstance = new ChatService(); 
+let io: SocketServer;
+
+const configSocketIO = (server: HttpServer) => {
+  io = new SocketServer(server, {
+    cors: {
+      origin: "http://localhost:5173",
+      methods: ["GET", "POST"],
+    },
+  });
+
+  io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    socket.on('join_room', (room: string) => {
-      socket.join(room);
-      console.log(`User with ID: ${socket.id} joined room: ${room}`);
+    socket.on("joinChatRoom", ({ senderID, receiverID }) => {
+      const roomName = [senderID, receiverID].sort().join("-");
+      socket.join(roomName);
+      console.log(`User ${senderID} joined room: ${roomName}`);
     });
 
-    socket.on('send_message', async (data: { chatId: string; sender: 'user' | 'trainer'; text: string; room: string; }) => {
-      const { chatId, sender, text, room } = data;
-
+    socket.on("sendMessage", async ({ messageDetails, firstTimeChat }) => {
       try {
-        const updatedChat = await chatService.sendMessage(chatId, sender, text);
-
-        if (updatedChat && updatedChat.messages.length > 0) {
-          const lastMessage = updatedChat.messages[updatedChat.messages.length - 1];
-          io.to(room).emit('receive_message', lastMessage);
+        let savedMessage: any = null;
+        if (firstTimeChat === true) {
+          const connectionDetails: any = await chatServiceInstance.createConnectionAndSaveMessageService(messageDetails);
+          savedMessage = connectionDetails?.details[0];
         } else {
-          console.error('Failed to update chat or chat is empty.');
+          savedMessage = await chatServiceInstance.saveNewChatService(messageDetails.senderID, messageDetails.receiverID, messageDetails.message);
         }
+        const chatRoom = [messageDetails.senderID, messageDetails.receiverID].sort().join("-");
+        io.to(chatRoom).emit("receiveMessage", savedMessage);
       } catch (error) {
-        console.error('Error sending message:', error);
+        console.error(error);
       }
     });
 
-    socket.on('disconnect', () => {
+    socket.on("joinTrainerNoficationRoom", (trainnerId) => {
+      socket.join(`TrainerNotificaionRoom${trainnerId}`);
+      console.log(`Trainer ${trainnerId} joined his notification room`);
+    });
+
+    socket.on("disconnect", () => {
       console.log(`User disconnected: ${socket.id}`);
     });
   });
 };
+
+export { configSocketIO, io };

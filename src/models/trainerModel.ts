@@ -20,7 +20,8 @@ type TrainerType = {
     feePerMonth?: string,
     payedUsers?: string[],
     experience?: string,
-    subscribedUsers?: string[]
+    subscribedUsers?: string[],
+    alreadychattedUsers?: string[]
 }
 
 
@@ -95,6 +96,9 @@ const trainerSchema = new Schema<TrainerType>({
         type: String,
         unique: true
     }],
+    alreadychattedUsers: [{
+        type: String
+    }]
 })
 
 

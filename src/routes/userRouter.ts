@@ -12,9 +12,9 @@ router.post("/login-verify", userController.loginVerify);
 router.put('/edit-user', verifyToken, userController.editUserData);
 router.patch('/change-userpass', verifyToken, userController.changeUserPassword);
 router.put('/user-details', verifyToken, userController.addUserDetails)
-router.post('/blockuser', userController.blockeAUser)
+router.post('/blockuser',  userController.blockeAUser)
 router.get('/fetch-trainers', userController.fetchTrainers)
-router.get('/fetch-user-trainer', userController.fetchUserTrainer)
+router.get('/fetch-user-trainer', verifyToken, userController.fetchUserTrainer)
 router.post('/create-checkout-session', verifyToken,userController.createCheckoutSession)
 
 export default router

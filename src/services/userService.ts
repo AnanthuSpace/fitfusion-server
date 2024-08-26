@@ -197,18 +197,8 @@ export class UserService {
     }
 
 
-    async fetchUserTrainer(userId: string) {
-        try {
-            const trainersData = await this.userRepository.fetchTrainers()
-            const userData = await this.userRepository.findEditingData(userId)
-            return { trainersData, userData}
-        } catch (error: any) {
-            console.error("Error in reset password: ", error);
-            return { success: false, message: error.message || "Internal server error" };
-        }
-    }
-
-
+    
+    
     async addUserDetails(userId: string, userDetails: UserType) {
         try {
             const result = await this.userRepository.addUserDetails(userId, userDetails)
@@ -217,7 +207,7 @@ export class UserService {
             return { success: false, message: error.message || "Internal server error" };
         }
     }
-
+    
     async blockUser(userId: string) {
         try {
             const result = await this.userRepository.blockUser(userId)
@@ -259,8 +249,22 @@ export class UserService {
 
         const userData = await this.userRepository.updateUserAfterPayment(userId, trainerId);
         const trainerData = await this.trainerRepository.updateTrainerSubscription(trainerId, userId);
-
+        
         return { session, userData, trainerData };
     }
+
+
+
+    async fetchUserTrainer(userId: string) {
+        try {
+            const trainersData = await this.userRepository.fetchTrainers()
+            const userData = await this.userRepository.fetchUser(userId)
+            return { trainersData, userData }
+        } catch (error: any) {
+            console.error("Error in reset password: ", error);
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
 
 }

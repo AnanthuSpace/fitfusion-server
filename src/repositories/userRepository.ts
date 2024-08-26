@@ -8,6 +8,10 @@ export class UserRepository {
         return await userModel.findOne({ email: email }, { _id: 0 })
     }
 
+    async fetchUser(userId: string) {
+        return await userModel.findOne({ userId: userId }, { _id: 0 })
+    }
+
     async registerUser(userData: UserType) {
         return await userModel.create(userData)
     }
@@ -48,4 +52,17 @@ export class UserRepository {
             { $push: { subscribeList: trainerId } }
         );
     } 
+
+
+    async addNewConnectionToAlreadyChattedTrainerListRepository(userId: string, trainerId: string) {
+        try {
+          return await userModel.updateOne(
+            { userId: userId }, 
+            { $addToSet: { alreadychattedTrainers: trainerId } } 
+          );
+        } catch (error: any) {
+          throw new Error(`Error adding connection: ${error.message}`);
+        }
+      }
+      
 }

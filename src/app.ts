@@ -6,25 +6,19 @@ import adminRouter from './routes/adminRouter';
 import trainRouter from './routes/trainerRouter';
 import chatRouter from './routes/chatRoutes';  
 import { dbConnection } from './config/dbConfig';
-
 import cors from 'cors';
 import http from 'http';
-import { Server as SocketIOServer } from 'socket.io';
-import socketConfig from './config/socketConfig';
+import { configSocketIO } from './config/socketConfig'; // Ensure this is correctly imported
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: "http://localhost:5173", 
-    methods: ["GET", "POST"],
-  },
-});
 
+// Database connection
 dbConnection();
 
+// CORS configuration
 const corsOptions = {
   origin: 'http://localhost:5173',
   optionsSuccessStatus: 200
@@ -34,15 +28,16 @@ app.use(express.static("public"));
 app.use(cors(corsOptions));
 app.use(express.json());
 
-
+// Routes
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
 app.use('/trainer', trainRouter);
 app.use('/chat', chatRouter); 
 
+// Initialize Socket.IO
+configSocketIO(server);  // Correct function name
 
-socketConfig(io);
-
+// Start the server
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

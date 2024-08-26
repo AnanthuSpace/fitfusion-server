@@ -1,44 +1,37 @@
 import { Schema, model, Document } from "mongoose";
 
 interface ChatType extends Document {
-  userId: string;
-  trainerId: string;
-  messages: {
-    sender: 'user' | 'trainer';
-    text: string;
-    timestamp: Date;
+  chatMembers?: string[];
+  details: {
+    senderID: string;
+    receiverID: string;
+    messages: string;
+    time?: Date;
   }[];
-  createdAt: Date;
+  createdAt?: Date;
 }
 
 const chatSchema = new Schema<ChatType>({
-  userId: {
-    type: String,
-    ref: 'User',
-    required: true,
-  },
-  trainerId: {
-    type: String,
-    ref: 'Trainer',
-    required: true,
-  },
-  messages: [
+  chatMembers: [
     {
-      sender: {
-        type: String,
-        enum: ['user', 'trainer'],
-        required: true,
-      },
-      text: {
-        type: String,
-        required: true,
-      },
-      timestamp: {
-        type: Date,
-        default: Date.now,
-      },
-    },
+      type: String,
+    }
   ],
+  details: [{
+    senderID: {
+      type: String,
+    },
+    receiverID: {
+      type: String,
+    },
+    messages: {
+      type: String,
+    },
+    time: {
+      type: Date,
+      default: Date.now,
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

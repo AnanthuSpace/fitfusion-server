@@ -1,5 +1,5 @@
 import { ChatType, chatModel } from "../models/chatModal";
-import { MessageType, MessageDetailType } from "../interface/EditUserInterface";
+import { MessageType, MessageDetailType } from "../Interfaces";
 
 export class ChatRepository {
   async createChat(userId: string, trainerId: string): Promise<ChatType> {

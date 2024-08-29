@@ -14,7 +14,6 @@ export interface EditUserInterface {
     medicalDetails?: string;
 }
 
-
 export interface EditTrainerInterface {
     name: string;
     phone: string;
@@ -26,13 +25,11 @@ export interface EditTrainerInterface {
     experience: string;
 }
 
-
 export interface PaymentSessionResponse {
     session: Stripe.Checkout.Session;
     userData: any;
     trainerData: any;
 }
-
 
 export interface MessageType {
     chatMembers: string[];
@@ -44,10 +41,22 @@ export interface MessageType {
     }[];
 }
 
-
 export interface MessageDetailType {
     senderID: string;
     receiverID: string;
     messages: string;
     time?: Date;
 }
+
+export interface IMeal {
+    mealTime: string;
+    items: string[];
+}
+
+export interface IDietPlan {
+    trainerId: string;
+    dietName: string;
+    description: string;
+    meals?: IMeal[];
+}
+

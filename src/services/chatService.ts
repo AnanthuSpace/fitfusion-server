@@ -1,7 +1,7 @@
 import { ChatRepository } from '../repositories/chatRepository';
 import { TrainerRepository } from '../repositories/trainerRepository';
 import { UserRepository } from '../repositories/userRepository';
-import { MessageType } from '../interface/EditUserInterface';
+import { MessageType } from '../Interfaces';
 
 
 export class ChatService {

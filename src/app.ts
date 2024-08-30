@@ -8,36 +8,40 @@ import chatRouter from './routes/chatRoutes';
 import { dbConnection } from './config/dbConfig';
 import cors from 'cors';
 import http from 'http';
-import { configSocketIO } from './config/socketConfig'; // Ensure this is correctly imported
-
+// import { configSocketIO } from './config/socketConfig'; 
+import { configureSocket } from './config/socketConfig';
+import { Request, Response } from 'express';
 const app = express();
+const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 
-const server = http.createServer(app);
+configureSocket(server);
 
-// Database connection
 dbConnection();
 
-// CORS configuration
-const corsOptions = {
-  origin: 'http://localhost:5173',
-  optionsSuccessStatus: 200
-};
+
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST'],
+  credentials: true,
+}));
+
+// app.use(cors(corsOptions));
+
 
 app.use(express.static("public"));
-app.use(cors(corsOptions));
 app.use(express.json());
 
-// Routes
+
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
 app.use('/trainer', trainRouter);
 app.use('/chat', chatRouter); 
 
-// Initialize Socket.IO
-configSocketIO(server);  // Correct function name
 
-// Start the server
+// configSocketIO(server);  
+
+
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

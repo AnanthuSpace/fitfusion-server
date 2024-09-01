@@ -15,7 +15,7 @@ router.patch('/change-trainerpass', verifyToken,trainerController.changeTrainerP
 router.post('/customers', verifyToken,trainerController.fetchCustomer);
 router.post('/add-diet', verifyToken,trainerController.addDietPlan);
 router.get('/fetch-deit', verifyToken,trainerController.fetchDeitPlans);
-router.get('/getUsersByIds', verifyToken,trainerController.fetchDeitPlans);
+router.post('/getUsersByIds', verifyToken,trainerController.fetchAlreadyChatted);
 // router.post('/instent-chat-with-user', verifyToken,trainerController.instantChatWithCustomer);
 
 

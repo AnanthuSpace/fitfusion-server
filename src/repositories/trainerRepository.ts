@@ -91,4 +91,15 @@ export class TrainerRepository {
         }
     }
 
+    async fetchAlreadyChatted(alreadyChatted : string[] ) {
+        try {
+            const users = await userModel.find(
+                { userId: { $in: alreadyChatted } }, 
+                { _id:0, name: 1, userId: 1 } 
+            );
+            return users
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
+        }
+    }
 }

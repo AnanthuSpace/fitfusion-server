@@ -209,4 +209,13 @@ export class TrainerService {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+
+    async fetchAlreadyChatted(alreadyChatted: string[]) {
+        try {
+            const users = await this.trainerRepository.fetchAlreadyChatted( alreadyChatted );
+            return users 
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
 }

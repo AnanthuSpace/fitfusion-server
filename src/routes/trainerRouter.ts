@@ -3,7 +3,6 @@ import { verifyToken } from "../config/jwtConfig";
 import { TrainerController } from "../controllers/trainerController";
 import upload from "../config/multerConfig";
 
-
 const router = Router()
 const trainerController = new TrainerController()
 
@@ -16,6 +15,8 @@ router.patch('/change-trainerpass', verifyToken,trainerController.changeTrainerP
 router.post('/customers', verifyToken,trainerController.fetchCustomer);
 router.post('/add-diet', verifyToken,trainerController.addDietPlan);
 router.get('/fetch-deit', verifyToken,trainerController.fetchDeitPlans);
+router.get('/getUsersByIds', verifyToken,trainerController.fetchDeitPlans);
+// router.post('/instent-chat-with-user', verifyToken,trainerController.instantChatWithCustomer);
 
 
 export default router

@@ -34,16 +34,16 @@ export interface PaymentSessionResponse {
 export interface MessageType {
     chatMembers: string[];
     details: {
-        senderID: string;
-        receiverID: string;
+        senderId: string;
+        receiverId: string;
         messages: string;
         time?: Date;
     }[];
 }
 
 export interface MessageDetailType {
-    senderID: string;
-    receiverID: string;
+    senderId: string;
+    receiverId: string;
     messages: string;
     time?: Date;
 }

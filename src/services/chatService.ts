@@ -1,70 +1,66 @@
-// import { ChatRepository } from '../repositories/chatRepository';
-// import { TrainerRepository } from '../repositories/trainerRepository';
-// import { UserRepository } from '../repositories/userRepository';
-// import { MessageType } from '../Interfaces';
+import { ChatRepository } from '../repositories/chatRepository';
+import { TrainerRepository } from '../repositories/trainerRepository';
+import { UserRepository } from '../repositories/userRepository';
+import { MessageType, MessageDetailType } from '../Interfaces';
 
 
-// export class ChatService {
+class ChatService {
 
-//   private chatRepository: ChatRepository;
-//   private userRepository: UserRepository;
-//   private trainerRepository: TrainerRepository;
+    private chatRepository: ChatRepository;
+    private userRepository: UserRepository;
+    private trainerRepository: TrainerRepository;
 
-//   constructor() {
-//     this.chatRepository = new ChatRepository();
-//     this.userRepository = new UserRepository();
-//     this.trainerRepository = new TrainerRepository();
-//   }
+    constructor() {
+        this.chatRepository = new ChatRepository();
+        this.userRepository = new UserRepository();
+        this.trainerRepository = new TrainerRepository();
+    }
 
-//   async fetchChat(senderId: string, receiverId: string) {
-//     return await this.chatRepository.getMessages(senderId, receiverId);
-//   }
+      async fetchChat(senderId: string, receiverId: string) {
+        try {
+            const result =  await this.chatRepository.getMessages(senderId, receiverId);
+            return result
+        } catch (error) {
+            throw error;
+        }
+      }
 
-//   async saveNewChatService(senderID: string, receiverID: string, message: string) {
-//     try {
-//       const newMessageDetails: MessageType = {
-//         chatMembers: [senderID, receiverID],  
-//         details: [
-//           {
-//             senderID: senderID,
-//             receiverID: receiverID,
-//             messages: message,
-//             time: new Date()  
-//           }
-//         ]
-//       };
-  
-//       await this.chatRepository.saveNewChatRepository(newMessageDetails);
-//       return newMessageDetails;
-//     } catch (error) {
-//       throw error;
-//     }
-//   }
-  
-//   async createConnectionAndSaveMessageService(messageDetails: MessageType) {
-//     try {
-//       const newChatDocument: MessageType = {
-//         chatMembers: [messageDetails.details[0].senderID, messageDetails.details[0].receiverID],
-//         details: [{
-//           senderID: messageDetails.details[0].senderID,
-//           receiverID: messageDetails.details[0].receiverID,
-//           messages: messageDetails.details[0].messages,
-//           time: new Date()
-//         }]
-//       };
+      async saveMessageService(senderID: string, receiverID: string, message: string) {
+        try {
+          const newMessageDetails: MessageDetailType = {
+                senderId: senderID,
+                receiverId: receiverID,
+                messages: message,
+                time: new Date()  
+          };
 
-//       const connectionDetails = this.chatRepository.createConnectionAndSaveMessageRepository(newChatDocument);
+          await this.chatRepository.saveNewChatRepository(newMessageDetails);
+          return newMessageDetails;
+        } catch (error) {
+          throw error;
+        }
+      }
 
-//       await Promise.all([
-//         this.userRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].receiverID, newChatDocument.details[0].senderID),
-//         this.trainerRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].receiverID, newChatDocument.details[0].senderID),
-//         connectionDetails
-//       ]);
+    async createConnectionAndSaveMessageService(message: Omit<MessageType, 'chatMembers'>) {
+        try {
+            
+            const newChatDocument: MessageType = {
+                chatMembers: [message.details[0].senderId, message.details[0].receiverId], 
+                details: message.details 
+            };
 
-//       return connectionDetails;
-//     } catch (error) {
-//       return error;
-//     }
-//   }
+            const connectionDetails = await Promise.all([
+                this.userRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].receiverId, newChatDocument.details[0].senderId),
+                this.trainerRepository.addNewConnectionToAlreadyChattedTrainerListRepository( newChatDocument.details[0].senderId, newChatDocument.details[0].receiverId),
+                this.chatRepository.createConnectionAndSaveMessageRepository(newChatDocument)
+            ]);
 
-// }
+            return connectionDetails;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+}
+
+export default ChatService;

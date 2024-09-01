@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { UserType } from "../models/userModel";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
-import { EditUserInterface, PaymentSessionResponse } from "../interface/EditUserInterface";
+import { EditUserInterface, PaymentSessionResponse } from "../Interfaces";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 

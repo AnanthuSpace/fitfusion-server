@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { TrainerType } from "../models/trainerModel";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
-import { EditTrainerInterface } from "../interface/EditUserInterface";
+import { EditTrainerInterface, IDietPlan } from "../Interfaces";
 import { UpdateResult } from 'mongodb';
 
 
@@ -120,7 +120,7 @@ export class TrainerService {
     }
 
 
-    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string ) {
+    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string) {
         const editTrainerData: EditTrainerInterface = {
             name,
             phone,
@@ -173,6 +173,39 @@ export class TrainerService {
             return result;
         } catch (error: any) {
             console.error('Error in profile update: ', error);
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+
+    async fetchCustomer(userIds: string[]) {
+        try {
+            const result = await this.trainerRepository.fetchCustomer(userIds)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async fetchDeitPlans(trainerId: string) {
+        try {
+            const result = await this.trainerRepository.fetchDeitPlans(trainerId)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+    
+    async addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, 'trainerId'>) {
+        try {
+            const existed = this.trainerRepository.existedDiet(trainerId, dietPlan.dietName)
+            if (!existed) {
+                const result = this.trainerRepository.AddDietPlan({ ...dietPlan, trainerId })
+                return result;
+            } else {
+                throw new Error('A diet plan with this name already exists for this trainer');
+            }
+        } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }

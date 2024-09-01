@@ -2,22 +2,17 @@ import { Request, Response } from "express";
 import { TrainerService } from "../services/trainerService";
 import { TrainerType } from "../models/trainerModel";
 
-
-
 const trainerService = new TrainerService()
 
 interface CustomRequest extends Request {
     id?: string;
 }
 
-
 export class TrainerController {
     async registerController(req: Request, res: Response): Promise<any> {
         try {
             const trainerData: TrainerType = req.body;
-
             const serviceResponse = await trainerService.registerTrainerService(trainerData);
-
             if (serviceResponse === "UserExist") {
                 console.log(serviceResponse);
                 return res.status(409).json({ success: false, message: "User already exists" });
@@ -30,14 +25,10 @@ export class TrainerController {
         }
     }
 
-
     async otpVerification(req: Request, res: Response): Promise<any> {
         try {
             const { temperoryEmail, completeOtp } = req.body;
-            console.log("hi", temperoryEmail, completeOtp);
-
             const serviceResponse = await trainerService.otpVerificationService(temperoryEmail, completeOtp);
-
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
             } else {
@@ -51,49 +42,35 @@ export class TrainerController {
 
     async trainerLogin(req: Request, res: Response): Promise<any> {
         try {
-            console.log(req.body);
-
             const { email, password } = req.body
             const serviceResponse = await trainerService.trainerLoginService(email, password)
-
             if (serviceResponse.trainerNotExisted) {
                 return res.status(403).json({ success: false, message: "Invalid email id" });
             }
-
             if (serviceResponse.isBlocked) {
                 return res.status(403).json({ success: false, message: "Trainer is Blocked by admin" });
             }
-
             if (!serviceResponse.bcryptPass) {
                 return res.status(403).json({ success: false, message: "Incorrect password" });
             }
-
             if (serviceResponse.verifiedTrainer === "pending") {
                 return res.status(403).json({ success: false, message: "Please wait for the verification" });
             }
-
             if (serviceResponse.verifiedTrainer === "rejected") {
                 return res.status(403).json({ success: false, message: "You are rejected by Admin" });
             }
-
-
             return res.status(200).json({ success: true, message: "Login successfull", trainerData: serviceResponse.trainerData, accessToken: serviceResponse.accessToken, refreshToken: serviceResponse.refreshToken });
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
 
-
     async editTrainerData(req: CustomRequest, res: Response): Promise<any> {
         try {
-            console.log(req.body);
-
             const { name, phone, address, gender, qualification, achivements, feePerMonth, experience } = req.body;
             const trainerId = req.id as string;
-
-            const data = await trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience );
+            const data = await trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience);
             console.log("Data : ", data);
-
             return res.status(200).json({ success: true, message: "Updated successfully" });
         } catch (error: any) {
             if (error.message === "No changes found") {
@@ -103,12 +80,8 @@ export class TrainerController {
         }
     }
 
-
     async changeTrainerPassword(req: CustomRequest, res: Response): Promise<any> {
         try {
-            console.log(req.body);
-            console.log(req.id);
-
             const { oldPassword, newPassword } = req.body;
             const userId = req.id as string;
             const bcryptPass = await trainerService.verifyPassword(oldPassword, userId);
@@ -125,18 +98,14 @@ export class TrainerController {
         }
     }
 
-
     async profileUpdate(req: CustomRequest, res: Response): Promise<any> {
         try {
             const trainerId = req.id as string;
             const profileImage = req.file?.filename;
-
             if (!profileImage) {
                 return res.status(400).json({ success: false, message: 'No profile image uploaded' });
             }
-
             const response = await trainerService.profileUpdate(trainerId, profileImage);
-
             if ('modifiedCount' in response) {
                 if (response.modifiedCount === 0) {
                     return res.status(304).json({ success: false, message: 'No changes made' });
@@ -152,4 +121,52 @@ export class TrainerController {
         }
     }
 
+    async fetchCustomer(req: Request, res: Response) {
+        try {
+            const { userIds } = req.body
+            const response = await trainerService.fetchCustomer(userIds)
+            console.log("Response : ", response);
+            return res.status(200).json({ success: true, message: 'Fetch Customers', customers: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    async fetchDeitPlans(req: CustomRequest, res: Response) {
+        try {
+            const trainerId = req.id as string;
+            const response = await trainerService.fetchDeitPlans(trainerId)
+            return res.status(200).json({ success: true, message: 'Fetch Diets', diet: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    async addDietPlan(req: CustomRequest, res: Response) {
+        try {
+            const trainerId = req.id as string;
+            const { dietPlan } = req.body
+            const response = await trainerService.addDietPlan(trainerId, dietPlan)
+            if ('_id' in response) {
+                const { _id, ...responseWithoutId } = response;
+                return res.status(200).json({
+                    success: true,
+                    data: responseWithoutId,
+                    message: 'Diet plan added successfully',
+                });
+            }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+//    async instantChatWithCustomer( req: CustomRequest, res: Response) {
+//     try {
+//         const trainerId = req.id as string
+//         const { userId } = req.body
+//         // const response = await trainerService.instantChatWithCustomer()
+//     } catch (error) {
+//         return res.status(500).json({ success: false, message: 'Internal server error' });
+//     }
+//    }
 }

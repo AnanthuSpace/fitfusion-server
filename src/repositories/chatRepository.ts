@@ -1,5 +1,5 @@
 import { ChatType, chatModel } from "../models/chatModal";
-import { MessageType, MessageDetailType } from "../interface/EditUserInterface";
+import { MessageType, MessageDetailType } from "../Interfaces";
 
 export class ChatRepository {
   async createChat(userId: string, trainerId: string): Promise<ChatType> {
@@ -12,18 +12,15 @@ export class ChatRepository {
   }
 
   async getMessages(senderId: string, receiverId: string): Promise<MessageDetailType[]> {
-    const chat = await chatModel
-      .findOne({ chatMembers: { $all: [senderId, receiverId] } })
-      .select('details')
-      .exec();
+    const chat = await chatModel.findOne({ chatMembers: { $all: [senderId, receiverId] } })
     return chat ? chat.details : [];
   }
 
-  async saveNewChatRepository(newMessageDetails: MessageType) {
+  async saveNewChatRepository(newMessageDetails: MessageDetailType) {
     try {
       return chatModel.updateOne(
-        { chatMembers: { $all: [newMessageDetails.chatMembers[0], newMessageDetails.chatMembers[1]] } },
-        { $push: { details: newMessageDetails.details[0] } },
+        { chatMembers: { $all: [newMessageDetails.senderId, newMessageDetails.receiverId] } },
+        { $push: { details: newMessageDetails } },
         { upsert: true }
       );
     } catch (error) {

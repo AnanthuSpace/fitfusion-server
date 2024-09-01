@@ -1,14 +1,14 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 
-interface ChatType extends Document {
+interface ChatType {
   chatMembers?: string[];
   details: {
-    senderID: string;
-    receiverID: string;
+    senderId: string;
+    receiverId: string;
     messages: string;
     time?: Date;
   }[];
-  createdAt?: Date;
+  createdAt: Date;
 }
 
 const chatSchema = new Schema<ChatType>({
@@ -18,10 +18,10 @@ const chatSchema = new Schema<ChatType>({
     }
   ],
   details: [{
-    senderID: {
+    senderId: {
       type: String,
     },
-    receiverID: {
+    receiverId: {
       type: String,
     },
     messages: {
@@ -32,12 +32,10 @@ const chatSchema = new Schema<ChatType>({
       default: Date.now,
     }
   }],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  createdAt: { type: Date, default: Date.now }
 });
 
 const chatModel = model<ChatType>("Chat", chatSchema);
 
 export { chatModel, ChatType };
+

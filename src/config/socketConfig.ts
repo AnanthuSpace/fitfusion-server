@@ -1,52 +1,65 @@
-import { Server as SocketServer } from "socket.io";
-import { Server as HttpServer } from "http";
-import { ChatService } from "../services/chatService";
+import { Server as SocketIOServer, Socket } from "socket.io";
+import http from "http";
+import ChatService from "../services/chatService";
 
-const chatServiceInstance = new ChatService(); 
-let io: SocketServer;
-
-const configSocketIO = (server: HttpServer) => {
-  io = new SocketServer(server, {
+export const configureSocket = (server: http.Server) => {
+  const io = new SocketIOServer(server, {
     cors: {
       origin: "http://localhost:5173",
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 
-  io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
+  const chatService = new ChatService();
 
-    socket.on("joinChatRoom", ({ senderID, receiverID }) => {
-      const roomName = [senderID, receiverID].sort().join("-");
-      socket.join(roomName);
-      console.log(`User ${senderID} joined room: ${roomName}`);
+  io.on("connection", (socket: Socket) => {
+
+    socket.on("joinRoom", ({ userId, trainerId }: { userId: string; trainerId: string }) => {
+      const room = [userId, trainerId].sort().join("-")
+      socket.join(room);
+      console.log(`User joined room: ${room}`);
     });
 
-    socket.on("sendMessage", async ({ messageDetails, firstTimeChat }) => {
+
+    socket.on("sendMessage", async ({ message, firstTimeChat }) => {
       try {
-        let savedMessage: any = null;
+        const chatRoom = [message.senderId, message.recieverId].sort().join("-");
+
+        const formattedMessage = {
+          details: [
+            {
+              senderId: message.senderId,
+              receiverId: message.recieverId,
+              messages: message.text,
+              createdAt: new Date()
+            }
+          ]
+        };
+      
+        let savedMessage: null | any = null
+
         if (firstTimeChat === true) {
-          const connectionDetails: any = await chatServiceInstance.createConnectionAndSaveMessageService(messageDetails);
-          savedMessage = connectionDetails?.details[0];
-        } else {
-          savedMessage = await chatServiceInstance.saveNewChatService(messageDetails.senderID, messageDetails.receiverID, messageDetails.message);
-        }
-        const chatRoom = [messageDetails.senderID, messageDetails.receiverID].sort().join("-");
-        io.to(chatRoom).emit("receiveMessage", savedMessage);
+          const connectionDetails = await chatService.createConnectionAndSaveMessageService(formattedMessage);
+          savedMessage = connectionDetails[2].details[0];
+          console.log("connectionDetails : ",connectionDetails[2].details[0]);
+       } else {
+          savedMessage = await chatService.saveMessageService(message.senderId, message.recieverId, message.text);
+       };
+
+        // const connectionDetails = await chatService.createConnectionAndSaveMessageService(formattedMessage);
+
+        // return connectionDetails;
       } catch (error) {
-        console.error(error);
+        console.error("Error handling sendMessage event:", error);
       }
     });
 
-    socket.on("joinTrainerNoficationRoom", (trainnerId) => {
-      socket.join(`TrainerNotificaionRoom${trainnerId}`);
-      console.log(`Trainer ${trainnerId} joined his notification room`);
-    });
 
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
+      console.log("A user disconnected");
     });
   });
-};
 
-export { configSocketIO, io };
+  return io;
+};

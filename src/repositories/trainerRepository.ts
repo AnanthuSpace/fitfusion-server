@@ -1,5 +1,7 @@
 import { TrainerType, trainerModel } from "../models/trainerModel";
-import { EditTrainerInterface } from "../interface/EditUserInterface";
+import { EditTrainerInterface, IDietPlan } from "../Interfaces";
+import { userModel } from "../models/userModel";
+import DietPlan from "../models/dietModal";
 
 export class TrainerRepository {
 
@@ -7,11 +9,9 @@ export class TrainerRepository {
         return trainerModel.findOne({ email }, { _id: 0 }).lean();
     }
 
-
     async registerTrainer(trainerData: TrainerType) {
         return await trainerModel.create(trainerData)
     }
-
 
     async editTrainer(editTrainerData: EditTrainerInterface, trainerId: string) {
         console.log(editTrainerData.qualification);
@@ -29,6 +29,7 @@ export class TrainerRepository {
     async findEditingData(trainerId: string) {
         return await trainerModel.findOne({ trainerId: trainerId }, { _id: 0 })
     }
+
     async profileUpdate(trainerId: string, profileImage: string) {
         return await trainerModel.updateOne(
             { trainerId: trainerId },
@@ -38,21 +39,56 @@ export class TrainerRepository {
 
     async updateTrainerSubscription(trainerId: string, userId: string): Promise<void> {
         await trainerModel.findOneAndUpdate(
-            { trainerId: trainerId }, 
+            { trainerId: trainerId },
             { $push: { subscribedUsers: userId } }
         );
     }
 
+    async fetchCustomer(userIds: string[]) {
+        try {
+            return await userModel.find({ userId: { $in: userIds } }, { _id: 0, password: 0, isBlocked: 0, followed: 0, subscribeList: 0, alreadychattedTrainers: 0 })
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
+        }
+    }
+
+    async fetchDeitPlans(trainerId: string) {
+        try {
+         const dietPlans = await DietPlan.find({ trainerId: trainerId }, {_id:0}).lean()
+         return dietPlans
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
+        }
+    }
+
+    async AddDietPlan(dietPlan: IDietPlan) {
+        try {
+            const newDietPlan = new DietPlan({ ...dietPlan });
+            const savedDietPlan = await newDietPlan.save();
+            return savedDietPlan;
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
+        }
+    }
+
+    async existedDiet(trainerId: string, dietName: string): Promise<boolean> {
+        try {
+            const diet = await DietPlan.findOne({ trainerId, dietName });
+            return !!diet;
+        } catch (error: any) {
+            throw new Error(`Error checking diet existence: ${error.message}`);
+        }
+    }
 
     async addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string) {
         try {
-          return await trainerModel.updateOne(
-            { trainerId: trainerId }, 
-            { $addToSet: { alreadychattedUsers: userId } } 
-          );
+            return await trainerModel.updateOne(
+                { trainerId: trainerId },
+                { $addToSet: { alreadychattedUsers: userId } }
+            );
         } catch (error: any) {
-          throw new Error(`Error adding connection: ${error.message}`);
+            throw new Error(`Error adding connection: ${error.message}`);
         }
-      }
-    
+    }
+
 }

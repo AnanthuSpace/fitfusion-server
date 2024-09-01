@@ -1,5 +1,5 @@
 import { UserType, userModel } from "../models/userModel";
-import { EditUserInterface } from "../interface/EditUserInterface";
+import { EditUserInterface } from "../Interfaces";
 import { trainerModel } from "../models/trainerModel";
 
 export class UserRepository {

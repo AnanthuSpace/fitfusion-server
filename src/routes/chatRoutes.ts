@@ -1,12 +1,10 @@
-import { Router } from 'express';
-import { ChatController } from '../controllers/chatController';
+import { Router } from "express";
+import ChatController from '../controllers/chatController';
 import { verifyToken } from '../config/jwtConfig';
 
 const router = Router();
-const chatController = new ChatController()
+const chatController = new ChatController();
 
+router.get('/fetchChat', verifyToken, chatController.fetchChat);
 
-router.post('/fetchChat', verifyToken, chatController.fetchChat)
-
-
-export default router;
+export default router

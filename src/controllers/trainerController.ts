@@ -159,4 +159,14 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
+
+//    async instantChatWithCustomer( req: CustomRequest, res: Response) {
+//     try {
+//         const trainerId = req.id as string
+//         const { userId } = req.body
+//         // const response = await trainerService.instantChatWithCustomer()
+//     } catch (error) {
+//         return res.status(500).json({ success: false, message: 'Internal server error' });
+//     }
+//    }
 }

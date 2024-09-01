@@ -44,20 +44,8 @@ export class TrainerRepository {
         );
     }
 
-    async addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string) {
-        try {
-            return await trainerModel.updateOne(
-                { trainerId: trainerId },
-                { $addToSet: { alreadychattedUsers: userId } }
-            );
-        } catch (error: any) {
-            throw new Error(`Error adding connection: ${error.message}`);
-        }
-    }
-
     async fetchCustomer(userIds: string[]) {
         try {
-
             return await userModel.find({ userId: { $in: userIds } }, { _id: 0, password: 0, isBlocked: 0, followed: 0, subscribeList: 0, alreadychattedTrainers: 0 })
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
@@ -89,6 +77,17 @@ export class TrainerRepository {
             return !!diet;
         } catch (error: any) {
             throw new Error(`Error checking diet existence: ${error.message}`);
+        }
+    }
+
+    async addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string) {
+        try {
+            return await trainerModel.updateOne(
+                { trainerId: trainerId },
+                { $addToSet: { alreadychattedUsers: userId } }
+            );
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
         }
     }
 

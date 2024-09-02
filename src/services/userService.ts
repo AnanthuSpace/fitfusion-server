@@ -291,9 +291,14 @@ export class UserService {
             const updatedReviewCount = reviewCount + 1;
             const updatedAverageRating = updatedTotalRating / updatedReviewCount;
 
-            this.userRepository.addReview(reviewData, trainerId)
-            this.trainerRepository.ratingUpdate(trainerId, updatedAverageRating)
-            return updatedAverageRating 
+            const result = await this.userRepository.addReview(reviewData, trainerId);
+
+            if (result && 'modifiedCount' in result && result.modifiedCount === 1) {
+                await this.trainerRepository.ratingUpdate(trainerId, updatedAverageRating);
+                return updatedAverageRating;
+            } else {
+                throw new Error('Failed to add review: No document was modified.');
+            }
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }

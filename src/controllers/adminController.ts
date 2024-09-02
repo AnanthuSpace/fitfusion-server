@@ -6,7 +6,7 @@ export class AdminController {
     private adminService: AdminService;
 
     constructor() {
-        
+
         this.adminService = new AdminService();
     }
 
@@ -25,6 +25,26 @@ export class AdminController {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     };
+
+    fetchTrainers = async (req: Request, res: Response) => {
+        try {
+            const page = Number(req.query.page);
+            const response = await this.adminService.fetchTrainers(page);
+            return res.status(200).json(response);
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    fetchUsers = async (req: Request, res: Response) => {
+        try {
+            const page = Number(req.query.page);
+            const response = await this.adminService.fetchUsers(page);
+            return res.status(200).json(response);
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 
 
     trainerBlock = async (req: Request, res: Response): Promise<any> => {

@@ -284,6 +284,15 @@ export class UserService {
         }
     }
 
+    async fetchTrainerScroll(page: number) {
+        try {
+            let trainers = await this.userRepository.fetchTrainerScroll(page);
+            return trainers;
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
     async addReview({ trainerId, reviewData, curruntRating, reviewCount }: { trainerId: string; reviewData: FullReviewType, curruntRating: number, reviewCount: number }) {
         try {
             const newRating = reviewData.rating;

@@ -44,10 +44,24 @@ export class AdminRepository {
         );
     }
 
-    async isVerified( trainerId: string, isVerified: string){
+    async isVerified(trainerId: string, isVerified: string) {
         return trainerModel.updateOne(
-            {trainerId: trainerId},
-            {$set:{verified: isVerified}}
+            { trainerId: trainerId },
+            { $set: { verified: isVerified } }
         )
+    }
+
+    async fetchTrainers(page: number) {
+        return await trainerModel.find()
+            .skip((page - 1) * 5)
+            .limit(Number(5))
+            .select('-_id');
+    }
+
+    async fetchUsers(page: number) {
+        return await userModel.find()
+            .skip((page - 1) * 5)
+            .limit(Number(5))
+            .select('-_id');
     }
 }

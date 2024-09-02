@@ -3,7 +3,7 @@ import { UserRepository } from "../repositories/userRepository";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
-import { UserType } from "../models/userModel";
+import { FullReviewType, UserType } from "../types";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditUserInterface, PaymentSessionResponse } from "../Interfaces";
 import Stripe from "stripe";
@@ -197,8 +197,8 @@ export class UserService {
     }
 
 
-    
-    
+
+
     async addUserDetails(userId: string, userDetails: UserType) {
         try {
             const result = await this.userRepository.addUserDetails(userId, userDetails)
@@ -207,7 +207,7 @@ export class UserService {
             return { success: false, message: error.message || "Internal server error" };
         }
     }
-    
+
     async blockUser(userId: string) {
         try {
             const result = await this.userRepository.blockUser(userId)
@@ -249,7 +249,7 @@ export class UserService {
 
         const userData = await this.userRepository.updateUserAfterPayment(userId, trainerId);
         const trainerData = await this.trainerRepository.updateTrainerSubscription(trainerId, userId);
-        
+
         return { session, userData, trainerData };
     }
 
@@ -266,5 +266,36 @@ export class UserService {
         }
     }
 
+    async fetchAlreadyChattedTrainer(alreadyChatted: string[]) {
+        try {
+            const trainers = await this.userRepository.fetchAlreadyChattedTrainer(alreadyChatted);
+            return trainers
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
 
+    async fetchDeitPlans(trainerId: string) {
+        try {
+            let diet = await this.userRepository.fetchDeitPlans(trainerId);
+            return diet;
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async addReview({ trainerId, reviewData, curruntRating, reviewCount }: { trainerId: string; reviewData: FullReviewType, curruntRating: number, reviewCount: number }) {
+        try {
+            const newRating = reviewData.rating;
+            const updatedTotalRating = curruntRating * reviewCount + newRating;
+            const updatedReviewCount = reviewCount + 1;
+            const updatedAverageRating = updatedTotalRating / updatedReviewCount;
+
+            this.userRepository.addReview(reviewData, trainerId)
+            this.trainerRepository.ratingUpdate(trainerId, updatedAverageRating)
+            return updatedAverageRating 
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
 }

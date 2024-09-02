@@ -1,29 +1,5 @@
 import { Schema, model } from "mongoose";
-
-
-type UserType = {
-    userId: string;
-    name: string;
-    email: string;
-    phone?: string;
-    gender?: string;
-    weight?: string;
-    heigth?: string;
-    activityLevel?: string;
-    dietary?: string;
-    goals?: string;
-    medicalDetails?: string;
-    password: string;
-    isBlocked: boolean;
-    profileIMG?: string;
-    address?: string;
-    createdAt: Date;
-    followed?: string[];
-    subscribeList?: string[];
-    alreadychattedTrainers?: string [];
-};
-
-
+import { UserType } from "../types";
 
 const userSchema = new Schema<UserType>({
     userId: {
@@ -94,6 +70,4 @@ const userSchema = new Schema<UserType>({
 
 
 const userModel = model<UserType>("User", userSchema);
-
-
-export { userModel, UserType };
+export { userModel };

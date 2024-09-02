@@ -1,17 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IChat } from "../Interfaces";
 
-interface ChatType {
-  chatMembers?: string[];
-  details: {
-    senderId: string;
-    receiverId: string;
-    messages: string;
-    time?: Date;
-  }[];
-  createdAt: Date;
-}
-
-const chatSchema = new Schema<ChatType>({
+const chatSchema = new Schema<IChat>({
   chatMembers: [
     {
       type: String,
@@ -35,7 +25,7 @@ const chatSchema = new Schema<ChatType>({
   createdAt: { type: Date, default: Date.now }
 });
 
-const chatModel = model<ChatType>("Chat", chatSchema);
+const chatModel = model<IChat>("Chat", chatSchema);
 
-export { chatModel, ChatType };
+export { chatModel };
 

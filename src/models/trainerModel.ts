@@ -1,29 +1,5 @@
 import { Schema, model } from "mongoose";
-
-type TrainerType = {
-    trainerId: string;
-    name: string;
-    email: string;
-    phone?: string;
-    password: string;
-    gender?: string;
-    rating?: number;
-    followers?: string[];
-    isBlocked: boolean;
-    level: number;
-    qualification?: string
-    createdAt: Date;
-    profileIMG?: string,
-    address?: string,
-    achivements?: string,
-    verified: string,
-    feePerMonth?: string,
-    payedUsers?: string[],
-    experience?: string,
-    subscribedUsers?: string[],
-    alreadychattedUsers?: string[]
-}
-
+import { TrainerType } from "../types";
 
 const trainerSchema = new Schema<TrainerType>({
     trainerId: {
@@ -67,7 +43,8 @@ const trainerSchema = new Schema<TrainerType>({
         type: String
     }],
     rating: {
-        type: Number
+        type: Number,
+        default: 0
     },
     level: {
         type: Number,
@@ -104,4 +81,4 @@ const trainerSchema = new Schema<TrainerType>({
 
 const trainerModel = model<TrainerType>("Trainer", trainerSchema)
 
-export { trainerModel, TrainerType };
+export { trainerModel };

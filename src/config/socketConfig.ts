@@ -24,8 +24,6 @@ export const configureSocket = (server: http.Server) => {
 
     socket.on("sendMessage", async ({ message, firstTimeChat }) => {
       try {
-        const chatRoom = [message.senderId, message.recieverId].sort().join("-");
-
         const formattedMessage = {
           details: [
             {
@@ -36,6 +34,8 @@ export const configureSocket = (server: http.Server) => {
             }
           ]
         };
+        console.log(formattedMessage);
+        
       
         let savedMessage: null | any = null
 
@@ -46,10 +46,8 @@ export const configureSocket = (server: http.Server) => {
        } else {
           savedMessage = await chatService.saveMessageService(message.senderId, message.recieverId, message.text);
        };
-
-        // const connectionDetails = await chatService.createConnectionAndSaveMessageService(formattedMessage);
-
-        // return connectionDetails;
+       const chatRoom = [message.senderId, message.recieverId].sort().join("-");
+        io.to(chatRoom).emit("receiveMessage", savedMessage);
       } catch (error) {
         console.error("Error handling sendMessage event:", error);
       }

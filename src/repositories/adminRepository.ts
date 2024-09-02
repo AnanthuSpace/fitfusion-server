@@ -1,5 +1,6 @@
-import { trainerModel, TrainerType } from "../models/trainerModel";
-import { userModel, UserType } from "../models/userModel";
+import { trainerModel } from "../models/trainerModel";
+import { userModel } from "../models/userModel";
+import { UserType, TrainerType } from "../types";
 
 export class AdminRepository {
 

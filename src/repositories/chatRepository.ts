@@ -1,13 +1,14 @@
-import { ChatType, chatModel } from "../models/chatModal";
+import { chatModel } from "../models/chatModal";
+import { IChat } from "../Interfaces";
 import { MessageType, MessageDetailType } from "../Interfaces";
 
 export class ChatRepository {
-  async createChat(userId: string, trainerId: string): Promise<ChatType> {
+  async createChat(userId: string, trainerId: string): Promise<IChat> {
     const chat = new chatModel({ userId, trainerId, details: [] });
     return await chat.save();
   }
 
-  async findChat(userId: string, trainerId: string): Promise<ChatType | null> {
+  async findChat(userId: string, trainerId: string): Promise<IChat | null> {
     return await chatModel.findOne({ userId, trainerId }).exec();
   }
 
@@ -19,10 +20,16 @@ export class ChatRepository {
   async saveNewChatRepository(newMessageDetails: MessageDetailType) {
     try {
       return chatModel.updateOne(
-        { chatMembers: { $all: [newMessageDetails.senderId, newMessageDetails.receiverId] } },
+        {
+          $or: [
+            { chatMembers: { $elemMatch: { $eq: newMessageDetails.senderId } } },
+            { chatMembers: { $elemMatch: { $eq: newMessageDetails.receiverId } } }
+          ]
+        },
         { $push: { details: newMessageDetails } },
         { upsert: true }
       );
+
     } catch (error) {
       console.error("Error during save new chat operation:", error);
       throw error;

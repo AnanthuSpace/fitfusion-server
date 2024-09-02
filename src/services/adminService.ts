@@ -68,4 +68,22 @@ export class AdminService {
             return { success: false, message: "User unblocking is failed" };
         }
     }
+
+    async fetchTrainers(page:number){
+        try {
+            const result = await this.adminRepository.fetchTrainers(page)
+            return result
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async fetchUsers(page:number){
+        try {
+            const result = await this.adminRepository.fetchUsers(page)
+            return result
+        } catch (error) {
+            throw error;
+        }
+    }
 }

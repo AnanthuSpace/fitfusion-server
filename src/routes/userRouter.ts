@@ -18,6 +18,7 @@ router.get('/fetch-user-trainer', verifyToken, userController.fetchUserTrainer)
 router.post('/create-checkout-session', verifyToken, userController.createCheckoutSession)
 router.post('/getTrainerByIds', verifyToken, userController.fetchAlreadyChattedTrainer)
 router.get('/fetchDeitPlans', verifyToken, userController.fetchDeitPlans)
+router.get('/fetchTrainerScroll', verifyToken, userController.fetchTrainerScroll)
 router.post('/add-review',verifyToken, userController.addReview)
 
 export default router

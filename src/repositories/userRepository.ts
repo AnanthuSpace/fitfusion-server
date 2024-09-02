@@ -89,6 +89,17 @@ export class UserRepository {
         }
     }
 
+    async fetchTrainerScroll(page: number) {
+        try {
+           return await trainerModel.find()
+           .skip((page - 1)* 8)
+           .limit(Number(8))
+            .select('-_id');
+        } catch (error: any) {
+            throw new Error(`Error fetching diet plan: ${error.message}`);
+        }
+    }
+
     async addReview(reviewData: FullReviewType, trainerId: string) {
         try {
             const existingReview = await ReviewModal.findOne({ trainerId: trainerId });

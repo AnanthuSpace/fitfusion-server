@@ -212,6 +212,16 @@ export class UserController {
         }
     }
 
+    async fetchTrainerScroll(req: Request, res: Response) {
+        try {
+            const page = Number(req.query.page);
+            const response = await userService.fetchTrainerScroll(page)
+            return res.status(200).json(response)
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
     async addReview(req: Request, res: Response) {
         try {
             const { trainerId, reviewData, curruntRating, reviewCount } = req.body

@@ -2,7 +2,7 @@ import { TrainerRepository } from "../repositories/trainerRepository";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
-import { TrainerType } from "../models/trainerModel";
+import { TrainerType } from "../types";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditTrainerInterface, IDietPlan } from "../Interfaces";
 import { UpdateResult } from 'mongodb';
@@ -129,7 +129,7 @@ export class TrainerService {
             achivements,
             qualification,
             feePerMonth,
-            experience
+            experience,
         }
         console.log("Edit trainer service : ", editTrainerData)
         const res = await this.trainerRepository.editTrainer(editTrainerData, trainerId)
@@ -195,7 +195,7 @@ export class TrainerService {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
-    
+
     async addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, 'trainerId'>) {
         try {
             const existed = this.trainerRepository.existedDiet(trainerId, dietPlan.dietName)
@@ -212,10 +212,14 @@ export class TrainerService {
 
     async fetchAlreadyChatted(alreadyChatted: string[]) {
         try {
-            const users = await this.trainerRepository.fetchAlreadyChatted( alreadyChatted );
-            return users 
+            const users = await this.trainerRepository.fetchAlreadyChatted(alreadyChatted);
+            return users
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }
+    }
+
+    async ratingUpdate(trainerId: string ) {
+
     }
 }

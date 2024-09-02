@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { TrainerService } from "../services/trainerService";
-import { TrainerType } from "../models/trainerModel";
+import { TrainerType } from "../types"; 
 
 const trainerService = new TrainerService()
 

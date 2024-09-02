@@ -33,7 +33,6 @@ class ChatService {
                 messages: message,
                 time: new Date()  
           };
-
           await this.chatRepository.saveNewChatRepository(newMessageDetails);
           return newMessageDetails;
         } catch (error) {
@@ -43,6 +42,7 @@ class ChatService {
 
     async createConnectionAndSaveMessageService(message: Omit<MessageType, 'chatMembers'>) {
         try {
+            
             
             const newChatDocument: MessageType = {
                 chatMembers: [message.details[0].senderId, message.details[0].receiverId], 

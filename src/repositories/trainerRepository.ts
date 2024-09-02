@@ -1,5 +1,6 @@
-import { TrainerType, trainerModel } from "../models/trainerModel";
+import { trainerModel } from "../models/trainerModel";
 import { EditTrainerInterface, IDietPlan } from "../Interfaces";
+import { TrainerType } from "../types";
 import { userModel } from "../models/userModel";
 import DietPlan from "../models/dietModal";
 
@@ -98,6 +99,15 @@ export class TrainerRepository {
                 { _id:0, name: 1, userId: 1 } 
             );
             return users
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
+        }
+    }
+
+    async ratingUpdate(trainerId: string, updatedAverageRating: number) {
+        try {
+            const updatedTrainer = await trainerModel.updateOne({trainerId:trainerId}, {$set:{rating: updatedAverageRating}})
+            return updatedTrainer            
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
         }

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { TrainerService } from "../services/trainerService";
-import { TrainerType } from "../models/trainerModel";
+import { TrainerType } from "../types"; 
 
 const trainerService = new TrainerService()
 
@@ -160,13 +160,16 @@ export class TrainerController {
         }
     }
 
-//    async instantChatWithCustomer( req: CustomRequest, res: Response) {
-//     try {
-//         const trainerId = req.id as string
-//         const { userId } = req.body
-//         // const response = await trainerService.instantChatWithCustomer()
-//     } catch (error) {
-//         return res.status(500).json({ success: false, message: 'Internal server error' });
-//     }
-//    }
+    async fetchAlreadyChatted(req: CustomRequest, res: Response) {
+        try {
+            const { alreadyChatted } = req.body;
+            const response = await trainerService.fetchAlreadyChatted(alreadyChatted);
+            return res.status(200).json({
+                success: true,
+                users: response,
+            });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
 }

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
-import { UserType } from "../models/userModel";
-
+import { UserType } from "../types";
 
 const userService = new UserService();
 
@@ -67,7 +66,7 @@ export class UserController {
 
             console.log(temperoryEmail);
             const serviceResponse = await userService.userLoginVerificationService(temperoryEmail, completeOtp);
-            
+
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
             } else {
@@ -187,6 +186,40 @@ export class UserController {
                 message: "Failed to create checkout session",
                 error: error.message,
             });
+        }
+    }
+
+    async fetchAlreadyChattedTrainer(req: Request, res: Response) {
+        try {
+            const { alreadyChatted } = req.body;
+            const response = await userService.fetchAlreadyChattedTrainer(alreadyChatted);
+            return res.status(200).json({
+                success: true,
+                users: response,
+            });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    async fetchDeitPlans(req: Request, res: Response) {
+        try {
+            const trainerId = req.query.trainerId as string;
+            const response = await userService.fetchDeitPlans(trainerId)
+            return res.status(200).json({ success: true, deit: response })
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    async addReview(req: Request, res: Response) {
+        try {
+            const { trainerId, reviewData, curruntRating, reviewCount } = req.body
+            const response = await userService.addReview({ trainerId: trainerId, reviewData: reviewData, curruntRating: curruntRating, reviewCount:reviewCount })
+            console.log(response);
+            return res.status(200).json({success: true, rating: response})
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
 }

@@ -60,3 +60,13 @@ export interface IDietPlan {
     meals?: IMeal[];
 }
 
+export interface IChat {
+    chatMembers?: string[];
+    details: {
+      senderId: string;
+      receiverId: string;
+      messages: string;
+      time?: Date;
+    }[];
+    createdAt: Date;
+  }

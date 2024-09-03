@@ -96,6 +96,16 @@ export class UserController {
         }
     }
 
+    async inactiveUser(req: Request, res: Response) {
+        try {
+            const { userId } = req.body
+            const result = await userService.inactiveUser(userId)
+            return res.status(200).json({success: true, message: "User is inactive"});
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
     async changeUserPassword(req: CustomRequest, res: Response): Promise<any> {
         try {
             const { oldPassword, newPassword } = req.body;
@@ -225,9 +235,9 @@ export class UserController {
     async addReview(req: Request, res: Response) {
         try {
             const { trainerId, reviewData, curruntRating, reviewCount } = req.body
-            const response = await userService.addReview({ trainerId: trainerId, reviewData: reviewData, curruntRating: curruntRating, reviewCount:reviewCount })
+            const response = await userService.addReview({ trainerId: trainerId, reviewData: reviewData, curruntRating: curruntRating, reviewCount: reviewCount })
             console.log(response);
-            return res.status(200).json({success: true, rating: response})
+            return res.status(200).json({ success: true, rating: response })
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

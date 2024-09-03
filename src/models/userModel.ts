@@ -65,7 +65,11 @@ const userSchema = new Schema<UserType>({
     }],
     alreadychattedTrainers: [{
         type: String
-    }]
+    }],
+    isActive : {
+        type: Boolean,
+        default: false
+    }
 });
 
 

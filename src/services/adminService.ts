@@ -1,4 +1,4 @@
-import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
+import { generateAccessToken, generateAccessTokenForAdmin, generateRefreshToken } from "../config/jwtConfig";
 import { AdminRepository } from "../repositories/adminRepository";
 
 export class AdminService {
@@ -12,7 +12,7 @@ export class AdminService {
 
 
         if (username === adminUsername && password === adminPassword) {
-            const accessToken = generateAccessToken(username);
+            const accessToken = generateAccessTokenForAdmin(username);
             const refreshToken = generateRefreshToken(username);
             const usersData = await this.adminRepository.findAllUsers()
             const trainersData = await this.adminRepository.findAllTrainers()

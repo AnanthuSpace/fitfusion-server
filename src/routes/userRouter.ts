@@ -20,5 +20,6 @@ router.post('/getTrainerByIds', verifyToken, userController.fetchAlreadyChattedT
 router.get('/fetchDeitPlans', verifyToken, userController.fetchDeitPlans)
 router.get('/fetchTrainerScroll', verifyToken, userController.fetchTrainerScroll)
 router.post('/add-review',verifyToken, userController.addReview)
+router.put('/inactive', verifyToken, userController.inactiveUser)
 
 export default router

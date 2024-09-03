@@ -19,6 +19,14 @@ export class UserRepository {
         return await userModel.create(userData)
     }
 
+    async activeUser(email: string) {
+        return await userModel.updateOne({ email: email }, { $set: { isActive: true } })
+    }
+
+    async inactiveUser(userId: string) {
+        return await userModel.updateOne({ userId: userId }, { $set: { isActive: false } })
+    }
+
     async editUser(editUserData: EditUserInterface, userId: string) {
         return await userModel.updateOne({ userId }, { $set: editUserData })
     }
@@ -91,10 +99,10 @@ export class UserRepository {
 
     async fetchTrainerScroll(page: number) {
         try {
-           return await trainerModel.find()
-           .skip((page - 1)* 8)
-           .limit(Number(8))
-            .select('-_id');
+            return await trainerModel.find()
+                .skip((page - 1) * 8)
+                .limit(Number(8))
+                .select('-_id');
         } catch (error: any) {
             throw new Error(`Error fetching diet plan: ${error.message}`);
         }

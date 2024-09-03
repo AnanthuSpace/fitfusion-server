@@ -12,6 +12,7 @@ const refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRATION!;
 interface JwtPayload {
     userId: string;
     email?: string;
+    role?: string;
 }
 
 interface CustomRequest extends Request {
@@ -21,6 +22,14 @@ interface CustomRequest extends Request {
 
 export const generateAccessToken = (userId: string): string => {
     return jwt.sign({ userId }, accessTokenSecret, { expiresIn: accessTokenExpire });
+}
+
+export const generateAccessTokenForAdmin = (username: string): string => {
+    return jwt.sign({ username, role: 'admin' }, accessTokenSecret, { expiresIn: accessTokenExpire });
+}
+
+export const generateRefreshTokenForAdmin = (username: string): string => {
+    return jwt.sign({ username, role: 'admin' }, refreshTokenSecret, { expiresIn: refreshTokenExpire });
 }
 
 export const generateRefreshToken = (userId: string): string => {
@@ -66,13 +75,13 @@ export const verifyToken = async (req: CustomRequest, res: Response, next: NextF
 
 export const adminVerification = (req: CustomRequest, res: Response, next: NextFunction) => {
     const verificationHeader = req.headers.authorization;
-    
+
     if (!verificationHeader) {
         return res.status(401).json({ message: 'Access denied. Access token not valid' });
     }
 
     const accessToken = verificationHeader.split(' ')[1];
-    
+
     if (!accessToken) {
         return res.status(401).json({ message: 'Access denied. Access token not valid' });
     }
@@ -90,8 +99,12 @@ export const adminVerification = (req: CustomRequest, res: Response, next: NextF
                     return res.status(401).json({ message: 'Access denied. Refresh token invalid or expired' });
                 }
 
-                const newAccessToken = generateAccessToken((refreshDecoded as JwtPayload).userId);
+                const newAccessToken = generateAccessTokenForAdmin((refreshDecoded as JwtPayload).userId);
                 res.setHeader('Authorization', `Bearer ${newAccessToken}`);
+
+                if ((refreshDecoded as JwtPayload).role !== 'admin') {
+                    return res.status(403).json({ message: 'Access denied. Insufficient permissions' });
+                }
 
                 req.email = (refreshDecoded as JwtPayload).email;
                 next();

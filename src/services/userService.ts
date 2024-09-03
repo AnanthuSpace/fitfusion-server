@@ -125,6 +125,7 @@ export class UserService {
             throw new Error("User not found");
         }
 
+        await this.userRepository.activeUser(email)
         delete this.otpStore[email];
 
         const accessToken = generateAccessToken(user.userId);
@@ -133,6 +134,16 @@ export class UserService {
         const { password, ...userDataWithoutSensitiveInfo } = user.toObject();
 
         return { message: "OTP verified", accessToken, refreshToken, userData: userDataWithoutSensitiveInfo };
+    }
+
+    async inactiveUser (userId: string) {
+        try {
+            const result = await this.userRepository.inactiveUser(userId)
+            console.log(result);
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
     }
 
 

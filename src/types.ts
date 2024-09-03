@@ -18,6 +18,7 @@ export type UserType = {
     followed?: string[];
     subscribeList?: string[];
     alreadychattedTrainers?: string[];
+    isActive: boolean;
 };
 
 export type TrainerType = {
@@ -33,15 +34,16 @@ export type TrainerType = {
     level: number;
     qualification?: string
     createdAt: Date;
-    profileIMG?: string,
-    address?: string,
-    achivements?: string,
-    verified: string,
-    feePerMonth?: string,
-    payedUsers?: string[],
-    experience?: string,
-    subscribedUsers?: string[],
-    alreadychattedUsers?: string[]
+    profileIMG?: string;
+    address?: string;
+    achivements?: string;
+    verified: string;
+    feePerMonth?: string;
+    payedUsers?: string[];
+    experience?: string;
+    subscribedUsers?: string[];
+    alreadychattedUsers?: string[];
+    isActive: boolean;
 }
 
 export type ReviewType = {

@@ -75,7 +75,11 @@ const trainerSchema = new Schema<TrainerType>({
     }],
     alreadychattedUsers: [{
         type: String
-    }]
+    }],
+    isActive: {
+        type: Boolean,
+        default: false
+    }
 })
 
 

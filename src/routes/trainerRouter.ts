@@ -2,9 +2,13 @@ import { Router } from "express";
 import { verifyToken } from "../config/jwtConfig";
 import { TrainerController } from "../controllers/trainerController";
 import upload from "../config/multerConfig";
+import { TrainerRepository } from "../repositories/trainerRepository";
+import { TrainerService  } from "../services/trainerService";
 
 const router = Router()
-const trainerController = new TrainerController()
+const trainerRepository = new TrainerRepository()
+const trainerService = new TrainerService (trainerRepository);
+const trainerController = new TrainerController(trainerService)
 
 router.post("/signup", trainerController.registerController);
 router.post("/verify", trainerController.otpVerification);

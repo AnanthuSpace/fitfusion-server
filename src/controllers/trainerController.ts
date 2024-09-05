@@ -1,18 +1,21 @@
 import { Request, Response } from "express";
-import { TrainerService } from "../services/trainerService";
-import { TrainerType } from "../types"; 
-
-const trainerService = new TrainerService()
+import { TrainerType } from "../interfaces/common/types";
+import { ITrainerService } from "../interfaces/trainerService.interface";
 
 interface CustomRequest extends Request {
     id?: string;
 }
 
 export class TrainerController {
-    async registerController(req: Request, res: Response): Promise<any> {
+    private _trainerService: ITrainerService;
+
+    constructor(_trainerService: ITrainerService) {
+        this._trainerService = _trainerService;
+    }
+    registerController = async (req: Request, res: Response): Promise<any> => {
         try {
             const trainerData: TrainerType = req.body;
-            const serviceResponse = await trainerService.registerTrainerService(trainerData);
+            const serviceResponse = await this._trainerService.registerTrainerService(trainerData);
             if (serviceResponse === "UserExist") {
                 console.log(serviceResponse);
                 return res.status(409).json({ success: false, message: "User already exists" });
@@ -25,10 +28,10 @@ export class TrainerController {
         }
     }
 
-    async otpVerification(req: Request, res: Response): Promise<any> {
+    otpVerification = async (req: Request, res: Response): Promise<any> => {
         try {
             const { temperoryEmail, completeOtp } = req.body;
-            const serviceResponse = await trainerService.otpVerificationService(temperoryEmail, completeOtp);
+            const serviceResponse = await this._trainerService.otpVerificationService(temperoryEmail, completeOtp);
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
             } else {
@@ -40,10 +43,10 @@ export class TrainerController {
         }
     }
 
-    async trainerLogin(req: Request, res: Response): Promise<any> {
+    trainerLogin = async (req: Request, res: Response): Promise<any> => {
         try {
             const { email, password } = req.body
-            const serviceResponse = await trainerService.trainerLoginService(email, password)
+            const serviceResponse = await this._trainerService.trainerLoginService(email, password)
             if (serviceResponse.trainerNotExisted) {
                 return res.status(403).json({ success: false, message: "Invalid email id" });
             }
@@ -65,11 +68,11 @@ export class TrainerController {
         }
     }
 
-    async editTrainerData(req: CustomRequest, res: Response): Promise<any> {
+    editTrainerData = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const { name, phone, address, gender, qualification, achivements, feePerMonth, experience } = req.body;
             const trainerId = req.id as string;
-            const data = await trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience);
+            const data = await this._trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience);
             console.log("Data : ", data);
             return res.status(200).json({ success: true, message: "Updated successfully" });
         } catch (error: any) {
@@ -80,15 +83,15 @@ export class TrainerController {
         }
     }
 
-    async changeTrainerPassword(req: CustomRequest, res: Response): Promise<any> {
+    changeTrainerPassword = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const { oldPassword, newPassword } = req.body;
             const userId = req.id as string;
-            const bcryptPass = await trainerService.verifyPassword(oldPassword, userId);
+            const bcryptPass = await this._trainerService.verifyPassword(oldPassword, userId);
             if (!bcryptPass) {
                 return res.status(403).json({ success: false, message: "Current password is incorrect" });
             }
-            const serviceResponse = await trainerService.changeTrainerPass(newPassword, userId);
+            const serviceResponse = await this._trainerService.changeTrainerPass(newPassword, userId);
             if (serviceResponse.message === "No changes found") {
                 return res.status(304).json({ success: false, message: "No changes found" });
             }
@@ -98,14 +101,14 @@ export class TrainerController {
         }
     }
 
-    async profileUpdate(req: CustomRequest, res: Response): Promise<any> {
+    profileUpdate = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const trainerId = req.id as string;
             const profileImage = req.file?.filename;
             if (!profileImage) {
                 return res.status(400).json({ success: false, message: 'No profile image uploaded' });
             }
-            const response = await trainerService.profileUpdate(trainerId, profileImage);
+            const response = await this._trainerService.profileUpdate(trainerId, profileImage);
             if ('modifiedCount' in response) {
                 if (response.modifiedCount === 0) {
                     return res.status(304).json({ success: false, message: 'No changes made' });
@@ -121,10 +124,10 @@ export class TrainerController {
         }
     }
 
-    async fetchCustomer(req: Request, res: Response) {
+    fetchCustomer = async (req: Request, res: Response) => {
         try {
             const { userIds } = req.body
-            const response = await trainerService.fetchCustomer(userIds)
+            const response = await this._trainerService.fetchCustomer(userIds)
             console.log("Response : ", response);
             return res.status(200).json({ success: true, message: 'Fetch Customers', customers: response });
         } catch (error) {
@@ -132,21 +135,21 @@ export class TrainerController {
         }
     }
 
-    async fetchDeitPlans(req: CustomRequest, res: Response) {
+    fetchDeitPlans = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string;
-            const response = await trainerService.fetchDeitPlans(trainerId)
+            const response = await this._trainerService.fetchDeitPlans(trainerId)
             return res.status(200).json({ success: true, message: 'Fetch Diets', diet: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
 
-    async addDietPlan(req: CustomRequest, res: Response) {
+    addDietPlan = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string;
             const { dietPlan } = req.body
-            const response = await trainerService.addDietPlan(trainerId, dietPlan)
+            const response = await this._trainerService.addDietPlan(trainerId, dietPlan)
             if ('_id' in response) {
                 const { _id, ...responseWithoutId } = response;
                 return res.status(200).json({
@@ -160,10 +163,10 @@ export class TrainerController {
         }
     }
 
-    async fetchAlreadyChatted(req: CustomRequest, res: Response) {
+    fetchAlreadyChatted = async (req: CustomRequest, res: Response) => {
         try {
             const { alreadyChatted } = req.body;
-            const response = await trainerService.fetchAlreadyChatted(alreadyChatted);
+            const response = await this._trainerService.fetchAlreadyChatted(alreadyChatted);
             return res.status(200).json({
                 success: true,
                 users: response,

@@ -1,6 +1,9 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import http from "http";
 import ChatService from "../services/chatService";
+import { ChatRepository } from "../repositories/chatRepository";
+import { UserRepository } from "../repositories/userRepository";
+import { TrainerRepository } from "../repositories/trainerRepository";
 
 export const configureSocket = (server: http.Server) => {
   const io = new SocketIOServer(server, {
@@ -11,7 +14,11 @@ export const configureSocket = (server: http.Server) => {
     },
   });
 
-  const chatService = new ChatService();
+  const chatRepository = new ChatRepository();
+  const userRepository = new UserRepository();
+  const trainerRepository = new TrainerRepository();
+
+  const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
 
   io.on("connection", (socket: Socket) => {
 

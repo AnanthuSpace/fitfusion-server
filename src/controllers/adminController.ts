@@ -1,19 +1,17 @@
 import { Request, Response } from "express";
-import { AdminService } from "../services/adminService";
-
+import { IAdminService } from "../interfaces/adminService.interface";
 
 export class AdminController {
-    private adminService: AdminService;
+    private _adminService: IAdminService;
 
-    constructor() {
-
-        this.adminService = new AdminService();
+    constructor(_adminService: IAdminService) {
+        this._adminService = _adminService;
     }
 
     adminLogin = async (req: Request, res: Response): Promise<any> => {
         try {
             const { username, password } = req.body;
-            const result = await this.adminService.adminLoginService(username, password);
+            const result = await this._adminService.adminLoginService(username, password);
 
             if (result.success) {
                 return res.status(200).json(result);
@@ -29,7 +27,7 @@ export class AdminController {
     fetchTrainers = async (req: Request, res: Response) => {
         try {
             const page = Number(req.query.page);
-            const response = await this.adminService.fetchTrainers(page);
+            const response = await this._adminService.fetchTrainers(page);
             return res.status(200).json(response);
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
@@ -39,7 +37,7 @@ export class AdminController {
     fetchUsers = async (req: Request, res: Response) => {
         try {
             const page = Number(req.query.page);
-            const response = await this.adminService.fetchUsers(page);
+            const response = await this._adminService.fetchUsers(page);
             return res.status(200).json(response);
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
@@ -50,7 +48,7 @@ export class AdminController {
     trainerBlock = async (req: Request, res: Response): Promise<any> => {
         try {
             const { trainerId } = req.body
-            const result = await this.adminService.trainerBlock(trainerId)
+            const result = await this._adminService.trainerBlock(trainerId)
             if (result.success) {
                 return res.status(200).json(result);
             } else {
@@ -65,7 +63,7 @@ export class AdminController {
     trainerUnblock = async (req: Request, res: Response): Promise<any> => {
         try {
             const { trainerId } = req.body
-            const result = await this.adminService.trainerUnBlock(trainerId)
+            const result = await this._adminService.trainerUnBlock(trainerId)
             if (result.success) {
                 return res.status(200).json(result);
             } else {
@@ -81,7 +79,7 @@ export class AdminController {
     userBlock = async (req: Request, res: Response): Promise<any> => {
         try {
             const { userId } = req.body
-            const result = await this.adminService.userBlock(userId)
+            const result = await this._adminService.userBlock(userId)
             if (result.success) {
                 return res.status(200).json(result);
             } else {
@@ -96,7 +94,7 @@ export class AdminController {
     userUnblock = async (req: Request, res: Response): Promise<any> => {
         try {
             const { userId } = req.body
-            const result = await this.adminService.userUnBlock(userId)
+            const result = await this._adminService.userUnBlock(userId)
             if (result.success) {
                 return res.status(200).json(result);
             } else {
@@ -111,7 +109,7 @@ export class AdminController {
     isVerified = async (req: Request, res: Response): Promise<any> => {
         try {
             const { trainerId, isVerified } = req.body
-            const result = await this.adminService.isVerified(trainerId, isVerified)
+            const result = await this._adminService.isVerified(trainerId, isVerified)
             if (result.success) {
                 return res.status(200).json(result);
             } else {

@@ -1,14 +1,14 @@
-import { TrainerRepository } from "../repositories/trainerRepository";
-import { UserRepository } from "../repositories/userRepository";
+import { UserServiceInterface } from "../interfaces/userService.interface";
+import { IUserRepository } from "../interfaces/userRepository.interface";
+import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
+import { EditUserInterface, PaymentSessionResponse } from "../interfaces/common/Interfaces";
+import { FullReviewType, UserType } from "../interfaces/common/types";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
-import { FullReviewType, UserType } from "../types";
-import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
-import { EditUserInterface, PaymentSessionResponse } from "../Interfaces";
 import Stripe from "stripe";
 import dotenv from "dotenv";
-
+import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 
 dotenv.config();
 
@@ -16,14 +16,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2024-06-20',
 });
 
-export class UserService {
-    private userRepository = new UserRepository();
-    private trainerRepository = new TrainerRepository()
+export class UserService implements UserServiceInterface {
+    private _userRepository: IUserRepository
+    private _trainerRepository: ITrainerRepository
+
+    constructor(userRepository: IUserRepository, trainerRepository: ITrainerRepository) {
+        this._userRepository = userRepository;
+        this._trainerRepository = trainerRepository
+    }
+
     private otpStore: { [key: string]: { otp: string; timestamp: number; userData: UserType } } = {};
 
 
     async registerUserService(userData: UserType) {
-        const alreadyExists = await this.userRepository.findEditingData(userData.email);
+        const alreadyExists = await this._userRepository.findEditingData(userData.email);
         if (alreadyExists) {
             return "UserExist";
         }
@@ -72,7 +78,7 @@ export class UserService {
         userData.userId = v4();
         delete this.otpStore[temperoryEmail];
 
-        await this.userRepository.registerUser(userData);
+        await this._userRepository.registerUser(userData);
 
         const accessToken = generateAccessToken(userData.userId);
         const refreshToken = generateRefreshToken(userData.userId);
@@ -84,7 +90,7 @@ export class UserService {
 
     async userLoginService(email: string) {
 
-        const user = await this.userRepository.findUser(email);
+        const user = await this._userRepository.findUser(email);
         if (!user) {
             return "Invalid email";
         }
@@ -120,25 +126,23 @@ export class UserService {
             throw new Error("Invalid OTP");
         }
 
-        const user = await this.userRepository.findUser(email);
+        const user = await this._userRepository.findUser(email);
         if (!user) {
             throw new Error("User not found");
         }
 
-        await this.userRepository.activeUser(email)
+        await this._userRepository.activeUser(email)
         delete this.otpStore[email];
 
         const accessToken = generateAccessToken(user.userId);
         const refreshToken = generateRefreshToken(user.userId);
 
-        const { password, ...userDataWithoutSensitiveInfo } = user.toObject();
-
-        return { message: "OTP verified", accessToken, refreshToken, userData: userDataWithoutSensitiveInfo };
+        return { message: "OTP verified", accessToken, refreshToken, userData: user };
     }
 
-    async inactiveUser (userId: string) {
+    async inactiveUser(userId: string) {
         try {
-            const result = await this.userRepository.inactiveUser(userId)
+            const result = await this._userRepository.inactiveUser(userId)
             console.log(result);
             return result
         } catch (error: any) {
@@ -163,7 +167,7 @@ export class UserService {
             medicalDetails
         }
         console.log("Edit user service : ", editUserData)
-        const res = await this.userRepository.editUser(editUserData, userId)
+        const res = await this._userRepository.editUser(editUserData, userId)
         if (!res.modifiedCount) {
             throw new Error("No changes found")
         }
@@ -172,7 +176,7 @@ export class UserService {
 
     async verifyPassword(password: string, userId: string): Promise<boolean> {
         try {
-            const user = await this.userRepository.findEditingData(userId);
+            const user = await this._userRepository.findEditingData(userId);
             const storedPassword = user?.password;
             const bcryptPass = await bcrypt.compare(password, String(storedPassword));
             return bcryptPass;
@@ -185,7 +189,7 @@ export class UserService {
     async changeUserPass(newPassword: string, userId: string) {
         try {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            const res = await this.userRepository.changePass(hashedPassword, userId);
+            const res = await this._userRepository.changePass(hashedPassword, userId);
             if (res.modifiedCount === 0) {
                 throw new Error("No changes found");
             }
@@ -199,7 +203,7 @@ export class UserService {
 
     async fetchTrainers() {
         try {
-            const trainers = await this.userRepository.fetchTrainers()
+            const trainers = await this._userRepository.fetchTrainers()
             return trainers
         } catch (error: any) {
             console.error("Error in reset password: ", error);
@@ -207,12 +211,9 @@ export class UserService {
         }
     }
 
-
-
-
     async addUserDetails(userId: string, userDetails: UserType) {
         try {
-            const result = await this.userRepository.addUserDetails(userId, userDetails)
+            const result = await this._userRepository.addUserDetails(userId, userDetails)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || "Internal server error" };
@@ -221,7 +222,7 @@ export class UserService {
 
     async blockUser(userId: string) {
         try {
-            const result = await this.userRepository.blockUser(userId)
+            const result = await this._userRepository.blockUser(userId)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || "Internal server error" };
@@ -230,7 +231,7 @@ export class UserService {
 
     async createCheckoutSession(trainerId: string, amount: number, userId: string
     ): Promise<PaymentSessionResponse> {
-        const trainer = await this.trainerRepository.findEditingData(trainerId);
+        const trainer = await this._trainerRepository.findEditingData(trainerId);
         if (!trainer) {
             throw new Error('Trainer not found');
         }
@@ -258,28 +259,26 @@ export class UserService {
             }
         });
 
-        const userData = await this.userRepository.updateUserAfterPayment(userId, trainerId);
-        const trainerData = await this.trainerRepository.updateTrainerSubscription(trainerId, userId);
+        const userData = await this._userRepository.updateUserAfterPayment(userId, trainerId);
+        const trainerData = await this._trainerRepository.updateTrainerSubscription(trainerId, userId);
 
         return { session, userData, trainerData };
     }
 
-
-
     async fetchUserTrainer(userId: string) {
         try {
-            const trainersData = await this.userRepository.fetchTrainers()
-            const userData = await this.userRepository.fetchUser(userId)
+            const trainersData = await this._userRepository.fetchTrainers()
+            const userData = await this._userRepository.fetchUser(userId)
             return { trainersData, userData }
         } catch (error: any) {
             console.error("Error in reset password: ", error);
-            return { success: false, message: error.message || "Internal server error" };
+            return { trainersData: [], userData: null };
         }
     }
 
     async fetchAlreadyChattedTrainer(alreadyChatted: string[]) {
         try {
-            const trainers = await this.userRepository.fetchAlreadyChattedTrainer(alreadyChatted);
+            const trainers = await this._userRepository.fetchAlreadyChattedTrainer(alreadyChatted);
             return trainers
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -288,7 +287,7 @@ export class UserService {
 
     async fetchDeitPlans(trainerId: string) {
         try {
-            let diet = await this.userRepository.fetchDeitPlans(trainerId);
+            let diet = await this._userRepository.fetchDeitPlans(trainerId);
             return diet;
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -297,7 +296,7 @@ export class UserService {
 
     async fetchTrainerScroll(page: number) {
         try {
-            let trainers = await this.userRepository.fetchTrainerScroll(page);
+            let trainers = await this._userRepository.fetchTrainerScroll(page);
             return trainers;
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -311,10 +310,10 @@ export class UserService {
             const updatedReviewCount = reviewCount + 1;
             const updatedAverageRating = updatedTotalRating / updatedReviewCount;
 
-            const result = await this.userRepository.addReview(reviewData, trainerId);
+            const result = await this._userRepository.addReview(reviewData, trainerId);
 
             if (result && 'modifiedCount' in result && result.modifiedCount === 1) {
-                await this.trainerRepository.ratingUpdate(trainerId, updatedAverageRating);
+                await this._trainerRepository.ratingUpdate(trainerId, updatedAverageRating);
                 return updatedAverageRating;
             } else {
                 throw new Error('Failed to add review: No document was modified.');

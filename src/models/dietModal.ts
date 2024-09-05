@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IDietPlan, IMeal } from "../Interfaces";
+import { IDietPlan, IMeal } from "../interfaces/common/Interfaces";
 
 const mealSchema = new Schema<IMeal>({
     mealTime: { type: String, required: true },

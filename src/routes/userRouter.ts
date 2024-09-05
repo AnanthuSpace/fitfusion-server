@@ -1,9 +1,15 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
 import { verifyToken } from "../config/jwtConfig";
+import { UserRepository } from "../repositories/userRepository";
+import { UserService } from "../services/userService";
+import { TrainerRepository } from "../repositories/trainerRepository";
 
 const router = Router()
-const userController = new UserController()
+const userRepository = new UserRepository(); 
+const trainerRepository = new TrainerRepository();
+const userService = new UserService(userRepository, trainerRepository);
+const userController = new UserController(userService);
 
 router.post("/signup", userController.registerController);
 router.post("/verify", userController.otpVerification);

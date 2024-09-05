@@ -1,14 +1,15 @@
 import { userModel } from "../models/userModel";
-import { FullReviewType, ReviewType, UserType } from "../types";
-import { EditUserInterface } from "../Interfaces";
+import { FullReviewType, ReviewType, UserType } from "../interfaces/common/types";
+import { EditUserInterface } from "../interfaces/common/Interfaces";
 import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
 import { ReviewModal } from "../models/reviewModal";
+import { IUserRepository } from "../interfaces/userRepository.interface";
 
-export class UserRepository {
+export class UserRepository implements IUserRepository {
 
     async findUser(email: string) {
-        return await userModel.findOne({ email: email }, { _id: 0 })
+        return await userModel.findOne({ email: email }, { _id: 0 , password: 0})
     }
 
     async fetchUser(userId: string) {

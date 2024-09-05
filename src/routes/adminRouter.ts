@@ -1,9 +1,15 @@
 import { Router } from "express";
 import { AdminController } from "../controllers/adminController";
 import { adminVerification } from "../config/jwtConfig";
+import { AdminRepository } from "../repositories/adminRepository";
+import { AdminService } from "../services/adminService";
 
 const router = Router();
-const adminController = new AdminController();
+
+const adminRepository = new AdminRepository();
+const adminService = new AdminService(adminRepository);
+const adminController = new AdminController(adminService);
+
 
 router.post("/", adminController.adminLogin);
 router.get("/loadtrainer", adminVerification, adminController.fetchTrainers);

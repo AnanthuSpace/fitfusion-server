@@ -1,21 +1,23 @@
-import { TrainerRepository } from "../repositories/trainerRepository";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
-import { TrainerType } from "../types";
+import { TrainerType } from "../interfaces/common/types";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
-import { EditTrainerInterface, IDietPlan } from "../Interfaces";
+import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces";
 import { UpdateResult } from 'mongodb';
+import { ITrainerService } from "../interfaces/trainerService.interface";
+import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 
+export class TrainerService implements ITrainerService {
+    private _trainerRepository: ITrainerRepository
 
-
-export class TrainerService {
-    private trainerRepository = new TrainerRepository();
+    constructor(trainerRepository: ITrainerRepository) {
+        this._trainerRepository = trainerRepository;
+    }
     private otpStore: { [key: string]: { otp: string; timestamp: number; trainerData: TrainerType } } = {};
 
-
     async registerTrainerService(trainerData: TrainerType) {
-        const alreadyExists = await this.trainerRepository.findTrainerInRegister(trainerData.email);
+        const alreadyExists = await this._trainerRepository.findTrainerInRegister(trainerData.email);
         if (alreadyExists) {
             return "UserExist";
         }
@@ -71,7 +73,7 @@ export class TrainerService {
         trainerData.trainerId = v4();
         delete this.otpStore[temperoryEmail];
 
-        await this.trainerRepository.registerTrainer(trainerData);
+        await this._trainerRepository.registerTrainer(trainerData);
 
         const { password, ...trainerDataWithoutSensitiveInfo } = trainerData;
 
@@ -79,9 +81,9 @@ export class TrainerService {
     }
 
 
-    async trainerLoginService(email: string, enteredPassword: string) {
+    async trainerLoginService(email: string, enteredPassword: string): Promise<any> {
         try {
-            const trainerData = await this.trainerRepository.findTrainerInRegister(email);
+            const trainerData = await this._trainerRepository.findTrainerInRegister(email);
 
             if (!trainerData) {
                 return {
@@ -132,7 +134,7 @@ export class TrainerService {
             experience,
         }
         console.log("Edit trainer service : ", editTrainerData)
-        const res = await this.trainerRepository.editTrainer(editTrainerData, trainerId)
+        const res = await this._trainerRepository.editTrainer(editTrainerData, trainerId)
         console.log("Updation : ", res);
 
         if (!res.modifiedCount) {
@@ -143,7 +145,7 @@ export class TrainerService {
 
     async verifyPassword(password: string, trainerId: string): Promise<boolean> {
         try {
-            const trainer = await this.trainerRepository.findEditingData(trainerId);
+            const trainer = await this._trainerRepository.findEditingData(trainerId);
             const storedPassword = trainer?.password;
             const bcryptPass = await bcrypt.compare(password, String(storedPassword));
             return bcryptPass;
@@ -156,7 +158,7 @@ export class TrainerService {
     async changeTrainerPass(newPassword: string, userId: string) {
         try {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            const res = await this.trainerRepository.changePass(hashedPassword, userId);
+            const res = await this._trainerRepository.changePass(hashedPassword, userId);
             if (res.modifiedCount === 0) {
                 throw new Error("No changes found");
             }
@@ -169,7 +171,7 @@ export class TrainerService {
 
     async profileUpdate(trainerId: string, profileImage: string): Promise<UpdateResult | { success: boolean; message: string }> {
         try {
-            const result = await this.trainerRepository.profileUpdate(trainerId, profileImage);
+            const result = await this._trainerRepository.profileUpdate(trainerId, profileImage);
             return result;
         } catch (error: any) {
             console.error('Error in profile update: ', error);
@@ -180,7 +182,7 @@ export class TrainerService {
 
     async fetchCustomer(userIds: string[]) {
         try {
-            const result = await this.trainerRepository.fetchCustomer(userIds)
+            const result = await this._trainerRepository.fetchCustomer(userIds)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -189,7 +191,7 @@ export class TrainerService {
 
     async fetchDeitPlans(trainerId: string) {
         try {
-            const result = await this.trainerRepository.fetchDeitPlans(trainerId)
+            const result = await this._trainerRepository.fetchDeitPlans(trainerId)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -198,9 +200,9 @@ export class TrainerService {
 
     async addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, 'trainerId'>) {
         try {
-            const existed = this.trainerRepository.existedDiet(trainerId, dietPlan.dietName)
+            const existed = this._trainerRepository.existedDiet(trainerId, dietPlan.dietName)
             if (!existed) {
-                const result = this.trainerRepository.AddDietPlan({ ...dietPlan, trainerId })
+                const result = this._trainerRepository.AddDietPlan({ ...dietPlan, trainerId })
                 return result;
             } else {
                 throw new Error('A diet plan with this name already exists for this trainer');
@@ -212,14 +214,14 @@ export class TrainerService {
 
     async fetchAlreadyChatted(alreadyChatted: string[]) {
         try {
-            const users = await this.trainerRepository.fetchAlreadyChatted(alreadyChatted);
+            const users = await this._trainerRepository.fetchAlreadyChatted(alreadyChatted);
             return users
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
 
-    async ratingUpdate(trainerId: string ) {
+    async ratingUpdate(trainerId: string) {
 
     }
 }

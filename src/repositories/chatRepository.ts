@@ -1,8 +1,9 @@
 import { chatModel } from "../models/chatModal";
-import { IChat } from "../Interfaces";
-import { MessageType, MessageDetailType } from "../Interfaces";
+import { IChat } from "../interfaces/common/Interfaces";
+import { MessageType, MessageDetailType } from "../interfaces/common/Interfaces";
+import { IChatRepository } from "../interfaces/chatRepository.interface";
 
-export class ChatRepository {
+export class ChatRepository implements IChatRepository {
   async createChat(userId: string, trainerId: string): Promise<IChat> {
     const chat = new chatModel({ userId, trainerId, details: [] });
     return await chat.save();

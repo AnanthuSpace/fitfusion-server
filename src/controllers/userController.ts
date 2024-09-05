@@ -1,18 +1,23 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/userService";
-import { UserType } from "../types";
+import { UserType } from "../interfaces/common/types";
+import { UserServiceInterface } from "../interfaces/userService.interface";
 
-const userService = new UserService();
 
 interface CustomRequest extends Request {
     id?: string;
 }
 
 export class UserController {
-    async registerController(req: Request, res: Response): Promise<any> {
+    private _userService: UserServiceInterface;
+
+    constructor(_userService: UserServiceInterface) {
+        this._userService = _userService
+    }
+
+    registerController = async (req: Request, res: Response): Promise<any> => {
         try {
             const userData: UserType = req.body;
-            const serviceResponse = await userService.registerUserService(userData);
+            const serviceResponse = await this._userService.registerUserService(userData);
             if (serviceResponse === "UserExist") {
                 return res.status(409).json({ success: false, message: "User already exists" });
             } else {
@@ -24,10 +29,10 @@ export class UserController {
         }
     }
 
-    async otpVerification(req: Request, res: Response): Promise<any> {
+    otpVerification = async (req: Request, res: Response): Promise<any> => {
         try {
             const { temperoryEmail, completeOtp } = req.body;
-            const serviceResponse = await userService.otpVerificationService(temperoryEmail, completeOtp);
+            const serviceResponse = await this._userService.otpVerificationService(temperoryEmail, completeOtp);
 
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
@@ -40,10 +45,10 @@ export class UserController {
         }
     }
 
-    async userLogin(req: Request, res: Response): Promise<any> {
+    userLogin = async (req: Request, res: Response): Promise<any> => {
         try {
             const email: string = req.body.email;
-            const serviceResponse = await userService.userLoginService(email);
+            const serviceResponse = await this._userService.userLoginService(email);
 
             if (serviceResponse === "Invalid email") {
                 return res.status(400).json({ success: false, message: "User not exist please register" });
@@ -60,12 +65,12 @@ export class UserController {
         }
     }
 
-    async loginVerify(req: Request, res: Response): Promise<any> {
+    loginVerify = async (req: Request, res: Response): Promise<any> => {
         try {
             const { temperoryEmail, completeOtp } = req.body;
 
             console.log(temperoryEmail);
-            const serviceResponse = await userService.userLoginVerificationService(temperoryEmail, completeOtp);
+            const serviceResponse = await this._userService.userLoginVerificationService(temperoryEmail, completeOtp);
 
             if (serviceResponse.message === "OTP verified") {
                 return res.status(200).json(serviceResponse);
@@ -78,15 +83,15 @@ export class UserController {
         }
     }
 
-    async editUserData(req: CustomRequest, res: Response): Promise<any> {
+    editUserData = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const { name, phone, address, gender, password, weight, heigth, activityLevel, goals, dietary, medicalDetails } = req.body;
             const userId = req.id as string;
-            const bcryptPass = await userService.verifyPassword(password, userId);
+            const bcryptPass = await this._userService.verifyPassword(password, userId);
             if (!bcryptPass) {
                 return res.status(403).json({ success: false, message: "Invalid password" });
             }
-            await userService.editUserService(name, phone, address, gender, password, userId, weight, heigth, activityLevel, goals, dietary, medicalDetails);
+            await this._userService.editUserService(name, phone, address, gender, password, userId, weight, heigth, activityLevel, goals, dietary, medicalDetails);
             return res.status(200).json({ success: true, message: "Updated successfully" });
         } catch (error: any) {
             if (error.message === "No changes found") {
@@ -96,25 +101,25 @@ export class UserController {
         }
     }
 
-    async inactiveUser(req: Request, res: Response) {
+    inactiveUser = async (req: Request, res: Response) => {
         try {
             const { userId } = req.body
-            const result = await userService.inactiveUser(userId)
-            return res.status(200).json({success: true, message: "User is inactive"});
+            await this._userService.inactiveUser(userId)
+            return res.status(200).json({ success: true, message: "User is inactive" });
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
 
-    async changeUserPassword(req: CustomRequest, res: Response): Promise<any> {
+    changeUserPassword = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const { oldPassword, newPassword } = req.body;
             const userId = req.id as string;
-            const bcryptPass = await userService.verifyPassword(oldPassword, userId);
+            const bcryptPass = await this._userService.verifyPassword(oldPassword, userId);
             if (!bcryptPass) {
                 return res.status(403).json({ success: false, message: "Current password is incorrect" });
             }
-            const serviceResponse = await userService.changeUserPass(newPassword, userId);
+            const serviceResponse = await this._userService.changeUserPass(newPassword, userId);
             if (serviceResponse.message === "No changes found") {
                 return res.status(304).json({ success: false, message: "No changes found" });
             }
@@ -124,10 +129,10 @@ export class UserController {
         }
     }
 
-    async blockeAUser(req: Request, res: Response): Promise<any> {
+    blockeAUser = async (req: Request, res: Response): Promise<any> => {
         try {
             const { userId } = req.body
-            const responds = await userService.blockUser(userId)
+            const responds = await this._userService.blockUser(userId)
             if (responds) {
                 return res.status(200).json({ success: true, message: "User blocked" });
             }
@@ -136,9 +141,9 @@ export class UserController {
         }
     }
 
-    async fetchTrainers(req: Request, res: Response): Promise<any> {
+    fetchTrainers = async (req: Request, res: Response): Promise<any> => {
         try {
-            const trainers = await userService.fetchTrainers()
+            const trainers = await this._userService.fetchTrainers()
             if (trainers) {
                 return res.status(200).json(trainers)
             }
@@ -148,10 +153,10 @@ export class UserController {
         }
     }
 
-    async fetchUserTrainer(req: CustomRequest, res: Response): Promise<any> {
+    fetchUserTrainer = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const userId = req.id as string
-            const response = await userService.fetchUserTrainer(userId)
+            const response = await this._userService.fetchUserTrainer(userId)
             return res.status(200).json(response)
         } catch (error: any) {
             console.error(error);
@@ -159,11 +164,11 @@ export class UserController {
         }
     }
 
-    async addUserDetails(req: CustomRequest, res: Response): Promise<any> {
+    addUserDetails = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const { userDetails } = req.body
             const userId = req.id as string;
-            const response = await userService.addUserDetails(userId, userDetails)
+            const response = await this._userService.addUserDetails(userId, userDetails)
 
             if ('modifiedCount' in response) {
                 if (response.modifiedCount === 0) {
@@ -181,12 +186,12 @@ export class UserController {
     }
 
 
-    async createCheckoutSession(req: CustomRequest, res: Response): Promise<void> {
+    createCheckoutSession = async (req: CustomRequest, res: Response): Promise<void> => {
         try {
             const { trainerId, amount }: { trainerId: string; amount: number } = req.body;
             const userId = req.id as string;
 
-            const result = await userService.createCheckoutSession(trainerId, amount, userId);
+            const result = await this._userService.createCheckoutSession(trainerId, amount, userId);
 
             res.status(200).json({ sessionId: result.session.id, trainerData: result.trainerData, userData: result.userData });
         } catch (error: any) {
@@ -199,10 +204,10 @@ export class UserController {
         }
     }
 
-    async fetchAlreadyChattedTrainer(req: Request, res: Response) {
+    fetchAlreadyChattedTrainer = async (req: Request, res: Response) => {
         try {
             const { alreadyChatted } = req.body;
-            const response = await userService.fetchAlreadyChattedTrainer(alreadyChatted);
+            const response = await this._userService.fetchAlreadyChattedTrainer(alreadyChatted);
             return res.status(200).json({
                 success: true,
                 users: response,
@@ -212,30 +217,30 @@ export class UserController {
         }
     }
 
-    async fetchDeitPlans(req: Request, res: Response) {
+    fetchDeitPlans = async (req: Request, res: Response) => {
         try {
             const trainerId = req.query.trainerId as string;
-            const response = await userService.fetchDeitPlans(trainerId)
+            const response = await this._userService.fetchDeitPlans(trainerId)
             return res.status(200).json({ success: true, deit: response })
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
 
-    async fetchTrainerScroll(req: Request, res: Response) {
+    fetchTrainerScroll = async (req: Request, res: Response) => {
         try {
             const page = Number(req.query.page);
-            const response = await userService.fetchTrainerScroll(page)
+            const response = await this._userService.fetchTrainerScroll(page)
             return res.status(200).json(response)
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
 
-    async addReview(req: Request, res: Response) {
+    addReview = async (req: Request, res: Response) => {
         try {
             const { trainerId, reviewData, curruntRating, reviewCount } = req.body
-            const response = await userService.addReview({ trainerId: trainerId, reviewData: reviewData, curruntRating: curruntRating, reviewCount: reviewCount })
+            const response = await this._userService.addReview({ trainerId: trainerId, reviewData: reviewData, curruntRating: curruntRating, reviewCount: reviewCount })
             console.log(response);
             return res.status(200).json({ success: true, rating: response })
         } catch (error) {

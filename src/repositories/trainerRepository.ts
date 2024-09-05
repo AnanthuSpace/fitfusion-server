@@ -1,10 +1,11 @@
 import { trainerModel } from "../models/trainerModel";
-import { EditTrainerInterface, IDietPlan } from "../Interfaces";
-import { TrainerType } from "../types";
+import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces";
+import { TrainerType } from "../interfaces/common/types";
 import { userModel } from "../models/userModel";
 import DietPlan from "../models/dietModal";
+import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 
-export class TrainerRepository {
+export class TrainerRepository implements ITrainerRepository {
 
     async findTrainerInRegister(email: string): Promise<TrainerType | null> {
         return trainerModel.findOne({ email }, { _id: 0 }).lean();

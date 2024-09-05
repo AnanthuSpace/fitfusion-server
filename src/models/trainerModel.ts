@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { TrainerType } from "../types";
+import { TrainerType } from "../interfaces/common/types";
 
 const trainerSchema = new Schema<TrainerType>({
     trainerId: {

@@ -3,10 +3,12 @@ import { AdminController } from "../controllers/adminController";
 import { adminVerification } from "../config/jwtConfig";
 import { AdminRepository } from "../repositories/adminRepository";
 import { AdminService } from "../services/adminService";
+import { trainerModel } from "../models/trainerModel";
+import { userModel } from "../models/userModel";
 
 const router = Router();
 
-const adminRepository = new AdminRepository();
+const adminRepository = new AdminRepository(trainerModel, userModel);
 const adminService = new AdminService(adminRepository);
 const adminController = new AdminController(adminService);
 

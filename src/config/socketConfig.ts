@@ -4,6 +4,11 @@ import ChatService from "../services/chatService";
 import { ChatRepository } from "../repositories/chatRepository";
 import { UserRepository } from "../repositories/userRepository";
 import { TrainerRepository } from "../repositories/trainerRepository";
+import { chatModel } from "../models/chatModal";
+import { userModel } from "../models/userModel";
+import { trainerModel } from "../models/trainerModel";
+import DietPlan from "../models/dietModal";
+import { ReviewModal } from "../models/reviewModal";
 
 export const configureSocket = (server: http.Server) => {
   const io = new SocketIOServer(server, {
@@ -14,9 +19,9 @@ export const configureSocket = (server: http.Server) => {
     },
   });
 
-  const chatRepository = new ChatRepository();
-  const userRepository = new UserRepository();
-  const trainerRepository = new TrainerRepository();
+  const chatRepository = new ChatRepository(chatModel);
+  const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
+  const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan);
 
   const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
 

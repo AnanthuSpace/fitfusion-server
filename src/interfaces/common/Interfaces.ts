@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { Document } from "mongoose";
 
 export interface EditUserInterface {
     name: string;
@@ -60,7 +61,7 @@ export interface IDietPlan {
     meals?: IMeal[];
 }
 
-export interface IChat {
+export interface IChat extends Document{
     chatMembers?: string[];
     details: {
       senderId: string;

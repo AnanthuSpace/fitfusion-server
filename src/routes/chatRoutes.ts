@@ -5,12 +5,17 @@ import { TrainerRepository } from "../repositories/trainerRepository";
 import ChatController from '../controllers/chatController';
 import { verifyToken } from '../config/jwtConfig';
 import ChatService from "../services/chatService";
+import { chatModel } from "../models/chatModal";
+import { userModel } from "../models/userModel";
+import { trainerModel } from "../models/trainerModel";
+import DietPlan from "../models/dietModal";
+import { ReviewModal } from "../models/reviewModal";
 
 const router = Router();
 
-const chatRepository = new ChatRepository();
-const userRepository = new UserRepository();
-const trainerRepository = new TrainerRepository();
+const chatRepository = new ChatRepository(chatModel);
+const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan);
+const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
 
 const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
 const chatController = new ChatController(chatService);

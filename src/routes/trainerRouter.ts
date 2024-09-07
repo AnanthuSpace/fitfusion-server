@@ -4,9 +4,12 @@ import { TrainerController } from "../controllers/trainerController";
 import upload from "../config/multerConfig";
 import { TrainerRepository } from "../repositories/trainerRepository";
 import { TrainerService  } from "../services/trainerService";
+import { trainerModel } from "../models/trainerModel";
+import { userModel } from "../models/userModel";
+import DietPlan from "../models/dietModal";
 
 const router = Router()
-const trainerRepository = new TrainerRepository()
+const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan)
 const trainerService = new TrainerService (trainerRepository);
 const trainerController = new TrainerController(trainerService)
 

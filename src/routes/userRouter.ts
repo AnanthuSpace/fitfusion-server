@@ -4,10 +4,14 @@ import { verifyToken } from "../config/jwtConfig";
 import { UserRepository } from "../repositories/userRepository";
 import { UserService } from "../services/userService";
 import { TrainerRepository } from "../repositories/trainerRepository";
+import { userModel } from "../models/userModel";
+import { trainerModel } from "../models/trainerModel";
+import DietPlan from "../models/dietModal";
+import { ReviewModal } from "../models/reviewModal";
 
 const router = Router()
-const userRepository = new UserRepository(); 
-const trainerRepository = new TrainerRepository();
+const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal); 
+const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan);
 const userService = new UserService(userRepository, trainerRepository);
 const userController = new UserController(userService);
 

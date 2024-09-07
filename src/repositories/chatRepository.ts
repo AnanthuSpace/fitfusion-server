@@ -1,26 +1,33 @@
-import { chatModel } from "../models/chatModal";
 import { IChat } from "../interfaces/common/Interfaces";
 import { MessageType, MessageDetailType } from "../interfaces/common/Interfaces";
 import { IChatRepository } from "../interfaces/chatRepository.interface";
+import { Model } from "mongoose";
 
 export class ChatRepository implements IChatRepository {
+  private _chatModel: Model<IChat>;
+
+  constructor(chatModel: Model<IChat>) {  
+    this._chatModel = chatModel;
+  }
+
+
   async createChat(userId: string, trainerId: string): Promise<IChat> {
-    const chat = new chatModel({ userId, trainerId, details: [] });
+    const chat = new this._chatModel({ userId, trainerId, details: [] });
     return await chat.save();
   }
 
   async findChat(userId: string, trainerId: string): Promise<IChat | null> {
-    return await chatModel.findOne({ userId, trainerId }).exec();
+    return await this._chatModel.findOne({ userId, trainerId }).exec();
   }
 
   async getMessages(senderId: string, receiverId: string): Promise<MessageDetailType[]> {
-    const chat = await chatModel.findOne({ chatMembers: { $all: [senderId, receiverId] } })
+    const chat = await this._chatModel.findOne({ chatMembers: { $all: [senderId, receiverId] } })
     return chat ? chat.details : [];
   }
 
   async saveNewChatRepository(newMessageDetails: MessageDetailType) {
     try {
-      return chatModel.updateOne(
+      return this._chatModel.updateOne(
         {
           $or: [
             { chatMembers: { $elemMatch: { $eq: newMessageDetails.senderId } } },
@@ -39,7 +46,7 @@ export class ChatRepository implements IChatRepository {
 
   async createConnectionAndSaveMessageRepository(newChatDocument: MessageType) {
     try {
-      return await chatModel.create(newChatDocument);
+      return await this._chatModel.create(newChatDocument);
     } catch (error) {
       throw error;
     }

@@ -1,27 +1,32 @@
-import { trainerModel } from "../models/trainerModel";
 import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces";
-import { TrainerType } from "../interfaces/common/types";
-import { userModel } from "../models/userModel";
-import DietPlan from "../models/dietModal";
+import { TrainerType, UserType } from "../interfaces/common/types";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
+import { Model } from "mongoose";
 
 export class TrainerRepository implements ITrainerRepository {
+    private _trainerModel: Model<TrainerType>
+    private _userModel: Model<UserType>
+    private _dietModel: Model<IDietPlan>
 
+    constructor(trainerModel: Model<TrainerType>, userModel: Model<UserType>, DietPlan: Model<IDietPlan>){
+        this._trainerModel = trainerModel
+        this._userModel = userModel
+        this._dietModel = DietPlan
+    }
     async findTrainerInRegister(email: string): Promise<TrainerType | null> {
-        return trainerModel.findOne({ email }, { _id: 0 }).lean();
+        return this._trainerModel.findOne({ email }, { _id: 0 }).lean();
     }
 
     async registerTrainer(trainerData: TrainerType) {
-        return await trainerModel.create(trainerData)
+        return await this._trainerModel.create(trainerData)
     }
 
     async editTrainer(editTrainerData: EditTrainerInterface, trainerId: string) {
-        console.log(editTrainerData.qualification);
-        return await trainerModel.updateOne({ trainerId }, { $set: editTrainerData })
+        return await this._trainerModel.updateOne({ trainerId }, { $set: editTrainerData })
     }
 
     async changePass(newPassword: string, trainerId: string) {
-        const res = await trainerModel.updateOne(
+        const res = await this._trainerModel.updateOne(
             { trainerId: trainerId },
             { $set: { password: newPassword } }
         );
@@ -29,18 +34,18 @@ export class TrainerRepository implements ITrainerRepository {
     }
 
     async findEditingData(trainerId: string) {
-        return await trainerModel.findOne({ trainerId: trainerId }, { _id: 0 })
+        return await this._trainerModel.findOne({ trainerId: trainerId }, { _id: 0 })
     }
 
     async profileUpdate(trainerId: string, profileImage: string) {
-        return await trainerModel.updateOne(
+        return await this._trainerModel.updateOne(
             { trainerId: trainerId },
             { $set: { profileIMG: profileImage } }
         );
     }
 
     async updateTrainerSubscription(trainerId: string, userId: string): Promise<void> {
-        await trainerModel.findOneAndUpdate(
+        await this._trainerModel.findOneAndUpdate(
             { trainerId: trainerId },
             { $push: { subscribedUsers: userId } }
         );
@@ -48,7 +53,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async fetchCustomer(userIds: string[]) {
         try {
-            return await userModel.find({ userId: { $in: userIds } }, { _id: 0, password: 0, isBlocked: 0, followed: 0, subscribeList: 0, alreadychattedTrainers: 0 })
+            return await this._userModel.find({ userId: { $in: userIds } }, { _id: 0, password: 0, isBlocked: 0, followed: 0, subscribeList: 0, alreadychattedTrainers: 0 })
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
         }
@@ -56,7 +61,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async fetchDeitPlans(trainerId: string) {
         try {
-         const dietPlans = await DietPlan.find({ trainerId: trainerId }, {_id:0}).lean()
+         const dietPlans = await this._dietModel.find({ trainerId: trainerId }, {_id:0}).lean()
          return dietPlans
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
@@ -65,7 +70,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async AddDietPlan(dietPlan: IDietPlan) {
         try {
-            const newDietPlan = new DietPlan({ ...dietPlan });
+            const newDietPlan = new this._dietModel({ ...dietPlan });
             const savedDietPlan = await newDietPlan.save();
             return savedDietPlan;
         } catch (error: any) {
@@ -75,7 +80,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async existedDiet(trainerId: string, dietName: string): Promise<boolean> {
         try {
-            const diet = await DietPlan.findOne({ trainerId, dietName });
+            const diet = await this._dietModel.findOne({ trainerId, dietName });
             return !!diet;
         } catch (error: any) {
             throw new Error(`Error checking diet existence: ${error.message}`);
@@ -84,7 +89,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string) {
         try {
-            return await trainerModel.updateOne(
+            return await this._trainerModel.updateOne(
                 { trainerId: trainerId },
                 { $addToSet: { alreadychattedUsers: userId } }
             );
@@ -95,7 +100,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async fetchAlreadyChatted(alreadyChatted : string[] ) {
         try {
-            const users = await userModel.find(
+            const users = await this._userModel.find(
                 { userId: { $in: alreadyChatted } }, 
                 { _id:0, name: 1, userId: 1 } 
             );
@@ -107,7 +112,7 @@ export class TrainerRepository implements ITrainerRepository {
 
     async ratingUpdate(trainerId: string, updatedAverageRating: number) {
         try {
-            const updatedTrainer = await trainerModel.updateOne({trainerId:trainerId}, {$set:{rating: updatedAverageRating}})
+            const updatedTrainer = await this._trainerModel.updateOne({trainerId:trainerId}, {$set:{rating: updatedAverageRating}})
             return updatedTrainer            
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);

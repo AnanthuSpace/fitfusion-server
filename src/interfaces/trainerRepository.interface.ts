@@ -18,4 +18,5 @@ export interface ITrainerRepository {
     addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
+    updateTrainerVideoUrl(trainerId: string, videoUrl: string): Promise<any>
 }

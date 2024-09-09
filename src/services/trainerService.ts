@@ -221,7 +221,11 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async ratingUpdate(trainerId: string) {
-
+    async saveVideoUrl(trainerId: string, videoUrl: string): Promise<any>  {
+        try {
+        await this._trainerRepository.updateTrainerVideoUrl(trainerId, videoUrl)
+    } catch (error: any) {
+        return { success: false, message: error.message || 'Internal server error' };
+    }
     }
 }

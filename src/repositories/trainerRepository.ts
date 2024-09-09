@@ -8,7 +8,7 @@ export class TrainerRepository implements ITrainerRepository {
     private _userModel: Model<UserType>
     private _dietModel: Model<IDietPlan>
 
-    constructor(trainerModel: Model<TrainerType>, userModel: Model<UserType>, DietPlan: Model<IDietPlan>){
+    constructor(trainerModel: Model<TrainerType>, userModel: Model<UserType>, DietPlan: Model<IDietPlan>) {
         this._trainerModel = trainerModel
         this._userModel = userModel
         this._dietModel = DietPlan
@@ -61,8 +61,8 @@ export class TrainerRepository implements ITrainerRepository {
 
     async fetchDeitPlans(trainerId: string) {
         try {
-         const dietPlans = await this._dietModel.find({ trainerId: trainerId }, {_id:0}).lean()
-         return dietPlans
+            const dietPlans = await this._dietModel.find({ trainerId: trainerId }, { _id: 0 }).lean()
+            return dietPlans
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
         }
@@ -98,11 +98,11 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async fetchAlreadyChatted(alreadyChatted : string[] ) {
+    async fetchAlreadyChatted(alreadyChatted: string[]) {
         try {
             const users = await this._userModel.find(
-                { userId: { $in: alreadyChatted } }, 
-                { _id:0, name: 1, userId: 1 } 
+                { userId: { $in: alreadyChatted } },
+                { _id: 0, name: 1, userId: 1 }
             );
             return users
         } catch (error: any) {
@@ -112,8 +112,16 @@ export class TrainerRepository implements ITrainerRepository {
 
     async ratingUpdate(trainerId: string, updatedAverageRating: number) {
         try {
-            const updatedTrainer = await this._trainerModel.updateOne({trainerId:trainerId}, {$set:{rating: updatedAverageRating}})
-            return updatedTrainer            
+            const updatedTrainer = await this._trainerModel.updateOne({ trainerId: trainerId }, { $set: { rating: updatedAverageRating } })
+            return updatedTrainer
+        } catch (error: any) {
+            throw new Error(`Error adding connection: ${error.message}`);
+        }
+    }
+
+    async updateTrainerVideoUrl(trainerId: string, videoUrl: string): Promise<void> {
+        try {
+            await this._trainerModel.findByIdAndUpdate(trainerId, { videoUrl: videoUrl })
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
         }

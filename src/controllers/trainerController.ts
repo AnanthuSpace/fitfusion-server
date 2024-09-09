@@ -6,6 +6,10 @@ interface CustomRequest extends Request {
     id?: string;
 }
 
+interface S3File extends Express.Multer.File {
+    location: string;
+}
+
 export class TrainerController {
     private _trainerService: ITrainerService;
 
@@ -173,6 +177,25 @@ export class TrainerController {
             });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    uploadVideo = async (req: CustomRequest, res: Response): Promise<void> => {
+        try {
+            console.log("hello");
+            
+            const file = req.file as S3File;
+            const trainerId = req.id as string
+            if (!file) {
+                res.status(400).json({ message: "No video file uploaded" });
+                return;
+            }
+            const videoUrl = file.location;
+            await this._trainerService.saveVideoUrl(trainerId, videoUrl);
+            res.status(200).json({ message: "Video uploaded successfully", videoUrl });
+        } catch (error) {
+            console.error("Error uploading video:", error);
+            res.status(500).json({ message: "Error uploading video" });
         }
     }
 }

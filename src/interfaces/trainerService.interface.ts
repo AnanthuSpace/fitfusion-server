@@ -15,5 +15,6 @@ export interface ITrainerService {
     fetchDeitPlans(trainerId: string): Promise<any>;
     addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, "trainerId">): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<any>;
-    ratingUpdate(trainerId: string): Promise<any>;
+    saveVideoUrl(trainerId: string, videoUrl: string): Promise<any>;
 }
+

@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { Document } from "mongoose";
+import { UpdateResult } from "mongodb";
 
 export interface EditUserInterface {
     name: string;
@@ -61,13 +62,28 @@ export interface IDietPlan {
     meals?: IMeal[];
 }
 
-export interface IChat extends Document{
+export interface IChat extends Document {
     chatMembers?: string[];
     details: {
-      senderId: string;
-      receiverId: string;
-      messages: string;
-      time?: Date;
+        senderId: string;
+        receiverId: string;
+        messages: string;
+        time?: Date;
     }[];
     createdAt: Date;
-  }
+}
+
+export interface ITutorialVideo {
+    trainerId: string; 
+    videos: {
+        url: string; 
+        title: string;
+        description?: string;
+        uploadDate?: Date; 
+    }[];
+}
+
+export interface ProfileUpdateResult {
+    url: string;
+    result: UpdateResult;
+}

@@ -9,6 +9,7 @@ import { userModel } from "../models/userModel";
 import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
 import { ReviewModal } from "../models/reviewModal";
+import { TutorialVideoModal } from "../models/tutorialVideoModal";
 
 export const configureSocket = (server: http.Server) => {
   const io = new SocketIOServer(server, {
@@ -21,7 +22,7 @@ export const configureSocket = (server: http.Server) => {
 
   const chatRepository = new ChatRepository(chatModel);
   const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
-  const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan);
+  const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
 
   const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
 

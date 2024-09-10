@@ -4,9 +4,10 @@ import { v4 } from "uuid";
 import { TrainerType } from "../interfaces/common/types";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces";
-import { UpdateResult } from 'mongodb';
+import { ProfileUpdateResult } from "../interfaces/common/Interfaces";
 import { ITrainerService } from "../interfaces/trainerService.interface";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
+import { getObjectURL, profileUpdateToAws } from "../config/awsConfig";
 
 export class TrainerService implements ITrainerService {
     private _trainerRepository: ITrainerRepository
@@ -84,7 +85,6 @@ export class TrainerService implements ITrainerService {
     async trainerLoginService(email: string, enteredPassword: string): Promise<any> {
         try {
             const trainerData = await this._trainerRepository.findTrainerInRegister(email);
-
             if (!trainerData) {
                 return {
                     trainerNotExisted: true,
@@ -110,7 +110,7 @@ export class TrainerService implements ITrainerService {
                 accessToken,
                 refreshToken,
                 verifiedTrainer,
-                isBlocked
+                isBlocked,
             };
         } catch (error) {
             console.error("Error verifying password: ", error);
@@ -169,16 +169,22 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async profileUpdate(trainerId: string, profileImage: string): Promise<UpdateResult | { success: boolean; message: string }> {
+    async profileUpdate(trainerId: string, profileImage: any): Promise<ProfileUpdateResult | { success: boolean; message: string } | any> {
         try {
-            const result = await this._trainerRepository.profileUpdate(trainerId, profileImage);
-            return result;
+            const bucketName = "fitfusion-store"
+            const profileKey = `trainerProfile/profileImage/`;
+
+            const uploadResult = await profileUpdateToAws(bucketName, profileKey, profileImage)         
+
+            const url = await getObjectURL(`trainerProfile/profileImage/${uploadResult}`)
+
+            const result = await this._trainerRepository.profileUpdate(trainerId, uploadResult);
+            return { url, result };
         } catch (error: any) {
             console.error('Error in profile update: ', error);
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
-
 
     async fetchCustomer(userIds: string[]) {
         try {
@@ -221,11 +227,11 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async saveVideoUrl(trainerId: string, videoUrl: string): Promise<any>  {
+    async saveVideoUrl(trainerId: string, videoUrl: string): Promise<any> {
         try {
-        await this._trainerRepository.updateTrainerVideoUrl(trainerId, videoUrl)
-    } catch (error: any) {
-        return { success: false, message: error.message || 'Internal server error' };
-    }
+            await this._trainerRepository.addTrainerVideo(trainerId, videoUrl)
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
     }
 }

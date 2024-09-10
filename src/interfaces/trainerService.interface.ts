@@ -1,6 +1,6 @@
 import { TrainerType } from "./common/types";
 import { IDietPlan } from "./common/Interfaces";
-import { UpdateResult } from "mongodb";
+import { ProfileUpdateResult } from "./common/Interfaces";
 
 export interface ITrainerService {
     registerTrainerService(trainerData: TrainerType): Promise<string | number>;
@@ -10,7 +10,7 @@ export interface ITrainerService {
     editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string): Promise<{ message: string }>;
     verifyPassword(password: string, trainerId: string): Promise<boolean>;
     changeTrainerPass(newPassword: string, userId: string): Promise<{ success: boolean; message: string }>;
-    profileUpdate(trainerId: string, profileImage: string): Promise<UpdateResult | { success: boolean; message: string }>;
+    profileUpdate(trainerId: string, profileImage: any): Promise<ProfileUpdateResult | { success: boolean; message: string } | any>;
     fetchCustomer(userIds: string[]): Promise<any>;
     fetchDeitPlans(trainerId: string): Promise<any>;
     addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, "trainerId">): Promise<any>;

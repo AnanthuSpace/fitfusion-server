@@ -1,4 +1,4 @@
-import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces";
+import { EditTrainerInterface, IDietPlan, ITutorialVideo } from "../interfaces/common/Interfaces";
 import { TrainerType, UserType } from "../interfaces/common/types";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 import { Model } from "mongoose";
@@ -7,12 +7,15 @@ export class TrainerRepository implements ITrainerRepository {
     private _trainerModel: Model<TrainerType>
     private _userModel: Model<UserType>
     private _dietModel: Model<IDietPlan>
+    private _tutorialModal: Model<ITutorialVideo>
 
-    constructor(trainerModel: Model<TrainerType>, userModel: Model<UserType>, DietPlan: Model<IDietPlan>) {
+    constructor(trainerModel: Model<TrainerType>, userModel: Model<UserType>, DietPlan: Model<IDietPlan>, TutorialVideoModal: Model<ITutorialVideo>) {
         this._trainerModel = trainerModel
         this._userModel = userModel
         this._dietModel = DietPlan
+        this._tutorialModal = TutorialVideoModal
     }
+
     async findTrainerInRegister(email: string): Promise<TrainerType | null> {
         return this._trainerModel.findOne({ email }, { _id: 0 }).lean();
     }
@@ -119,11 +122,15 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async updateTrainerVideoUrl(trainerId: string, videoUrl: string): Promise<void> {
+    async addTrainerVideo(trainerId: string, videoUrl: string): Promise<void> {
         try {
-            await this._trainerModel.findByIdAndUpdate(trainerId, { videoUrl: videoUrl })
+            await this._tutorialModal.updateOne(
+                { trainerId: trainerId }, 
+                { $push: { videos: { url: videoUrl } } },  
+                { upsert: true }  
+            );
         } catch (error: any) {
-            throw new Error(`Error adding connection: ${error.message}`);
+            throw new Error(`Error adding/updating trainer video: ${error.message}`);
         }
-    }
+    }    
 }

@@ -9,7 +9,7 @@ export interface ITrainerRepository {
     editTrainer(editTrainerData: EditTrainerInterface, trainerId: string): Promise<any>;
     changePass(newPassword: string, trainerId: string): Promise<any>;
     findEditingData(trainerId: string): Promise<TrainerType | null>;
-    profileUpdate(trainerId: string, profileImage: string): Promise<any>;
+    profileUpdate(trainerId: string, uploadResult: any): Promise<any>;
     updateTrainerSubscription(trainerId: string, userId: string): Promise<void>;
     fetchCustomer(userIds: string[]): Promise<UserType[]>;
     fetchDeitPlans(trainerId: string): Promise<IDietPlan[]>;
@@ -18,5 +18,6 @@ export interface ITrainerRepository {
     addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
-    updateTrainerVideoUrl(trainerId: string, videoUrl: string): Promise<any>
+    addTrainerVideo(trainerId: string, videoUrl: string): Promise<void>;
+    profileImgFetch(trainerId: string): Promise<string>;
 }

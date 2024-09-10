@@ -7,9 +7,10 @@ import { TrainerService  } from "../services/trainerService";
 import { trainerModel } from "../models/trainerModel";
 import { userModel } from "../models/userModel";
 import DietPlan from "../models/dietModal";
+import { TutorialVideoModal } from "../models/tutorialVideoModal";
 
 const router = Router()
-const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan)
+const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal)
 const trainerService = new TrainerService (trainerRepository);
 const trainerController = new TrainerController(trainerService)
 
@@ -24,5 +25,6 @@ router.post('/add-diet', verifyToken,trainerController.addDietPlan);
 router.get('/fetch-deit', verifyToken,trainerController.fetchDeitPlans);
 router.post('/getUsersByIds', verifyToken,trainerController.fetchAlreadyChatted);
 router.put('/upload-video', verifyToken, upload.single('videoFile'), trainerController.uploadVideo);
+router.get(`/profileimg`, verifyToken)
 
 export default router

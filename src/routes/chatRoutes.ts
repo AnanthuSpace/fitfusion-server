@@ -10,11 +10,12 @@ import { userModel } from "../models/userModel";
 import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
 import { ReviewModal } from "../models/reviewModal";
+import { TutorialVideoModal } from "../models/tutorialVideoModal";
 
 const router = Router();
 
 const chatRepository = new ChatRepository(chatModel);
-const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan);
+const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
 const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
 
 const chatService = new ChatService(chatRepository, userRepository, trainerRepository);

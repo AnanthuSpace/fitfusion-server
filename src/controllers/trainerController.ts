@@ -108,16 +108,19 @@ export class TrainerController {
     profileUpdate = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const trainerId = req.id as string;
-            const profileImage = req.file?.filename;
+            const profileImage = req.file;
+    
             if (!profileImage) {
                 return res.status(400).json({ success: false, message: 'No profile image uploaded' });
             }
+    
             const response = await this._trainerService.profileUpdate(trainerId, profileImage);
-            if ('modifiedCount' in response) {
-                if (response.modifiedCount === 0) {
+    
+            if ('modifiedCount' in response.result) {
+                if (response.result.modifiedCount === 0) {
                     return res.status(304).json({ success: false, message: 'No changes made' });
                 } else {
-                    return res.status(200).json({ success: true, message: 'Profile updated successfully', profileImage: profileImage });
+                    return res.status(200).json({ success: true, message: 'Profile updated successfully', profileImage: response.url });
                 }
             } else {
                 return res.status(500).json({ success: false, message: response.message });
@@ -127,6 +130,7 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
+    
 
     fetchCustomer = async (req: Request, res: Response) => {
         try {
@@ -183,7 +187,6 @@ export class TrainerController {
     uploadVideo = async (req: CustomRequest, res: Response): Promise<void> => {
         try {
             console.log("hello");
-            
             const file = req.file as S3File;
             const trainerId = req.id as string
             if (!file) {

@@ -12,26 +12,9 @@ const s3Client = new S3Client({
     }
 });
 
-// export const putObject = async (filename: string, contentType: string): Promise<string> => {
-//     try {
-//         const command = new PutObjectCommand({
-//             Bucket: process.env.S3_BUCKET_NAME,
-//             Key: `/uploads/trainer-videos/${filename}`,
-//             ContentType: contentType
-//         });
-//         const url = await getSignedUrl(s3Client, command);
-//         return url;
-//     } catch (error) {
-//         console.error("Error generating signed URL:", error);
-//         throw error;
-//     }
-// };
-
-export const profileUpdateToAws = async (bucketName: string, profileKey: string, file: any): Promise<any> => {
+export const UpdateToAws = async (bucketName: string, profileKey: string, file: any): Promise<any> => {
     try {
         let fileBuffer = file.buffer;
-        console.log(file.originalname);
-        
 
         const uniqueName = crypto.randomBytes(16).toString('hex') + '-' + file.originalname;
 
@@ -65,34 +48,3 @@ export const getObjectURL = async (key: string): Promise<string> => {
     const url = await getSignedUrl(s3Client, command, { expiresIn: 60 });
     return url;
 }
-
-// export const listObjects = async (): Promise<ListObjectsCommandOutput | void> => {
-//     try {
-//         const command = new ListObjectsCommand({
-//             Bucket: process.env.S3_BUCKET_NAME as string,
-//             Prefix: "/",
-//         });
-
-//         const result = await s3Client.send(command);;
-//         return result;
-//     } catch (error) {
-//         console.error("Error listing objects:", error);
-//         throw error;
-//     }
-// };
-
-
-// export const deleteObject = async (key: string): Promise<void> => {
-//     try {
-//         const command = new DeleteObjectCommand({
-//             Bucket: process.env.S3_BUCKET_NAME,
-//             Key: key,
-//         });
-
-//         await s3Client.send(command);
-//         console.log(`Object with key ${key} deleted successfully.`);
-//     } catch (error) {
-//         console.error("Error deleting object:", error);
-//         throw error;
-//     }
-// };

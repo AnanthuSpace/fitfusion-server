@@ -7,7 +7,7 @@ import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces
 import { ProfileUpdateResult } from "../interfaces/common/Interfaces";
 import { ITrainerService } from "../interfaces/trainerService.interface";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
-import { getObjectURL, profileUpdateToAws } from "../config/awsConfig";
+import { getObjectURL, UpdateToAws } from "../config/awsConfig";
 
 export class TrainerService implements ITrainerService {
     private _trainerRepository: ITrainerRepository
@@ -174,7 +174,7 @@ export class TrainerService implements ITrainerService {
             const bucketName = "fitfusion-store"
             const profileKey = `trainerProfile/profileImage/`;
 
-            const uploadResult = await profileUpdateToAws(bucketName, profileKey, profileImage)         
+            const uploadResult = await UpdateToAws(bucketName, profileKey, profileImage)
 
             const url = await getObjectURL(`trainerProfile/profileImage/${uploadResult}`)
 
@@ -227,9 +227,26 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async saveVideoUrl(trainerId: string, videoUrl: string): Promise<any> {
+    async saveVideoUrl(trainerId: string, videoFile: any): Promise<any> {
         try {
-            await this._trainerRepository.addTrainerVideo(trainerId, videoUrl)
+            const bucketName = "fitfusion-tutorial"
+            const Key = `trainer/Videos/`;
+
+            const uploadResult = await UpdateToAws(bucketName, Key, videoFile)
+            const url = await getObjectURL(`trainer/Videos//${uploadResult}`)
+            
+            const result = await this._trainerRepository.videoUpload(trainerId, uploadResult, videoFile)
+            return { url, result}
+            
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async profileImgFetch(profileImg: string): Promise<any> {
+        try {
+            const url = await getObjectURL(`trainerProfile/profileImage/${profileImg}`)
+            return url
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }

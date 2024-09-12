@@ -186,16 +186,26 @@ export class TrainerController {
 
     uploadVideo = async (req: CustomRequest, res: Response): Promise<void> => {
         try {
-            console.log("hello");
-            const file = req.file as S3File;
+            const file = req.file
             const trainerId = req.id as string
+            
             if (!file) {
                 res.status(400).json({ message: "No video file uploaded" });
                 return;
             }
-            const videoUrl = file.location;
-            await this._trainerService.saveVideoUrl(trainerId, videoUrl);
-            res.status(200).json({ message: "Video uploaded successfully", videoUrl });
+            const url = await this._trainerService.saveVideoUrl(trainerId, file);
+            res.status(200).json({ message: "Video uploaded successfully",  url});
+        } catch (error) {
+            console.error("Error uploading video:", error);
+            res.status(500).json({ message: "Error uploading video" });
+        }
+    }
+
+    profileImgFetch = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const profileImg = req.query.profile as string;
+            const result = await this._trainerService.profileImgFetch(profileImg)
+            res.status(200).json({ message: "profile fetch successfully", result });
         } catch (error) {
             console.error("Error uploading video:", error);
             res.status(500).json({ message: "Error uploading video" });

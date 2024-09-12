@@ -122,15 +122,24 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async addTrainerVideo(trainerId: string, videoUrl: string): Promise<void> {
+    async videoUpload(trainerId: string, videoUrl: string): Promise<void> {
         try {
             await this._tutorialModal.updateOne(
-                { trainerId: trainerId }, 
-                { $push: { videos: { url: videoUrl } } },  
-                { upsert: true }  
+                { trainerId: trainerId },
+                { $push: { videos: { url: videoUrl } } },
+                { upsert: true }
             );
         } catch (error: any) {
             throw new Error(`Error adding/updating trainer video: ${error.message}`);
         }
-    }    
+    }
+
+    // async profileImgFetch(trainerId: string): Promise<any> {
+    //     try {
+    //         const trainer = await this._trainerModel.findOne({ trainerId }, { _id: 0, profileIMG: 1 }).lean();
+    //         return trainer ? trainer.profileIMG : '';
+    //     } catch (error: any) {
+    //         throw new Error(`Error fetching profile image: ${error.message}`);
+    //     }
+    // }
 }

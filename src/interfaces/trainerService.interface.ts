@@ -16,6 +16,6 @@ export interface ITrainerService {
     addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, "trainerId">): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<any>;
     saveVideoUrl(trainerId: string, videoFile: any): Promise<any>;
-    profileImgFetch(profileImg: string): Promise<string>;
+    profileFetch(trainerId: string): Promise<any>;
 }
 

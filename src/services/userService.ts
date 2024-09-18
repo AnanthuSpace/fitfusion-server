@@ -3,6 +3,7 @@ import { IUserRepository } from "../interfaces/userRepository.interface";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditUserInterface, PaymentSessionResponse } from "../interfaces/common/Interfaces";
 import { FullReviewType, UserType } from "../interfaces/common/types";
+import { getObjectURL } from "../config/awsConfig";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
@@ -200,16 +201,24 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-
     async fetchTrainers() {
         try {
-            const trainers = await this._userRepository.fetchTrainers()
-            return trainers
+            let trainers = await this._userRepository.fetchTrainers();
+
+            trainers = await Promise.all(trainers.map(async (trainer: any) => {
+                const profileIMG = await getObjectURL(`trainerProfile/${trainer.profileIMG}`);
+                return { ...trainer, profileIMG };
+            }));
+            console.log(trainers);
+
+
+            return trainers;
         } catch (error: any) {
-            console.error("Error in reset password: ", error);
+            console.error("Error fetching trainers: ", error);
             return { success: false, message: error.message || "Internal server error" };
         }
     }
+
 
     async addUserDetails(userId: string, userDetails: UserType) {
         try {
@@ -297,6 +306,10 @@ export class UserService implements UserServiceInterface {
     async fetchTrainerScroll(page: number) {
         try {
             let trainers = await this._userRepository.fetchTrainerScroll(page);
+            trainers = await Promise.all(trainers.map(async (trainer: any) => {
+                const profileIMG = await getObjectURL(`trainerProfile/${trainer.profileIMG}`);
+                return { ...trainer, profileIMG };
+            }));
             return trainers;
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -322,4 +335,23 @@ export class UserService implements UserServiceInterface {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+
+    async fetchReview(trainerId: string){
+        try {
+            const result = await this._userRepository.fetchReview(trainerId)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async fetchSingleTrainer(trainerId: string){
+        try {
+            const result = await this._userRepository.fetchSingleTrainer(trainerId)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
 }

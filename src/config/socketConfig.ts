@@ -47,25 +47,40 @@ export const configureSocket = (server: http.Server) => {
             }
           ]
         };
-        console.log(formattedMessage);
-        
-      
+
         let savedMessage: null | any = null
 
         if (firstTimeChat === true) {
           const connectionDetails = await chatService.createConnectionAndSaveMessageService(formattedMessage);
           savedMessage = connectionDetails[2].details[0];
-          console.log("connectionDetails : ",connectionDetails[2].details[0]);
-       } else {
+          console.log("connectionDetails : ", connectionDetails[2].details[0]);
+        } else {
           savedMessage = await chatService.saveMessageService(message.senderId, message.recieverId, message.text);
-       };
-       const chatRoom = [message.senderId, message.recieverId].sort().join("-");
+        };
+        const chatRoom = [message.senderId, message.recieverId].sort().join("-");
         io.to(chatRoom).emit("receiveMessage", savedMessage);
       } catch (error) {
         console.error("Error handling sendMessage event:", error);
       }
     });
 
+    
+    socket.on("offer", ({ offer, roomId }) => {
+      console.log(`Offer received for room video call${roomId}`);
+      socket.to(roomId).emit("offer", offer); 
+    });
+
+    
+    socket.on("answer", ({ answer, roomId }) => {
+      console.log(`Answer received for room ${roomId}`);
+      socket.to(roomId).emit("answer", answer); 
+    });
+
+   
+    socket.on("ice-candidate", ({ candidate, roomId }) => {
+      console.log(`ICE candidate received for room ${roomId}`);
+      socket.to(roomId).emit("ice-candidate", candidate); 
+    });
 
     socket.on("disconnect", () => {
       console.log("A user disconnected");

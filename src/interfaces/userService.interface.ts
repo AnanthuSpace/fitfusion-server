@@ -19,4 +19,6 @@ export interface UserServiceInterface {
     fetchDeitPlans(trainerId: string): Promise<any>;
     fetchTrainerScroll(page: number): Promise<any>;
     addReview(params: { trainerId: string; reviewData: FullReviewType; curruntRating: number; reviewCount: number }): Promise<number | { success: boolean; message: string }>;
+    fetchReview(trainerId: string): Promise<any>
+    fetchSingleTrainer(trainerId: string): Promise<any>
 }

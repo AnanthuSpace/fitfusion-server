@@ -35,8 +35,8 @@ export const UpdateToAws = async (bucketName: string, profileKey: string, file: 
             throw new Error('File upload failed');
         }
     } catch (error: any) {
-       console.error('Error uploading file to S3:', error.message);
-            throw new Error(`Failed to upload file to S3: ${error.message}`);
+        console.error('Error uploading file to S3:', error.message);
+        throw new Error(`Failed to upload file to S3: ${error.message}`);
     }
 };
 
@@ -45,6 +45,6 @@ export const getObjectURL = async (key: string): Promise<string> => {
         Bucket: process.env.S3_BUCKET_NAME,
         Key: key,
     });
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 60 });
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 24 * 7 });
     return url;
 }

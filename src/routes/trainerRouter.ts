@@ -25,6 +25,6 @@ router.post('/add-diet', verifyToken,trainerController.addDietPlan);
 router.get('/fetch-deit', verifyToken,trainerController.fetchDeitPlans);
 router.post('/getUsersByIds', verifyToken,trainerController.fetchAlreadyChatted);
 router.put('/upload-video', verifyToken, upload.single('videoFile'), trainerController.uploadVideo);
-router.get(`/get-profile`, verifyToken, trainerController.profileImgFetch)
+router.get(`/get-profile`, verifyToken, trainerController.profileFetch)
 
 export default router

@@ -134,12 +134,7 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    // async profileImgFetch(trainerId: string): Promise<any> {
-    //     try {
-    //         const trainer = await this._trainerModel.findOne({ trainerId }, { _id: 0, profileIMG: 1 }).lean();
-    //         return trainer ? trainer.profileIMG : '';
-    //     } catch (error: any) {
-    //         throw new Error(`Error fetching profile image: ${error.message}`);
-    //     }
-    // }
+    async profileFetch(trainerId: string): Promise<any> {
+        return await this._trainerModel.findOne({ trainerId: trainerId }, { password: 0, _id: 0 })
+    }
 }

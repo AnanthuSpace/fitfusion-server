@@ -201,10 +201,10 @@ export class TrainerController {
         }
     }
 
-    profileImgFetch = async (req: Request, res: Response): Promise<any> => {
+    profileFetch = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
-            const profileImg = req.query.profile as string;
-            const result = await this._trainerService.profileImgFetch(profileImg)
+            const trainerId = req.id as string
+            const result = await this._trainerService.profileFetch(trainerId)
             res.status(200).json({ message: "profile fetch successfully", result });
         } catch (error) {
             console.error("Error uploading video:", error);

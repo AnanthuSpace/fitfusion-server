@@ -10,7 +10,7 @@ export class UserRepository implements IUserRepository {
     private _dietPlan: Model<IDietPlan>
     private _reviewModel: Model<ReviewType>
 
-    constructor(userModel: Model<UserType>,trainerModel: Model<TrainerType>, dietPlan: Model<IDietPlan>, reviewModel: Model<ReviewType>){
+    constructor(userModel: Model<UserType>, trainerModel: Model<TrainerType>, dietPlan: Model<IDietPlan>, reviewModel: Model<ReviewType>) {
         this._userModel = userModel
         this._trainerModel = trainerModel
         this._dietPlan = dietPlan
@@ -18,7 +18,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findUser(email: string) {
-        return await this._userModel.findOne({ email: email }, { _id: 0 , password: 0})
+        return await this._userModel.findOne({ email: email }, { _id: 0, password: 0 })
     }
 
     async fetchUser(userId: string) {
@@ -64,7 +64,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async fetchTrainers() {
-        return await this._trainerModel.find({ verified: 'verified', }, { _id: 0, password: 0 })
+        return await this._trainerModel.find({ verified: 'verified', }, { _id: 0, password: 0 }).lean()
     }
 
     async updateUserAfterPayment(userId: string, trainerId: string): Promise<void> {
@@ -112,7 +112,7 @@ export class UserRepository implements IUserRepository {
             return await this._trainerModel.find()
                 .skip((page - 1) * 8)
                 .limit(Number(8))
-                .select('-_id');
+                .select('-_id').lean()
         } catch (error: any) {
             throw new Error(`Error fetching diet plan: ${error.message}`);
         }
@@ -135,6 +135,22 @@ export class UserRepository implements IUserRepository {
                 const review = await this._reviewModel.create(fullReview);
                 return review;
             }
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async fetchReview(trainerId: string) {
+        try {
+            return await this._reviewModel.findOne({ trainerId: trainerId }, { _id: 0 });
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async fetchSingleTrainer(trainerId: string) {
+        try {
+            return await this._trainerModel.findOne({ trainerId: trainerId })
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

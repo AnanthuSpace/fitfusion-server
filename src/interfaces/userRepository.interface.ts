@@ -19,4 +19,6 @@ export interface IUserRepository {
   fetchDeitPlans(trainerId: string): Promise<any[]>; 
   fetchTrainerScroll(page: number): Promise<any[]>; 
   addReview(reviewData: FullReviewType, trainerId: string): Promise<any>;
+  fetchReview(trainerId: string): Promise<any>
+  fetchSingleTrainer(trainerId: string): Promise<any>
 }

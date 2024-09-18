@@ -247,4 +247,24 @@ export class UserController {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
+
+    fetchReview = async (req: Request, res: Response) => {
+        try {
+            const trainerId = req.query.trainerId as string;
+            const response = await this._userService.fetchReview(trainerId)
+            return res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    fetchSingleTrainer = async (req: Request, res: Response) => {
+        try {
+            const trainerId = req.query.trainerId as string
+            const response = await this._userService.fetchSingleTrainer(trainerId)
+            return res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
 }

@@ -172,11 +172,11 @@ export class TrainerService implements ITrainerService {
     async profileUpdate(trainerId: string, profileImage: any): Promise<ProfileUpdateResult | { success: boolean; message: string } | any> {
         try {
             const bucketName = "fitfusion-store"
-            const profileKey = `trainerProfile/profileImage/`;
+            const profileKey = `trainerProfile/`;
 
             const uploadResult = await UpdateToAws(bucketName, profileKey, profileImage)
 
-            const url = await getObjectURL(`trainerProfile/profileImage/${uploadResult}`)
+            const url = await getObjectURL(`trainerProfile/${uploadResult}`)
 
             const result = await this._trainerRepository.profileUpdate(trainerId, uploadResult);
             return { url, result };
@@ -230,23 +230,26 @@ export class TrainerService implements ITrainerService {
     async saveVideoUrl(trainerId: string, videoFile: any): Promise<any> {
         try {
             const bucketName = "fitfusion-tutorial"
-            const Key = `trainer/Videos/`;
+            const Key = `trainer/Videos/${trainerId}`;
 
             const uploadResult = await UpdateToAws(bucketName, Key, videoFile)
-            const url = await getObjectURL(`trainer/Videos//${uploadResult}`)
-            
+            const url = await getObjectURL(`trainers/Videos/${trainerId},${uploadResult}`)
+
             const result = await this._trainerRepository.videoUpload(trainerId, uploadResult, videoFile)
-            return { url, result}
-            
+            return { url, result }
+
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
 
-    async profileImgFetch(profileImg: string): Promise<any> {
+    async profileFetch(trainerId: string): Promise<any> {
         try {
-            const url = await getObjectURL(`trainerProfile/profileImage/${profileImg}`)
-            return url
+            let trainerData = await this._trainerRepository.profileFetch(trainerId)
+            trainerData = trainerData.toObject();            
+            const url = await getObjectURL(`trainerProfile/${trainerData.profileIMG}`)
+            trainerData = { ...trainerData, profileIMG: url }
+            return trainerData
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }

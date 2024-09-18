@@ -19,4 +19,5 @@ export interface ITrainerRepository {
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
     videoUpload(trainerId: string, uploadResult: string, videoFile: any): Promise<any>
+    profileFetch(trainerId: string) : Promise<any>
 }

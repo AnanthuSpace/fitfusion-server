@@ -48,3 +48,12 @@ export const getObjectURL = async (key: string): Promise<string> => {
     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 24 * 7 });
     return url;
 }
+
+export const getVideos = async (key: string): Promise<string> => {
+    const command = new GetObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME_VIDEOS,
+        Key: key,
+    });
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 24 * 7 });
+    return url;
+}

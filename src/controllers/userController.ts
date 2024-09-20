@@ -267,4 +267,24 @@ export class UserController {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
+
+    fetchVideos = async (req: Request, res: Response) => {
+        try {
+            const trainerId = req.query.trainerId as string
+            const response = await this._userService.fetchVideos(trainerId)
+            return res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    fetchAllVideos = async (req: Request, res: Response) => {
+        try {
+            const trainerIds = req.query.subcriptionList as string[]
+            const response = await this._userService.fetchAllVideos(trainerIds)
+            return res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
 }

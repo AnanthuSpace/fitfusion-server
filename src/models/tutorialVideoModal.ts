@@ -8,9 +8,13 @@ const tutorialVideoSchema = new Schema<ITutorialVideo>({
     },
     videos: [
         {
-            url: {
+            videoUrl: {
                 type: String,
                 required: true, 
+            },
+            thumbnail: {
+                type: String,
+                require: true
             },
             title: {
                 type: String,

@@ -21,7 +21,7 @@ export const configureSocket = (server: http.Server) => {
   });
 
   const chatRepository = new ChatRepository(chatModel);
-  const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
+  const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal,  TutorialVideoModal);
   const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
 
   const chatService = new ChatService(chatRepository, userRepository, trainerRepository);

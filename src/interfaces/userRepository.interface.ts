@@ -21,4 +21,6 @@ export interface IUserRepository {
   addReview(reviewData: FullReviewType, trainerId: string): Promise<any>;
   fetchReview(trainerId: string): Promise<any>
   fetchSingleTrainer(trainerId: string): Promise<any>
+  fetchVideos(trainerId: string): Promise<any>
+  fetchAllVideos(trainerIds: string[]): Promise<any>
 }

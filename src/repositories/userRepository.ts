@@ -1,5 +1,5 @@
 import { FullReviewType, ReviewType, TrainerType, UserType } from "../interfaces/common/types";
-import { EditUserInterface } from "../interfaces/common/Interfaces";
+import { EditUserInterface, ITutorialVideo } from "../interfaces/common/Interfaces";
 import { IUserRepository } from "../interfaces/userRepository.interface";
 import { Model } from "mongoose";
 import { IDietPlan } from "../interfaces/common/Interfaces";
@@ -9,12 +9,14 @@ export class UserRepository implements IUserRepository {
     private _trainerModel: Model<TrainerType>
     private _dietPlan: Model<IDietPlan>
     private _reviewModel: Model<ReviewType>
+    private _tutorialVideoModel: Model<ITutorialVideo>
 
-    constructor(userModel: Model<UserType>, trainerModel: Model<TrainerType>, dietPlan: Model<IDietPlan>, reviewModel: Model<ReviewType>) {
+    constructor(userModel: Model<UserType>, trainerModel: Model<TrainerType>, dietPlan: Model<IDietPlan>, reviewModel: Model<ReviewType>, TutorialVideoModal: Model<ITutorialVideo>) {
         this._userModel = userModel
         this._trainerModel = trainerModel
         this._dietPlan = dietPlan
         this._reviewModel = reviewModel
+        this._tutorialVideoModel = TutorialVideoModal
     }
 
     async findUser(email: string) {
@@ -151,6 +153,22 @@ export class UserRepository implements IUserRepository {
     async fetchSingleTrainer(trainerId: string) {
         try {
             return await this._trainerModel.findOne({ trainerId: trainerId })
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async fetchVideos(trainerId: string) {
+        try {
+            return await this._tutorialVideoModel.findOne({ trainerId: trainerId }, { _id: 0, videos: 1 }).lean()
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async fetchAllVideos(trainerIds: string[]) {
+        try {
+            return await this._tutorialVideoModel.find({ trainerId: { $in: trainerIds }}, {_id:0} )
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

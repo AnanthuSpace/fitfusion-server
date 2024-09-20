@@ -21,4 +21,6 @@ export interface UserServiceInterface {
     addReview(params: { trainerId: string; reviewData: FullReviewType; curruntRating: number; reviewCount: number }): Promise<number | { success: boolean; message: string }>;
     fetchReview(trainerId: string): Promise<any>
     fetchSingleTrainer(trainerId: string): Promise<any>
+    fetchVideos(trainerId: string): Promise<any>
+    fetchAllVideos(trainerIds: string[]): Promise<any>
 }

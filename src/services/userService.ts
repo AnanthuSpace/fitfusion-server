@@ -3,7 +3,7 @@ import { IUserRepository } from "../interfaces/userRepository.interface";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditUserInterface, PaymentSessionResponse } from "../interfaces/common/Interfaces";
 import { FullReviewType, UserType } from "../interfaces/common/types";
-import { getObjectURL } from "../config/awsConfig";
+import { getObjectURL, getVideos } from "../config/awsConfig";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
@@ -336,7 +336,7 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-    async fetchReview(trainerId: string){
+    async fetchReview(trainerId: string) {
         try {
             const result = await this._userRepository.fetchReview(trainerId)
             return result
@@ -345,10 +345,64 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-    async fetchSingleTrainer(trainerId: string){
+    async fetchSingleTrainer(trainerId: string) {
         try {
             const result = await this._userRepository.fetchSingleTrainer(trainerId)
             return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async fetchVideos(trainerId: string): Promise<any> {
+        try {
+            let tutorialVideo = await this._userRepository.fetchVideos(trainerId)
+            const videosWithUrls = await Promise.all(
+                tutorialVideo.videos.map(async (video: any) => {
+                    const videoURL = await getVideos(`trainer/Videos/${video.videoUrl}`);
+                    const thumbnailURL = await getVideos(`trainer/thumbnails/${video.thumbnail}`);
+
+                    return {
+                        ...video,
+                        videoUrl: videoURL,
+                        thumbnail: thumbnailURL,
+                    };
+                })
+            );
+            return { success: true, videos: videosWithUrls };
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async fetchAllVideos(trainerIds: string[]): Promise<any> {
+        try {
+            let videosList = await this._userRepository.fetchAllVideos(trainerIds);
+            videosList = videosList.flat(); 
+
+            let allVideosWithUrlsId = videosList.map((trainer: any) => {
+                return trainer.videos.map((video: any) => ({
+                    videoUrl: video.videoUrl,
+                    thumbnail: video.thumbnail,
+                    uploadDate: video.uploadDate,
+                }));
+            }).flat(); 
+
+            const allVideosWithUrls = await Promise.all(
+                allVideosWithUrlsId.map(async(video:any) => {
+                    const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
+                    const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)
+
+                    return {
+                        ...video,
+                        videoUrl: videoLink,
+                        thumbnail: thumbnailLink
+                    }
+                })
+            )
+
+            return allVideosWithUrls
+
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }

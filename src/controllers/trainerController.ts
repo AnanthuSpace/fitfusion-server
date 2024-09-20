@@ -109,13 +109,13 @@ export class TrainerController {
         try {
             const trainerId = req.id as string;
             const profileImage = req.file;
-    
+
             if (!profileImage) {
                 return res.status(400).json({ success: false, message: 'No profile image uploaded' });
             }
-    
+
             const response = await this._trainerService.profileUpdate(trainerId, profileImage);
-    
+
             if ('modifiedCount' in response.result) {
                 if (response.result.modifiedCount === 0) {
                     return res.status(304).json({ success: false, message: 'No changes made' });
@@ -130,7 +130,7 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
-    
+
 
     fetchCustomer = async (req: Request, res: Response) => {
         try {
@@ -186,15 +186,19 @@ export class TrainerController {
 
     uploadVideo = async (req: CustomRequest, res: Response): Promise<void> => {
         try {
-            const file = req.file
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const videoFile = files?.videoFile ? files.videoFile[0] : null;
+            const thumbnail = files?.thumbnail ? files.thumbnail[0] : null;
             const trainerId = req.id as string
-            
-            if (!file) {
-                res.status(400).json({ message: "No video file uploaded" });
+            const { title, description } = req.body;
+
+            if (!videoFile || !thumbnail) {
+                res.status(400).json({ message: "Video file or thumbnail is missing." });
                 return;
             }
-            const url = await this._trainerService.saveVideoUrl(trainerId, file);
-            res.status(200).json({ message: "Video uploaded successfully",  url});
+            
+            const result = await this._trainerService.saveVideoUrl(trainerId, videoFile, thumbnail, title, description);
+            res.status(200).json({ message: "Video uploaded successfully",  result});
         } catch (error) {
             console.error("Error uploading video:", error);
             res.status(500).json({ message: "Error uploading video" });

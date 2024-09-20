@@ -9,14 +9,14 @@ import { chatModel } from "../models/chatModal";
 import { userModel } from "../models/userModel";
 import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
-import { ReviewModal } from "../models/reviewModal";
 import { TutorialVideoModal } from "../models/tutorialVideoModal";
+import { ReviewModal } from "../models/reviewModal";
 
 const router = Router();
 
 const chatRepository = new ChatRepository(chatModel);
 const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
-const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
+const userRepository = new UserRepository(userModel, trainerModel, DietPlan,ReviewModal, TutorialVideoModal);
 
 const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
 const chatController = new ChatController(chatService);

@@ -227,16 +227,22 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async saveVideoUrl(trainerId: string, videoFile: any): Promise<any> {
+    async saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any> {
         try {
             const bucketName = "fitfusion-tutorial"
-            const Key = `trainer/Videos/${trainerId}`;
+            const Key = `trainer/Videos/`;
+            const thumnailKey = `trainer/thumbnails/`;
+            
+            console.log(videoFile);
+            
+            const videoUploadResult = await UpdateToAws(bucketName, Key, videoFile)
+            const videoURL = await getObjectURL(`trainers/Videos/,${videoUploadResult}`)
 
-            const uploadResult = await UpdateToAws(bucketName, Key, videoFile)
-            const url = await getObjectURL(`trainers/Videos/${trainerId},${uploadResult}`)
+            const thumbnailUploadResult = await UpdateToAws(bucketName, thumnailKey, thumbnail)
+            const thumbnailURL = await getObjectURL(`trainers/thumbnails/,${thumbnailUploadResult}`)
 
-            const result = await this._trainerRepository.videoUpload(trainerId, uploadResult, videoFile)
-            return { url, result }
+            const result = await this._trainerRepository.videoUpload(trainerId, videoURL, thumbnailURL, title, description);
+            return { videoURL, thumbnailURL, result }
 
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -246,7 +252,7 @@ export class TrainerService implements ITrainerService {
     async profileFetch(trainerId: string): Promise<any> {
         try {
             let trainerData = await this._trainerRepository.profileFetch(trainerId)
-            trainerData = trainerData.toObject();            
+            trainerData = trainerData.toObject();
             const url = await getObjectURL(`trainerProfile/${trainerData.profileIMG}`)
             trainerData = { ...trainerData, profileIMG: url }
             return trainerData

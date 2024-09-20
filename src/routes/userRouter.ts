@@ -9,10 +9,9 @@ import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
 import { ReviewModal } from "../models/reviewModal";
 import { TutorialVideoModal } from "../models/tutorialVideoModal";
-import { verify } from "crypto";
 
 const router = Router()
-const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal);
+const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal, TutorialVideoModal);
 const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
 const userService = new UserService(userRepository, trainerRepository);
 const userController = new UserController(userService);
@@ -35,5 +34,7 @@ router.post('/add-review', verifyToken, userController.addReview)
 router.put('/inactive', verifyToken, userController.inactiveUser)
 router.get('/get-review', verifyToken, userController.fetchReview)
 router.get('/fetch-single-trainer', verifyToken, userController.fetchSingleTrainer)
+router.get('/fetch-trainer-videos', verifyToken, userController.fetchVideos)
+router.get('/fetch-all-videos', verifyToken, userController.fetchAllVideos)
 
 export default router

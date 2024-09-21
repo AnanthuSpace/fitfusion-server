@@ -215,4 +215,14 @@ export class TrainerController {
             res.status(500).json({ message: "Error uploading video" });
         }
     }
+
+    getVideos = async (req: CustomRequest, res: Response): Promise<any> => {
+        try {
+            const trainerId = req.id as string
+            const result = await this._trainerService.getVideos(trainerId)
+            res.status(200).json({ message: "video fetch successfully", result });
+        } catch (error) {
+            res.status(500).json({ message: "Error uploading video" });
+        }
+    }
 }

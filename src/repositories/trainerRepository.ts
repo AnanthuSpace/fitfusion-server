@@ -138,4 +138,13 @@ export class TrainerRepository implements ITrainerRepository {
     async profileFetch(trainerId: string): Promise<any> {
         return await this._trainerModel.findOne({ trainerId: trainerId }, { password: 0, _id: 0 })
     }
+
+    async getVideos(trainerId: string): Promise<ITutorialVideo> {
+        const video = await this._tutorialModal.findOne({ trainerId: trainerId }).lean()
+        if (!video) {
+            throw new Error(`No video found for trainerId: ${trainerId}`);
+        }
+        return video;
+    }
+    
 }

@@ -188,10 +188,10 @@ export class UserController {
 
     createCheckoutSession = async (req: CustomRequest, res: Response): Promise<void> => {
         try {
-            const { trainerId, amount }: { trainerId: string; amount: number } = req.body;
+            const { trainerId, trainerName, amount, userName }: { trainerId: string;  trainerName: string; amount: number, userName: string } = req.body;
             const userId = req.id as string;
 
-            const result = await this._userService.createCheckoutSession(trainerId, amount, userId);
+            const result = await this._userService.createCheckoutSession(trainerId, trainerName, amount, userId, userName);
 
             res.status(200).json({ sessionId: result.session.id, trainerData: result.trainerData, userData: result.userData });
         } catch (error: any) {

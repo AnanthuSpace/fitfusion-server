@@ -238,8 +238,7 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-    async createCheckoutSession(trainerId: string, amount: number, userId: string
-    ): Promise<PaymentSessionResponse> {
+    async createCheckoutSession(trainerId: string, trainerName: string, amount: number, userId: string, userName: string): Promise<PaymentSessionResponse> {
         const trainer = await this._trainerRepository.findEditingData(trainerId);
         if (!trainer) {
             throw new Error('Trainer not found');
@@ -268,8 +267,8 @@ export class UserService implements UserServiceInterface {
             }
         });
 
-        const userData = await this._userRepository.updateUserAfterPayment(userId, trainerId);
-        const trainerData = await this._trainerRepository.updateTrainerSubscription(trainerId, userId);
+        const userData = await this._userRepository.updateUserAfterPayment(userId, trainerId, trainerName, amount);
+        const trainerData = await this._trainerRepository.updateTrainerSubscription(trainerId, userId, userName, amount);
 
         return { session, userData, trainerData };
     }

@@ -13,7 +13,7 @@ export interface UserServiceInterface {
     fetchTrainers(): Promise<any>;
     addUserDetails(userId: string, userDetails: UserType): Promise<any>;
     blockUser(userId: string): Promise<any>;
-    createCheckoutSession(trainerId: string, amount: number, userId: string): Promise<PaymentSessionResponse>;
+    createCheckoutSession(trainerId: string, trainerName: string, amount: number, userId: string, userName: string): Promise<PaymentSessionResponse>;
     fetchUserTrainer(userId: string): Promise<{ trainersData: any; userData: any; success?: boolean; message?: string }>;
     fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<any>;
     fetchDeitPlans(trainerId: string): Promise<any>;

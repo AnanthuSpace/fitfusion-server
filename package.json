@@ -45,6 +45,7 @@
     "nodemailer": "^6.9.14",
     "socket.io": "^4.7.5",
     "stripe": "^16.8.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "webrtc-adapter": "^9.0.1"
   }
 }

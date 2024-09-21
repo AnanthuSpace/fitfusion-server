@@ -33,8 +33,13 @@ export const configureSocket = (server: http.Server) => {
       socket.join(room);
       console.log(`User joined room: ${room}`);
     });
-
-
+    
+    socket.on("joinVideoRoom", ({ userId, trainerId }: { userId: string; trainerId: string }) => {
+      const room = [userId, trainerId]        
+      socket.join(room);
+      console.log(`User joined room: ${room}`);
+    });
+    
     socket.on("sendMessage", async ({ message, firstTimeChat }) => {
       try {
         const formattedMessage = {

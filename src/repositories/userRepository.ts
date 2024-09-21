@@ -69,7 +69,7 @@ export class UserRepository implements IUserRepository {
         return await this._trainerModel.find({ verified: 'verified', }, { _id: 0, password: 0 }).lean()
     }
 
-    async updateUserAfterPayment(userId: string, trainerId: string): Promise<void> {
+    async updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<void> {
         await this._userModel.findOneAndUpdate(
             { userId: userId },
             { $push: { subscribeList: trainerId } }

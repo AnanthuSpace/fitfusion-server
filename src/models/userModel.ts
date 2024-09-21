@@ -21,22 +21,22 @@ const userSchema = new Schema<UserType>({
     gender: {
         type: String
     },
-    weight : {
+    weight: {
         type: String
     },
-    heigth : {
+    heigth: {
         type: String
     },
-    activityLevel : {
+    activityLevel: {
         type: String
     },
-    dietary : {
+    dietary: {
         type: String
     },
-    goals : {
+    goals: {
         type: String
     },
-    medicalDetails : {
+    medicalDetails: {
         type: String
     },
     password: {
@@ -66,10 +66,16 @@ const userSchema = new Schema<UserType>({
     alreadychattedTrainers: [{
         type: String
     }],
-    isActive : {
+    isActive: {
         type: Boolean,
         default: false
-    }
+    },
+    transactionHistory: [{
+        trainerId: String,
+        trainerName: String,
+        amount: Number,
+        account: String
+    }]
 });
 
 

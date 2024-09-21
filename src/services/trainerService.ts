@@ -7,7 +7,7 @@ import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces
 import { ProfileUpdateResult } from "../interfaces/common/Interfaces";
 import { ITrainerService } from "../interfaces/trainerService.interface";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
-import { getObjectURL, UpdateToAws } from "../config/awsConfig";
+import { getObjectURL, getVideos, UpdateToAws } from "../config/awsConfig";
 
 export class TrainerService implements ITrainerService {
     private _trainerRepository: ITrainerRepository
@@ -258,6 +258,26 @@ export class TrainerService implements ITrainerService {
             return trainerData
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async getVideos(trainerId: string): Promise<any>{
+        try {
+            let trainerVideo = await this._trainerRepository.getVideos(trainerId)
+            const allVideos = await Promise.all (
+                trainerVideo.videos.map(async(video: any) => {
+                    const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
+                    const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)    
+                    return {
+                        ...video,
+                        videoUrl: videoLink,
+                        thumbnail: thumbnailLink
+                    };
+                })
+            )
+            return allVideos
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' }; 
         }
     }
 }

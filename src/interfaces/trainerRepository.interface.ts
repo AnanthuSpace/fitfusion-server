@@ -1,4 +1,4 @@
-import { EditTrainerInterface, IDietPlan } from "./common/Interfaces";
+import { EditTrainerInterface, IDietPlan, ITutorialVideo } from "./common/Interfaces";
 import { TrainerType } from "./common/types";
 import { UserType } from "./common/types";
 
@@ -10,7 +10,7 @@ export interface ITrainerRepository {
     changePass(newPassword: string, trainerId: string): Promise<any>;
     findEditingData(trainerId: string): Promise<TrainerType | null>;
     profileUpdate(trainerId: string, uploadResult: any): Promise<any>;
-    updateTrainerSubscription(trainerId: string, userId: string): Promise<void>;
+    updateTrainerSubscription(trainerId: string, userId: string , userName: string, amount: number): Promise<void>;
     fetchCustomer(userIds: string[]): Promise<UserType[]>;
     fetchDeitPlans(trainerId: string): Promise<IDietPlan[]>;
     AddDietPlan(dietPlan: IDietPlan): Promise<IDietPlan>;
@@ -20,4 +20,5 @@ export interface ITrainerRepository {
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
     videoUpload(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any>
     profileFetch(trainerId: string) : Promise<any>
+    getVideos(trainerId: string): Promise<ITutorialVideo>
 }

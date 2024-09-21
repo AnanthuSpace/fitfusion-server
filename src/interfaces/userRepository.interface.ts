@@ -13,7 +13,7 @@ export interface IUserRepository {
   findEditingData(userId: string): Promise<UserType | null>;
   blockUser(userId: string): Promise<any>;
   fetchTrainers(): Promise<TrainerType[]>; 
-  updateUserAfterPayment(userId: string, trainerId: string): Promise<any>;
+  updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<any>;
   addNewConnectionToAlreadyChattedTrainerListRepository(userId: string, trainerId: string): Promise<any>;
   fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<TrainerType[]>; 
   fetchDeitPlans(trainerId: string): Promise<any[]>; 

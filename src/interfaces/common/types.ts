@@ -19,6 +19,7 @@ export type UserType = {
     subscribeList?: string[];
     alreadychattedTrainers?: string[];
     isActive: boolean;
+    transactionHistory: TransactionHistory[]
 };
 
 export type TrainerType = {
@@ -55,4 +56,11 @@ export type FullReviewType = {
     userName: string,
     rating: number,
     feedback: number,
+}
+
+export type TransactionHistory = {
+    trainerId: string,
+    trainerName: string,
+    amount: number
+    account: string
 }

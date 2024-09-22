@@ -2,7 +2,7 @@ import { UserServiceInterface } from "../interfaces/userService.interface";
 import { IUserRepository } from "../interfaces/userRepository.interface";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditUserInterface, PaymentSessionResponse } from "../interfaces/common/Interfaces";
-import { FullReviewType, UserType } from "../interfaces/common/types";
+import { FullReviewType, TransactionHistory, UserType } from "../interfaces/common/types";
 import { getObjectURL, getVideos } from "../config/awsConfig";
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
@@ -144,7 +144,6 @@ export class UserService implements UserServiceInterface {
     async inactiveUser(userId: string) {
         try {
             const result = await this._userRepository.inactiveUser(userId)
-            console.log(result);
             return result
         } catch (error: any) {
             return { success: false, message: error.message || "Internal server error" };
@@ -167,7 +166,6 @@ export class UserService implements UserServiceInterface {
             dietary,
             medicalDetails
         }
-        console.log("Edit user service : ", editUserData)
         const res = await this._userRepository.editUser(editUserData, userId)
         if (!res.modifiedCount) {
             throw new Error("No changes found")
@@ -209,9 +207,6 @@ export class UserService implements UserServiceInterface {
                 const profileIMG = await getObjectURL(`trainerProfile/${trainer.profileIMG}`);
                 return { ...trainer, profileIMG };
             }));
-            console.log(trainers);
-
-
             return trainers;
         } catch (error: any) {
             console.error("Error fetching trainers: ", error);
@@ -263,7 +258,7 @@ export class UserService implements UserServiceInterface {
             cancel_url: `${process.env.localhostURL}payment-failed`,
             metadata: {
                 trainerId,
-                userId
+                userId,
             }
         });
 
@@ -346,7 +341,9 @@ export class UserService implements UserServiceInterface {
 
     async fetchSingleTrainer(trainerId: string) {
         try {
-            const result = await this._userRepository.fetchSingleTrainer(trainerId)
+            let result = await this._userRepository.fetchSingleTrainer(trainerId)
+            const url = await getObjectURL(`trainerProfile/${result.profileIMG}`)
+            result = { ...result, profileIMG: url }
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -377,7 +374,7 @@ export class UserService implements UserServiceInterface {
     async fetchAllVideos(trainerIds: string[]): Promise<any> {
         try {
             let videosList = await this._userRepository.fetchAllVideos(trainerIds);
-            videosList = videosList.flat(); 
+            videosList = videosList.flat();
 
             let allVideosWithUrlsId = videosList.map((trainer: any) => {
                 return trainer.videos.map((video: any) => ({
@@ -385,10 +382,10 @@ export class UserService implements UserServiceInterface {
                     thumbnail: video.thumbnail,
                     uploadDate: video.uploadDate,
                 }));
-            }).flat(); 
+            }).flat();
 
             const allVideosWithUrls = await Promise.all(
-                allVideosWithUrlsId.map(async(video:any) => {
+                allVideosWithUrlsId.map(async (video: any) => {
                     const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
                     const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)
 
@@ -402,6 +399,15 @@ export class UserService implements UserServiceInterface {
 
             return allVideosWithUrls
 
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async getTransactionHostory(userId: string): Promise<TransactionHistory[] | any> {
+        try {
+            const result = await this._userRepository.getTransactionHostory(userId)
+            return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }

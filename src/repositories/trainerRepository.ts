@@ -47,10 +47,20 @@ export class TrainerRepository implements ITrainerRepository {
         );
     }
 
-    async updateTrainerSubscription(trainerId: string, userId: string): Promise<void> {
+    async updateTrainerSubscription(trainerId: string, userId: string, userName: string, amount: number): Promise<void> {
         await this._trainerModel.findOneAndUpdate(
             { trainerId: trainerId },
-            { $push: { subscribedUsers: userId } }
+            {
+                $push: {
+                    subscribedUsers: userId,
+                    transactionHistory: {
+                        userId: userId,
+                        userName: userName,
+                        amount: amount
+                    }
+                }
+            },
+            { new: true }
         );
     }
 
@@ -133,7 +143,7 @@ export class TrainerRepository implements ITrainerRepository {
             throw new Error(`Error adding/updating trainer video: ${error.message}`);
         }
     }
-    
+
 
     async profileFetch(trainerId: string): Promise<any> {
         return await this._trainerModel.findOne({ trainerId: trainerId }, { password: 0, _id: 0 })
@@ -146,5 +156,12 @@ export class TrainerRepository implements ITrainerRepository {
         }
         return video;
     }
-    
+
+    async getTransaction(trainerId: string) {
+        try {
+            return await this._trainerModel.findOne({trainerId: trainerId},{transactionHistory:1, _id:0})
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
 }

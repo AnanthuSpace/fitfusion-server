@@ -36,5 +36,6 @@ router.get('/get-review', verifyToken, userController.fetchReview)
 router.get('/fetch-single-trainer', verifyToken, userController.fetchSingleTrainer)
 router.get('/fetch-trainer-videos', verifyToken, userController.fetchVideos)
 router.get('/fetch-all-videos', verifyToken, userController.fetchAllVideos)
+router.get('/fetch-transaction-history', verifyToken, userController.getTransactionHostory)
 
 export default router

@@ -1,5 +1,5 @@
 import { EditTrainerInterface, IDietPlan, ITutorialVideo } from "./common/Interfaces";
-import { TrainerType } from "./common/types";
+import { TrainerHistory, TrainerType } from "./common/types";
 import { UserType } from "./common/types";
 
 
@@ -21,4 +21,5 @@ export interface ITrainerRepository {
     videoUpload(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any>
     profileFetch(trainerId: string) : Promise<any>
     getVideos(trainerId: string): Promise<ITutorialVideo>
+    getTransaction(userId: string): Promise<TrainerHistory[] | any>
 }

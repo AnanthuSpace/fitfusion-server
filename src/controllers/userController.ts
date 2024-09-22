@@ -241,7 +241,6 @@ export class UserController {
         try {
             const { trainerId, reviewData, curruntRating, reviewCount } = req.body
             const response = await this._userService.addReview({ trainerId: trainerId, reviewData: reviewData, curruntRating: curruntRating, reviewCount: reviewCount })
-            console.log(response);
             return res.status(200).json({ success: true, rating: response })
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -283,6 +282,16 @@ export class UserController {
             const trainerIds = req.query.subcriptionList as string[]
             const response = await this._userService.fetchAllVideos(trainerIds)
             return res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    getTransactionHostory = async(req: CustomRequest, res: Response) => {
+        try {
+            const userId = req.id as string
+            const response = await this._userService.getTransactionHostory(userId)
+            return  res.status(200).json({ success: true, data: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

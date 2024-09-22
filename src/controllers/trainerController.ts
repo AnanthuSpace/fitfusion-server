@@ -225,4 +225,14 @@ export class TrainerController {
             res.status(500).json({ message: "Error uploading video" });
         }
     }
+
+    getTransaction = async(req: CustomRequest, res: Response) => {
+        try {
+            const trainerId = req.id as string
+            const response = await this._trainerService.getTransaction(trainerId)
+            return  res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
 }

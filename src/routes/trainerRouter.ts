@@ -27,5 +27,6 @@ router.post('/getUsersByIds', verifyToken, trainerController.fetchAlreadyChatted
 router.put('/upload-video', verifyToken, upload.fields([{ name: 'videoFile', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), trainerController.uploadVideo);
 router.get(`/get-profile`, verifyToken, trainerController.profileFetch)
 router.get(`/get-videos`, verifyToken, trainerController.getVideos)
+router.get(`/fetch-transaction-history`, verifyToken, trainerController.getTransaction)
 
 export default router

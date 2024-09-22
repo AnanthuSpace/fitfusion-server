@@ -72,7 +72,17 @@ export class UserRepository implements IUserRepository {
     async updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<void> {
         await this._userModel.findOneAndUpdate(
             { userId: userId },
-            { $push: { subscribeList: trainerId } }
+            {
+                $push: {
+                    subscribeList: trainerId,
+                    transactionHistory: {
+                        trainerId: trainerId,
+                        trainerName: trainerName,
+                        amount: amount,
+                    }
+                }
+            },
+            { new: true }
         );
     }
 
@@ -152,7 +162,7 @@ export class UserRepository implements IUserRepository {
 
     async fetchSingleTrainer(trainerId: string) {
         try {
-            return await this._trainerModel.findOne({ trainerId: trainerId })
+            return await this._trainerModel.findOne({ trainerId: trainerId }, {_id:0})
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }
@@ -168,7 +178,15 @@ export class UserRepository implements IUserRepository {
 
     async fetchAllVideos(trainerIds: string[]) {
         try {
-            return await this._tutorialVideoModel.find({ trainerId: { $in: trainerIds }}, {_id:0} )
+            return await this._tutorialVideoModel.find({ trainerId: { $in: trainerIds } }, { _id: 0 })
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async getTransactionHostory(userId: string) {
+        try {
+            return await this._userModel.findOne({userId: userId},{transactionHistory:1, _id:0})
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

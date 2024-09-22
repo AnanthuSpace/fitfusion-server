@@ -1,6 +1,17 @@
 import { Schema, model } from "mongoose";
 import { UserType } from "../interfaces/common/types";
 
+
+const transactionSchema = new Schema({
+    trainnerId: String,
+    trainerName: String,
+    amount: Number,
+    createdAt: {
+        type: Date,
+        default: Date.now, 
+    },
+});
+
 const userSchema = new Schema<UserType>({
     userId: {
         type: String,
@@ -70,12 +81,7 @@ const userSchema = new Schema<UserType>({
         type: Boolean,
         default: false
     },
-    transactionHistory: [{
-        trainerId: String,
-        trainerName: String,
-        amount: Number,
-        account: String
-    }]
+    transactionHistory: [transactionSchema]
 });
 
 

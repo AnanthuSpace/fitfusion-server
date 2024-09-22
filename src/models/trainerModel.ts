@@ -1,6 +1,16 @@
 import { Schema, model } from "mongoose";
 import { TrainerType } from "../interfaces/common/types";
 
+const transactionSchema = new Schema({
+    userId: String,
+    userName: String,
+    amount: Number,
+    createdAt: {
+        type: Date,
+        default: Date.now, 
+    },
+});
+
 const trainerSchema = new Schema<TrainerType>({
     trainerId: {
         type: String,
@@ -63,9 +73,6 @@ const trainerSchema = new Schema<TrainerType>({
     feePerMonth: {
         type: String,
     },
-    payedUsers: [{
-        type: String,
-    }],
     experience: {
         type: String
     },
@@ -79,7 +86,8 @@ const trainerSchema = new Schema<TrainerType>({
     isActive: {
         type: Boolean,
         default: false
-    }
+    },
+    transactionHistory:[transactionSchema]
 })
 
 

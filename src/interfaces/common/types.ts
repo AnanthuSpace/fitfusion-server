@@ -23,6 +23,7 @@ export type UserType = {
 };
 
 export type TrainerType = {
+    stripeAccountId: string | number | null;
     trainerId: string;
     name: string;
     email: string;
@@ -40,11 +41,11 @@ export type TrainerType = {
     achivements?: string;
     verified: string;
     feePerMonth?: string;
-    payedUsers?: string[];
     experience?: string;
     subscribedUsers?: string[];
     alreadychattedUsers?: string[];
     isActive: boolean;
+    transactionHistory: TrainerHistory[]
 }
 
 export type ReviewType = {
@@ -62,5 +63,10 @@ export type TransactionHistory = {
     trainerId: string,
     trainerName: string,
     amount: number
-    account: string
+}
+
+export type TrainerHistory = {
+    userId: string,
+    userName: string,
+    amount: number
 }

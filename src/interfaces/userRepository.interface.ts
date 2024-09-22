@@ -1,4 +1,4 @@
-import { UserType, FullReviewType, TrainerType } from './common/types';
+import { UserType, FullReviewType, TrainerType, TransactionHistory } from './common/types';
 import { EditUserInterface } from './common/Interfaces';
 
 export interface IUserRepository {
@@ -23,4 +23,5 @@ export interface IUserRepository {
   fetchSingleTrainer(trainerId: string): Promise<any>
   fetchVideos(trainerId: string): Promise<any>
   fetchAllVideos(trainerIds: string[]): Promise<any>
+  getTransactionHostory(userId: string): Promise<TransactionHistory[] | any>
 }

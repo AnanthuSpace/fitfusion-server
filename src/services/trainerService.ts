@@ -1,7 +1,7 @@
 import { sendMail } from "../config/nodeMailer";
 import bcrypt from "bcrypt";
 import { v4 } from "uuid";
-import { TrainerType } from "../interfaces/common/types";
+import { TrainerHistory, TrainerType } from "../interfaces/common/types";
 import { generateAccessToken, generateRefreshToken } from "../config/jwtConfig";
 import { EditTrainerInterface, IDietPlan } from "../interfaces/common/Interfaces";
 import { ProfileUpdateResult } from "../interfaces/common/Interfaces";
@@ -278,6 +278,15 @@ export class TrainerService implements ITrainerService {
             return allVideos
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' }; 
+        }
+    }
+
+    async getTransaction(trainerId: string): Promise<TrainerHistory[] | any> {
+        try {
+            const result = await this._trainerRepository.getTransaction(trainerId)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
         }
     }
 }

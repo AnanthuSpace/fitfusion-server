@@ -204,7 +204,7 @@ export class UserController {
         }
     }
 
-    fetchAlreadyChattedTrainer = async (req: Request, res: Response) => {
+    fetchAlreadyChattedTrainer = async (req: CustomRequest, res: Response) => {
         try {
             const { alreadyChatted } = req.body;
             const response = await this._userService.fetchAlreadyChattedTrainer(alreadyChatted);

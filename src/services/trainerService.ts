@@ -232,16 +232,14 @@ export class TrainerService implements ITrainerService {
             const bucketName = "fitfusion-tutorial"
             const Key = `trainer/Videos/`;
             const thumnailKey = `trainer/thumbnails/`;
-            
-            console.log(videoFile);
-            
+
             const videoUploadResult = await UpdateToAws(bucketName, Key, videoFile)
             const videoURL = await getObjectURL(`trainers/Videos/,${videoUploadResult}`)
 
             const thumbnailUploadResult = await UpdateToAws(bucketName, thumnailKey, thumbnail)
             const thumbnailURL = await getObjectURL(`trainers/thumbnails/,${thumbnailUploadResult}`)
 
-            const result = await this._trainerRepository.videoUpload(trainerId, videoURL, thumbnailURL, title, description);
+            const result = await this._trainerRepository.videoUpload(trainerId, videoUploadResult, thumbnailUploadResult, title, description);
             return { videoURL, thumbnailURL, result }
 
         } catch (error: any) {
@@ -261,13 +259,13 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async getVideos(trainerId: string): Promise<any>{
+    async getVideos(trainerId: string, page: number ): Promise<any> {
         try {
-            let trainerVideo = await this._trainerRepository.getVideos(trainerId)
-            const allVideos = await Promise.all (
-                trainerVideo.videos.map(async(video: any) => {
+            let trainerVideo = await this._trainerRepository.getVideos(trainerId, page)            
+            const allVideos = await Promise.all(
+                trainerVideo.videos.map(async (video: any) => {
                     const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
-                    const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)    
+                    const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)
                     return {
                         ...video,
                         videoUrl: videoLink,
@@ -277,7 +275,7 @@ export class TrainerService implements ITrainerService {
             )
             return allVideos
         } catch (error: any) {
-            return { success: false, message: error.message || 'Internal server error' }; 
+            return { success: false, message: error.message || 'Internal server error' };
         }
     }
 

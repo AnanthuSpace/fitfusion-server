@@ -18,8 +18,8 @@ export interface ITrainerRepository {
     addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
-    videoUpload(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any>
+    videoUpload(trainerId: string, videoUploadResult: any, thumbnailUploadResult: any, title: string, description: string): Promise<any>
     profileFetch(trainerId: string) : Promise<any>
-    getVideos(trainerId: string): Promise<ITutorialVideo>
+    getVideos(trainerId: string, page: number): Promise<ITutorialVideo>
     getTransaction(userId: string): Promise<TrainerHistory[] | any>
 }

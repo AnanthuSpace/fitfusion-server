@@ -162,7 +162,7 @@ export class UserRepository implements IUserRepository {
 
     async fetchSingleTrainer(trainerId: string) {
         try {
-            return await this._trainerModel.findOne({ trainerId: trainerId }, {_id:0})
+            return await this._trainerModel.findOne({ trainerId: trainerId }, {_id:0}).lean()
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

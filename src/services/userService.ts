@@ -340,10 +340,14 @@ export class UserService implements UserServiceInterface {
     }
 
     async fetchSingleTrainer(trainerId: string) {
-        try {
+        try {      
             let result = await this._userRepository.fetchSingleTrainer(trainerId)
+            console.log(result);
+            
             const url = await getObjectURL(`trainerProfile/${result.profileIMG}`)
             result = { ...result, profileIMG: url }
+            console.log(result);
+            
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };

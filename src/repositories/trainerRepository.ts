@@ -132,11 +132,11 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async videoUpload(trainerId: string, videoUrl: string, thumbnail: string, title: string, description: string): Promise<void> {
+    async videoUpload(trainerId: string, videoUploadResult: string, thumbnailUploadResult: string, title: string, description: string): Promise<void> {
         try {
             await this._tutorialModal.updateOne(
                 { trainerId: trainerId },
-                { $push: { videos: { videoUrl: videoUrl, thumbnail: thumbnail, title: title, description: description } } },
+                { $push: { videos: { videoUrl: videoUploadResult, thumbnail: thumbnailUploadResult, title: title, description: description } } },
                 { upsert: true }
             );
         } catch (error: any) {
@@ -149,17 +149,26 @@ export class TrainerRepository implements ITrainerRepository {
         return await this._trainerModel.findOne({ trainerId: trainerId }, { password: 0, _id: 0 })
     }
 
-    async getVideos(trainerId: string): Promise<ITutorialVideo> {
-        const video = await this._tutorialModal.findOne({ trainerId: trainerId }).lean()
-        if (!video) {
-            throw new Error(`No video found for trainerId: ${trainerId}`);
+    async getVideos(trainerId: string, page: number): Promise<ITutorialVideo> {
+        const videosPerPage = 4;
+        const skip = (page - 1) * videosPerPage;
+
+        const videoData = await this._tutorialModal
+            .findOne(
+                { trainerId: trainerId },
+                { videos: { $slice: [skip, videosPerPage] } }, { _id: 0 }
+            )
+            .lean();
+
+        if (!videoData || videoData.videos.length === 0) {
+            throw new Error(`No videos found for trainerId: ${trainerId}`);
         }
-        return video;
+        return videoData;
     }
 
     async getTransaction(trainerId: string) {
         try {
-            return await this._trainerModel.findOne({trainerId: trainerId},{transactionHistory:1, _id:0})
+            return await this._trainerModel.findOne({ trainerId: trainerId }, { transactionHistory: 1, _id: 0 })
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

@@ -17,7 +17,7 @@ export interface ITrainerService {
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<any>;
     saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any>;
     profileFetch(trainerId: string): Promise<any>;
-    getVideos(trainerId: string): Promise<any>
+    getVideos(trainerId: string, page: number): Promise<any>
     getTransaction(userId: string): Promise<any>
 }
 

@@ -17,6 +17,7 @@ const trainerController = new TrainerController(trainerService)
 router.post("/signup", trainerController.registerController);
 router.post("/verify", trainerController.otpVerification);
 router.post("/login", trainerController.trainerLogin);
+router.post("/google-signup", trainerController.googleSignUp)
 router.put("/edit-trainer", verifyToken, trainerController.editTrainerData)
 router.put("/profile-picture", verifyToken, upload.single("profileImage"), trainerController.profileUpdate)
 router.patch('/change-trainerpass', verifyToken, trainerController.changeTrainerPassword);

@@ -8,6 +8,7 @@ import { ProfileUpdateResult } from "../interfaces/common/Interfaces";
 import { ITrainerService } from "../interfaces/trainerService.interface";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 import { getObjectURL, getVideos, UpdateToAws } from "../config/awsConfig";
+import { verifyGoogleToken } from "../config/googleAuth";
 
 export class TrainerService implements ITrainerService {
     private _trainerRepository: ITrainerRepository
@@ -118,6 +119,17 @@ export class TrainerService implements ITrainerService {
                 trainerData: null,
                 bcryptPass: false
             };
+        }
+    }
+
+    async googleSignUp(token: string, password: string) {
+        console.log(password);
+        const userInfo = await verifyGoogleToken(token);
+        if (userInfo?.email_verified === true) {
+            const name = userInfo.name as string
+            const email = userInfo.email as string
+            const existedEmail = await this._trainerRepository.findTrainerInRegister(email )
+               console.log(existedEmail);
         }
     }
 
@@ -259,9 +271,9 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async getVideos(trainerId: string, page: number ): Promise<any> {
+    async getVideos(trainerId: string, page: number): Promise<any> {
         try {
-            let trainerVideo = await this._trainerRepository.getVideos(trainerId, page)            
+            let trainerVideo = await this._trainerRepository.getVideos(trainerId, page)
             const allVideos = await Promise.all(
                 trainerVideo.videos.map(async (video: any) => {
                     const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)

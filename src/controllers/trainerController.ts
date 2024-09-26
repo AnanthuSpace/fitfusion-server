@@ -6,9 +6,6 @@ interface CustomRequest extends Request {
     id?: string;
 }
 
-interface S3File extends Express.Multer.File {
-    location: string;
-}
 
 export class TrainerController {
     private _trainerService: ITrainerService;
@@ -31,6 +28,16 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
+
+    googleSignUp = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const { token, password } = req.body
+            const response = await this._trainerService.googleSignUp(token, password)
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
 
     otpVerification = async (req: Request, res: Response): Promise<any> => {
         try {
@@ -196,9 +203,9 @@ export class TrainerController {
                 res.status(400).json({ message: "Video file or thumbnail is missing." });
                 return;
             }
-            
+
             const result = await this._trainerService.saveVideoUrl(trainerId, videoFile, thumbnail, title, description);
-            res.status(200).json({ message: "Video uploaded successfully",  result});
+            res.status(200).json({ message: "Video uploaded successfully", result });
         } catch (error) {
             console.error("Error uploading video:", error);
             res.status(500).json({ message: "Error uploading video" });
@@ -217,7 +224,7 @@ export class TrainerController {
     }
 
     getVideos = async (req: CustomRequest, res: Response): Promise<any> => {
-        try {            
+        try {
             const trainerId = req.id as string
             const page = parseInt(req.query.page as string, 10)
             const result = await this._trainerService.getVideos(trainerId, page)
@@ -227,11 +234,11 @@ export class TrainerController {
         }
     }
 
-    getTransaction = async(req: CustomRequest, res: Response) => {
+    getTransaction = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string
             const response = await this._trainerService.getTransaction(trainerId)
-            return  res.status(200).json({ success: true, data: response });
+            return res.status(200).json({ success: true, data: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

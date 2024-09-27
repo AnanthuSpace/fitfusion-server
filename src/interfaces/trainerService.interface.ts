@@ -8,6 +8,7 @@ export interface ITrainerService {
     otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; trainerData: Omit<TrainerType, "password"> }>;
     trainerLoginService(email: string, enteredPassword: string): Promise<{ trainerNotExisted?: boolean; trainerData: Omit<TrainerType, "password"> | null; bcryptPass: boolean; accessToken?: string; refreshToken?: string; verifiedTrainer?: "pending" | "rejected" | "verified"; isBlocked?: boolean; }>;
     googleSignUp(token: string, password: string): Promise<any> 
+    googleLogin(token: string): Promise<any>
     editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string): Promise<{ message: string }>;
     verifyPassword(password: string, trainerId: string): Promise<boolean>;
     changeTrainerPass(newPassword: string, userId: string): Promise<{ success: boolean; message: string }>;

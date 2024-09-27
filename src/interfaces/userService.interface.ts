@@ -6,7 +6,9 @@ export interface UserServiceInterface {
     otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; accessToken: string; refreshToken: string; userData: Partial<UserType> }>;
     userLoginService(email: string): Promise<string>;
     userLoginVerificationService(email: string, otp: string): Promise<{ message: string; accessToken: string; refreshToken: string; userData: Partial<UserType> }>;
+    googleSignUpUser(token: string, password: string): Promise<any>
     inactiveUser(userId: string): Promise<any>;
+    googleLoginUser(token: string): Promise<any>
     editUserService(name: string, phone: string, address: string, gender: string, password: string, userId: string, weight: string, heigth: string, activityLevel: string, goals: string, dietary: string, medicalDetails: string): Promise<{ message: string }>;
     verifyPassword(password: string, userId: string): Promise<boolean>;
     changeUserPass(newPassword: string, userId: string): Promise<{ success: boolean; message: string }>;

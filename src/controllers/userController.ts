@@ -83,6 +83,27 @@ export class UserController {
         }
     }
 
+    googleSignUpUser = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const { token, password } = req.body
+            const response = await this._userService.googleSignUpUser(token, password)
+            if (response == "UserExist") return res.status(400).json({ success: false, message: "User existed please loging" });
+            return res.status(200).json({ success: true, message: "Registration successfully", data: response })
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    googleLoginUser = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const token = req.body.token
+            const response = await this._userService.googleLoginUser(token)
+            return res.status(200).json(response);
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
     editUserData = async (req: CustomRequest, res: Response): Promise<any> => {
         try {
             const { name, phone, address, gender, password, weight, heigth, activityLevel, goals, dietary, medicalDetails } = req.body;

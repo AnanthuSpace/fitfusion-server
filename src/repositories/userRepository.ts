@@ -119,6 +119,15 @@ export class UserRepository implements IUserRepository {
         }
     }
 
+    registerThroghGoogle(userId: string, name: string, email: string, password: string): Promise<any> {
+        return this._userModel.create({
+            userId,
+            name,
+            email,
+            password,
+        })
+    }
+
     async fetchTrainerScroll(page: number) {
         try {
             return await this._trainerModel.find()

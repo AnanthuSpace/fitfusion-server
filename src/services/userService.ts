@@ -10,6 +10,7 @@ import { v4 } from "uuid";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
+import { verifyGoogleToken } from "../config/googleAuth";
 
 dotenv.config();
 
@@ -43,6 +44,25 @@ export class UserService implements UserServiceInterface {
             return OTP;
         } else {
             return "OTP not sent";
+        }
+    }
+
+    async googleSignUpUser(token: string, password: string) {
+        const userInfo = await verifyGoogleToken(token)
+        if (userInfo?.email_verified === true) {
+            const name = userInfo.name as string
+            const email = userInfo.email as string
+            const existedEmail = await this._userRepository.findUser(email)
+            if (existedEmail) {
+                return "UserExist"
+            } else {
+                const hashedPassword = await bcrypt.hash(password, 10);
+                const userId = v4()
+                const result = await this._userRepository.registerThroghGoogle(userId, name, email, hashedPassword)
+                const accessToken = generateAccessToken(result.userId)
+                const refreshToken = generateRefreshToken(result.userId)
+                return { result, accessToken, refreshToken }
+            }
         }
     }
 
@@ -139,6 +159,26 @@ export class UserService implements UserServiceInterface {
         const refreshToken = generateRefreshToken(user.userId);
 
         return { message: "OTP verified", accessToken, refreshToken, userData: user };
+    }
+
+    async googleLoginUser(token: string) {
+        try {
+            const userInfo = await verifyGoogleToken(token)
+            if (userInfo?.email_verified === true) {
+                const email = userInfo.email as string
+                const existedEmail = await this._userRepository.findUser(email)
+                if (!existedEmail) {
+                    return "NotExisted"
+                } else {
+                    await this._userRepository.activeUser(email)
+                    const accessToken = generateAccessToken(existedEmail.userId);
+                    const refreshToken = generateRefreshToken(existedEmail.userId);
+                    return { message: "Login successfully", accessToken, refreshToken, userData: existedEmail };
+                }
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
     }
 
     async inactiveUser(userId: string) {
@@ -340,14 +380,14 @@ export class UserService implements UserServiceInterface {
     }
 
     async fetchSingleTrainer(trainerId: string) {
-        try {      
+        try {
             let result = await this._userRepository.fetchSingleTrainer(trainerId)
             console.log(result);
-            
+
             const url = await getObjectURL(`trainerProfile/${result.profileIMG}`)
             result = { ...result, profileIMG: url }
             console.log(result);
-            
+
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };

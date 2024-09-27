@@ -19,6 +19,8 @@ const userController = new UserController(userService);
 router.post("/signup", userController.registerController);
 router.post("/verify", userController.otpVerification);
 router.post("/login", userController.userLogin);
+router.post("/google-signup", userController.googleSignUpUser);
+router.post("/google-login", userController.googleLoginUser);
 router.post("/login-verify", userController.loginVerify);
 router.put('/edit-user', verifyToken, userController.editUserData);
 router.patch('/change-userpass', verifyToken, userController.changeUserPassword);

@@ -19,7 +19,7 @@ export class TrainerController {
             const serviceResponse = await this._trainerService.registerTrainerService(trainerData);
             if (serviceResponse === "UserExist") {
                 console.log(serviceResponse);
-                return res.status(409).json({ success: false, message: "User already exists" });
+                return res.status(400).json({ success: false, message: "User already exists" });
             } else {
                 return res.status(200).json({ success: true, message: "OTP sent", otp: serviceResponse });
             }
@@ -33,11 +33,22 @@ export class TrainerController {
         try {
             const { token, password } = req.body
             const response = await this._trainerService.googleSignUp(token, password)
+            if (response == "UserExist") return res.status(400).json({ success: false, message: "User existed please loging" });
+            return res.status(200).json({ success: true, message: "Registration successfully" })
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
 
+    googleLogin = async (req: Request, res: Response) => {
+        try {
+            const token = req.body.token as string
+            const response = await this._trainerService.googleLogin(token)
+            return res.status(200).json(response);
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 
     otpVerification = async (req: Request, res: Response): Promise<any> => {
         try {

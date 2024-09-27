@@ -6,6 +6,7 @@ import { UserType } from "./common/types";
 export interface ITrainerRepository {
     findTrainerInRegister(email: string): Promise<TrainerType | null>;
     registerTrainer(trainerData: TrainerType): Promise<TrainerType>;
+    registerThroghGoogle(trainerId: string, name: string, email: string, password: string) : Promise<any>
     editTrainer(editTrainerData: EditTrainerInterface, trainerId: string): Promise<any>;
     changePass(newPassword: string, trainerId: string): Promise<any>;
     findEditingData(trainerId: string): Promise<TrainerType | null>;

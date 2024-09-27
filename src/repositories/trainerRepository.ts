@@ -28,6 +28,15 @@ export class TrainerRepository implements ITrainerRepository {
         return await this._trainerModel.updateOne({ trainerId }, { $set: editTrainerData })
     }
 
+    registerThroghGoogle(trainerId: string, name: string, email: string, password: string): Promise<any> {
+        return this._trainerModel.create({
+            trainerId,
+            name,
+            email,
+            password,
+        })
+    }
+
     async changePass(newPassword: string, trainerId: string) {
         const res = await this._trainerModel.updateOne(
             { trainerId: trainerId },

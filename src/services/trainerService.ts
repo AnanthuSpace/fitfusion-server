@@ -123,13 +123,44 @@ export class TrainerService implements ITrainerService {
     }
 
     async googleSignUp(token: string, password: string) {
-        console.log(password);
         const userInfo = await verifyGoogleToken(token);
         if (userInfo?.email_verified === true) {
             const name = userInfo.name as string
             const email = userInfo.email as string
-            const existedEmail = await this._trainerRepository.findTrainerInRegister(email )
-               console.log(existedEmail);
+            const existedEmail = await this._trainerRepository.findTrainerInRegister(email)
+            if (existedEmail) {
+                return "UserExist"
+            } else {
+                const hashedPassword = await bcrypt.hash(password, 10);
+                const trainerId = v4()
+                const result = await this._trainerRepository.registerThroghGoogle(trainerId, name, email, hashedPassword)
+                return result
+            }
+        }
+    }
+
+    async googleLogin(token: string) {
+        const userInfo = await verifyGoogleToken(token)
+        if (userInfo?.email_verified === true) {
+            const email = userInfo.email as string
+            const existedEmail = await this._trainerRepository.findTrainerInRegister(email)
+            if (!existedEmail) {
+                return "NotExisted"
+            } else {
+                const verifiedTrainer = existedEmail.verified
+                const isBlocked = existedEmail.isBlocked
+
+                const accessToken = generateAccessToken(existedEmail.trainerId)
+                const refreshToken = generateRefreshToken(existedEmail.trainerId)
+
+                return {
+                    trainerData: userInfo,
+                    accessToken,
+                    refreshToken,
+                    verifiedTrainer,
+                    isBlocked,
+                }
+            }
         }
     }
 

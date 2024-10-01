@@ -144,11 +144,13 @@ export class TrainerService implements ITrainerService {
         if (userInfo?.email_verified === true) {
             const email = userInfo.email as string
             const existedEmail = await this._trainerRepository.findTrainerInRegister(email)
-            if (!existedEmail) {
+            console.log(existedEmail);
+            if (existedEmail === null) {
                 return "NotExisted"
             } else {
                 const verifiedTrainer = existedEmail.verified
                 const isBlocked = existedEmail.isBlocked
+
 
                 const accessToken = generateAccessToken(existedEmail.trainerId)
                 const refreshToken = generateRefreshToken(existedEmail.trainerId)
@@ -278,11 +280,12 @@ export class TrainerService implements ITrainerService {
 
             const videoUploadResult = await UpdateToAws(bucketName, Key, videoFile)
             const videoURL = await getObjectURL(`trainers/Videos/,${videoUploadResult}`)
+            const videoId = v4()
 
             const thumbnailUploadResult = await UpdateToAws(bucketName, thumnailKey, thumbnail)
             const thumbnailURL = await getObjectURL(`trainers/thumbnails/,${thumbnailUploadResult}`)
 
-            const result = await this._trainerRepository.videoUpload(trainerId, videoUploadResult, thumbnailUploadResult, title, description);
+            const result = await this._trainerRepository.videoUpload(trainerId, videoUploadResult, thumbnailUploadResult, title, description, videoId);
             return { videoURL, thumbnailURL, result }
 
         } catch (error: any) {
@@ -330,4 +333,41 @@ export class TrainerService implements ITrainerService {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<any> {
+        try {
+            const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId);
+
+            if (result.matchedCount === 0) {
+                throw new Error("No video found with the given videoId for the specified trainerId");
+            }
+
+            if (result.modifiedCount > 0) {
+                return { success: true, message: "Video edited successfully" };
+            } else {
+                throw new Error("No changes made to the video"); 
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any> {
+        try {
+            const result = await this._trainerRepository.toggleVideoListing(trainerId, videoId, listed);
+
+            if (result.matchedCount === 0) {
+                throw new Error("No video found with the given videoId for the specified trainerId");
+            }
+
+            if (result.modifiedCount > 0) {
+                return { success: true, message: "Video edited successfully" };
+            } else {
+                throw new Error("No changes made to the video"); 
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
 }

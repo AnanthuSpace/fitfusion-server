@@ -44,6 +44,7 @@ export class TrainerController {
         try {
             const token = req.body.token as string
             const response = await this._trainerService.googleLogin(token)
+            if (response === "NotExisted") return res.status(400).json({ message: "User is not existed please register", response })
             return res.status(200).json(response);
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
@@ -254,4 +255,35 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }
+
+    editVideo = async (req: CustomRequest, res: Response) => {
+        try {
+            const trainerId = req.id as string;
+            const { title, description, videoId } = req.body;
+            const response = await this._trainerService.editVideoDetails(trainerId, title, description, videoId);
+            if (response.success) {
+                return res.status(200).json({ success: true, message: response.message });
+            } else {
+                return res.status(400).json({ success: false, message: response.message });
+            }
+        } catch (error: any) {
+            return res.status(500).json({ success: false, message: error.message || 'Internal server error' });
+        }
+    }
+
+    toggleVideoListing =async(req: CustomRequest, res: Response) => {
+        try {
+            const trainerId = req.id as string
+            const { videoId, listed } = req.body 
+            const response = await this._trainerService.toggleVideoListing(trainerId, videoId, listed);
+            if (response.success) {
+                return res.status(200).json({ success: true, response });
+            } else {
+                return res.status(400).json({ success: false, response});
+            }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
 }

@@ -76,11 +76,13 @@ export interface IChat extends Document {
 export interface ITutorialVideo {
     trainerId: string; 
     videos: {
+        videoId: string;
         videoUrl: string; 
         title: string;
         thumbnail: string;
         description?: string;
         uploadDate?: Date; 
+        listed: boolean;
     }[];
 }
 

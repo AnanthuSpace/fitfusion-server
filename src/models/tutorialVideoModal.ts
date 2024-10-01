@@ -8,9 +8,13 @@ const tutorialVideoSchema = new Schema<ITutorialVideo>({
     },
     videos: [
         {
+            videoId: {
+                type: String,
+                required: true,
+            },
             videoUrl: {
                 type: String,
-                required: true, 
+                required: true,
             },
             thumbnail: {
                 type: String,
@@ -18,15 +22,19 @@ const tutorialVideoSchema = new Schema<ITutorialVideo>({
             },
             title: {
                 type: String,
-                required: true, 
+                required: true,
             },
             description: {
-                type: String, 
+                type: String,
             },
             uploadDate: {
                 type: Date,
                 default: Date.now,
             },
+            listed: {
+                type: Boolean,
+                default: true
+            }
         },
     ],
 });

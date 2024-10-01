@@ -141,11 +141,11 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async videoUpload(trainerId: string, videoUploadResult: string, thumbnailUploadResult: string, title: string, description: string): Promise<void> {
+    async videoUpload(trainerId: string, videoUploadResult: string, thumbnailUploadResult: string, title: string, description: string, videoId: string): Promise<void> {
         try {
             await this._tutorialModal.updateOne(
                 { trainerId: trainerId },
-                { $push: { videos: { videoUrl: videoUploadResult, thumbnail: thumbnailUploadResult, title: title, description: description } } },
+                { $push: { videos: { videoId: videoId, videoUrl: videoUploadResult, thumbnail: thumbnailUploadResult, title: title, description: description } } },
                 { upsert: true }
             );
         } catch (error: any) {
@@ -178,6 +178,36 @@ export class TrainerRepository implements ITrainerRepository {
     async getTransaction(trainerId: string) {
         try {
             return await this._trainerModel.findOne({ trainerId: trainerId }, { transactionHistory: 1, _id: 0 })
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string) {
+        try {
+            return await this._tutorialModal.updateOne({ trainerId: trainerId, "videos.videoId": videoId },
+                {
+                    $set: {
+                        "videos.$.title": title,
+                        "videos.$.description": description
+                    }
+                }
+            )
+        } catch (error: any) {
+            throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async toggleVideoListing(trainerId: string, videoId: string, listed: string) {
+        try {
+            return await this._tutorialModal.updateOne({ trainerId: trainerId, "videos.videoId": videoId },
+                {
+                    $set: {
+                        "videos.$.listed": listed,
+                    }
+                }
+            )
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

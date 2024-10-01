@@ -419,15 +419,16 @@ export class UserService implements UserServiceInterface {
         try {
             let videosList = await this._userRepository.fetchAllVideos(trainerIds);
             videosList = videosList.flat();
-
             let allVideosWithUrlsId = videosList.map((trainer: any) => {
                 return trainer.videos.map((video: any) => ({
                     videoUrl: video.videoUrl,
                     thumbnail: video.thumbnail,
                     uploadDate: video.uploadDate,
+                    title: video.title,
+                    description: video.description
                 }));
             }).flat();
-
+            
             const allVideosWithUrls = await Promise.all(
                 allVideosWithUrlsId.map(async (video: any) => {
                     const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)

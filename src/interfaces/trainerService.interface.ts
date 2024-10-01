@@ -21,5 +21,7 @@ export interface ITrainerService {
     profileFetch(trainerId: string): Promise<any>;
     getVideos(trainerId: string, page: number): Promise<any>
     getTransaction(userId: string): Promise<any>
+    editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<any>
+    toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any>
 }
 

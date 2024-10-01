@@ -98,6 +98,7 @@ export class UserController {
         try {
             const token = req.body.token
             const response = await this._userService.googleLoginUser(token)
+            if (response === "NotExisted") return res.status(400).json({message:"User is not existed please register", response})
             return res.status(200).json(response);
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });

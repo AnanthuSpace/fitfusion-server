@@ -79,9 +79,6 @@ export class TrainerController {
             if (!serviceResponse.bcryptPass) {
                 return res.status(403).json({ success: false, message: "Incorrect password" });
             }
-            if (serviceResponse.verifiedTrainer === "pending") {
-                return res.status(403).json({ success: false, message: "Please wait for the verification" });
-            }
             if (serviceResponse.verifiedTrainer === "rejected") {
                 return res.status(403).json({ success: false, message: "You are rejected by Admin" });
             }

@@ -38,7 +38,7 @@ export class UserService implements UserServiceInterface {
 
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
 
-        const isMailSended = await sendMail(userData.email, OTP);
+        const isMailSended = await sendMail(userData.email, "otp", OTP);
         if (isMailSended) {
             this.storeOtp(userData.email, OTP, userData);
             return OTP;
@@ -120,7 +120,7 @@ export class UserService implements UserServiceInterface {
             return "User is blocked by Admin"
         }
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
-        const isMailSended = await sendMail(email, OTP);
+        const isMailSended = await sendMail(email, "otp", OTP);
         if (isMailSended) {
             this.storeOtp(email, OTP, user);
             return email;
@@ -428,7 +428,7 @@ export class UserService implements UserServiceInterface {
                     description: video.description
                 }));
             }).flat();
-            
+
             const allVideosWithUrls = await Promise.all(
                 allVideosWithUrlsId.map(async (video: any) => {
                     const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)

@@ -21,5 +21,6 @@ router.patch("/trainer-unblock", adminVerification, adminController.trainerUnblo
 router.patch("/user-block", adminVerification, adminController.userBlock);
 router.patch("/user-unblock", adminVerification, adminController.userUnblock);
 router.patch("/isverify", adminVerification, adminController.isVerified);
+router.get("/get-individual-trainers", adminVerification, adminController.fetchIndividualTrainer);
 
 export default router;

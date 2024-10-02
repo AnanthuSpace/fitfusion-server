@@ -6,7 +6,8 @@ export interface IAdminService {
     trainerUnBlock(trainerId: string): Promise<{ success: boolean; message: string }>;
     userBlock(userId: string): Promise<{ success: boolean; message: string }>;
     userUnBlock(userId: string): Promise<{ success: boolean; message: string }>;
-    isVerified(trainerId: string, isVerified: string): Promise<{ success: boolean; message: string }>;
+    isVerified(trainerId: string, isVerified: string, reason?: string): Promise<{ success: boolean; message: string }>;
     fetchTrainers(page: number): Promise<TrainerType[]>;
     fetchUsers(page: number): Promise<UserType[]>;
+    fetchIndividualTrainer(trainerId: string): Promise<any>
 }

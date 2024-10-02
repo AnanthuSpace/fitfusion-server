@@ -26,7 +26,7 @@ export class TrainerService implements ITrainerService {
 
         const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
         console.log("Generated OTP: ", OTP);
-        const isMailSended = await sendMail(trainerData.email, OTP);
+        const isMailSended = await sendMail(trainerData.email, "otp", OTP);
         if (isMailSended) {
             this.storeOtp(trainerData.email, OTP, trainerData);
             console.log("OTP stored successfully");
@@ -345,7 +345,7 @@ export class TrainerService implements ITrainerService {
             if (result.modifiedCount > 0) {
                 return { success: true, message: "Video edited successfully" };
             } else {
-                throw new Error("No changes made to the video"); 
+                throw new Error("No changes made to the video");
             }
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -363,7 +363,7 @@ export class TrainerService implements ITrainerService {
             if (result.modifiedCount > 0) {
                 return { success: true, message: "Video edited successfully" };
             } else {
-                throw new Error("No changes made to the video"); 
+                throw new Error("No changes made to the video");
             }
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };

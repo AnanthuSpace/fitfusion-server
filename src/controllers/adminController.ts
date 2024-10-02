@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { IAdminService } from "../interfaces/adminService.interface";
+import { start } from "repl";
 
 export class AdminController {
     private _adminService: IAdminService;
@@ -109,7 +110,7 @@ export class AdminController {
     isVerified = async (req: Request, res: Response): Promise<any> => {
         try {
             const { trainerId, isVerified, reason } = req.body
-            
+
             const result = await this._adminService.isVerified(trainerId, isVerified, reason)
             if (result.success) {
                 return res.status(200).json(result);
@@ -125,6 +126,37 @@ export class AdminController {
         try {
             const trainerId = req.query.trainerId as string
             const result = await this._adminService.fetchIndividualTrainer(trainerId)
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    fetchDataForDashboard = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const startDateString = req.query.startDate as string;
+            const endDateString = req.query.endDate as string;
+
+            const startDate = new Date(startDateString);
+            const endDate = new Date(endDateString);
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                return res.status(400).json({ success: false, message: "Invalid date format" });
+            }
+
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
+
+            const result = await this._adminService.fetchDataForDashboard(startDate, endDate);
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    fetchNewUsersAndTrainers = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const result = await this._adminService.fetchNewUsersAndTrainers()
             return res.status(200).json(result);
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });

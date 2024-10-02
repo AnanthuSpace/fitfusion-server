@@ -10,4 +10,6 @@ export interface IAdminService {
     fetchTrainers(page: number): Promise<TrainerType[]>;
     fetchUsers(page: number): Promise<UserType[]>;
     fetchIndividualTrainer(trainerId: string): Promise<any>
+    fetchDataForDashboard(startDate: string | Date, endDate: string | Date): Promise<any>;
+    fetchNewUsersAndTrainers(): Promise<any>
 }

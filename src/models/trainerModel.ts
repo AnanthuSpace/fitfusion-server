@@ -7,7 +7,7 @@ const transactionSchema = new Schema({
     amount: Number,
     createdAt: {
         type: Date,
-        default: Date.now, 
+        default: Date.now,
     },
 });
 
@@ -87,7 +87,11 @@ const trainerSchema = new Schema<TrainerType>({
         type: Boolean,
         default: false
     },
-    transactionHistory:[transactionSchema]
+    transactionHistory: [transactionSchema],
+    wallet: {
+        type: Number,
+        default: 0
+    }
 })
 
 

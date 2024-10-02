@@ -67,11 +67,13 @@ export class TrainerRepository implements ITrainerRepository {
                         userName: userName,
                         amount: amount
                     }
-                }
+                },
+                $inc: { wallet: amount } 
             },
             { new: true }
         );
     }
+    
 
     async fetchCustomer(userIds: string[]) {
         try {

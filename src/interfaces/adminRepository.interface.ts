@@ -12,4 +12,6 @@ export interface IAdminRepository {
     fetchTrainers(page: number): Promise<TrainerType[]>;
     fetchUsers(page: number): Promise<UserType[]>;
     fetchIndividualTrainer(trainerId: string): Promise<any>
+    findUserDatas(startDate: Date, endDate: Date): Promise<any>
+    fetchNewUsersAndTrainers(): Promise<any>
 }

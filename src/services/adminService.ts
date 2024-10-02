@@ -1,7 +1,6 @@
 import { generateAccessTokenForAdmin, generateRefreshToken } from "../config/jwtConfig";
 import { IAdminService } from "../interfaces/adminService.interface";
 import { IAdminRepository } from "../interfaces/adminRepository.interface";
-import { TrainerType } from "../interfaces/common/types";
 import { getObjectURL } from "../config/awsConfig";
 import { sendMail } from "../config/nodeMailer";
 
@@ -116,11 +115,27 @@ export class AdminService implements IAdminService {
             let trainerData = await this._adminRepository.fetchIndividualTrainer(trainerId)
             const url = await getObjectURL(`trainerProfile/${trainerData?.profileIMG}`)
             trainerData = { ...trainerData, profileIMG: url }
-            console.log(trainerData);
-
             return trainerData
         } catch (error) {
             throw error;
+        }
+    }
+
+    async fetchDataForDashboard(startDate: Date, endDate: Date): Promise<any> {
+        try {
+            const result = await this._adminRepository.findUserDatas(startDate, endDate)
+            return result
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async fetchNewUsersAndTrainers(): Promise<any> {
+        try {
+            const result = await this._adminRepository.fetchNewUsersAndTrainers()
+            return result
+        } catch (error) {
+            throw error
         }
     }
 }

@@ -45,7 +45,8 @@ export type TrainerType = {
     subscribedUsers?: string[];
     alreadychattedUsers?: string[];
     isActive: boolean;
-    transactionHistory?: TrainerHistory[]
+    transactionHistory?: TrainerHistory[];
+    wallet: number
 }
 
 export type ReviewType = {

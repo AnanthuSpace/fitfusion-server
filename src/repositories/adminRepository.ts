@@ -49,7 +49,7 @@ export class AdminRepository implements IAdminRepository {
 
     async isVerified(trainerId: string, isVerified: string): Promise<any> {
         console.log(trainerId);
-        
+
         return this._trainerModel.updateOne(
             { email: trainerId },
             { $set: { verified: isVerified } }
@@ -76,7 +76,82 @@ export class AdminRepository implements IAdminRepository {
         return this._trainerModel.findOne({ trainerId: trainerId }, { _id: 0 }).lean()
     }
 
-    async deleteTrainer( trainerId: string): Promise<any> {
+    async deleteTrainer(trainerId: string): Promise<any> {
         return this._trainerModel.deleteOne({ email: trainerId });
+    }
+
+    async findUserDatas(startDate: Date, endDate: Date): Promise<any> {
+        try {
+            const users = await this._userModel.find({
+                createdAt: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            });
+
+            const trainers = await this._trainerModel.find({
+                createdAt: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            });
+
+            const formatDate = (date: Date) => date.toISOString().split("T")[0];
+
+            const countOccurrences = (data: any[]) => {
+                return data.reduce((acc, item) => {
+                    const date = formatDate(item.createdAt);
+                    acc[date] = (acc[date] || 0) + 1;
+                    return acc;
+                }, {});
+            };
+
+            const userCounts = countOccurrences(users);
+            const trainerCounts = countOccurrences(trainers);
+
+            const allDates = new Set([...Object.keys(userCounts), ...Object.keys(trainerCounts)]);
+            const resultData = Array.from(allDates).map((date) => ({
+                date,
+                users: userCounts[date] || 0,
+                trainers: trainerCounts[date] || 0,
+            }));
+
+            return {
+                success: true,
+                data: resultData,
+            };
+        } catch (error) {
+            console.error("Error finding user data:", error);
+            throw error;
+        }
+    }
+
+    async fetchNewUsersAndTrainers(): Promise<any> {
+        const lastFourUsers = await this._userModel
+            .find()
+            .sort({ createdAt: -1 })
+            .limit(4)
+            .select('name userId');
+    
+        const lastFourTrainers = await this._trainerModel
+            .find()
+            .sort({ createdAt: -1 })
+            .limit(4)
+            .select('name trainerId');
+    
+        const userCount = await this._userModel.countDocuments();
+    
+        const trainerCount = await this._trainerModel.countDocuments();
+    
+        const trainers = await this._trainerModel.find().select('wallet');
+        const totalWallet = trainers.reduce((sum, trainer) => sum + trainer.wallet, 0);
+    
+        return {
+            users: lastFourUsers,
+            trainers: lastFourTrainers,
+            userCount,
+            trainerCount,
+            totalWallet
+        };
     }
 }

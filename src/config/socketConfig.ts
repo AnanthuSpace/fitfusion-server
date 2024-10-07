@@ -10,12 +10,11 @@ import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
 import { ReviewModal } from "../models/reviewModal";
 import { TutorialVideoModal } from "../models/tutorialVideoModal";
-import { log } from "console";
 
 export const configureSocket = (server: http.Server) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "https://fitfusion-client.vercel.app",
       methods: ["GET", "POST"],
       credentials: true,
     },

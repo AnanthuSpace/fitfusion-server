@@ -1,5 +1,7 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import http from "http";
+import dotenv from 'dotenv';
+dotenv.config();
 import ChatService from "../services/chatService";
 import { ChatRepository } from "../repositories/chatRepository";
 import { UserRepository } from "../repositories/userRepository";
@@ -10,11 +12,12 @@ import { trainerModel } from "../models/trainerModel";
 import DietPlan from "../models/dietModal";
 import { ReviewModal } from "../models/reviewModal";
 import { TutorialVideoModal } from "../models/tutorialVideoModal";
+const clientURL = process.env.clientURL as string;
 
 export const configureSocket = (server: http.Server) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: "https://fitfusion-client.vercel.app",
+      origin: clientURL,
       methods: ["GET", "POST"],
       credentials: true,
     },
@@ -34,14 +37,14 @@ export const configureSocket = (server: http.Server) => {
 
       isOnline[sender] = socket.id;
       console.log(isOnline);
-      
+
       socket.join(room);
       if (isOnline[reciver]) {
-        console.log(true,reciver);
-        
+        console.log(true, reciver);
+
         io.emit("userIsOnline", { user_id: reciver })
-      } else {   
-        console.log(false, reciver); 
+      } else {
+        console.log(false, reciver);
         io.emit("userIsOffline", { user_id: reciver })
       }
       console.log(`User joined room: ${room}`);
@@ -51,7 +54,7 @@ export const configureSocket = (server: http.Server) => {
       isOnline[user] = socket.id;
       console.log(`User ${user} is now online`);
       console.log(isOnline);
-      
+
     })
 
     socket.on("leaveTheChatPage", ({ user }) => {

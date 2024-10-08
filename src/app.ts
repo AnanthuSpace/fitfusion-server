@@ -12,16 +12,18 @@ import { configureSocket } from './config/socketConfig';
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
+const clientURL = process.env.clientURL as string;
 
 configureSocket(server);
 
 dbConnection();
 
 app.use(cors({
-  origin: 'https://fitfusion-client.vercel.app', 
-  methods: ['GET', 'POST', "PUT", "PATCH"],
+  origin: [clientURL],
+  methods: ['GET', 'POST', 'PUT', 'PATCH'],
   credentials: true,
 }));
+
 
 app.use(express.static("public"));
 app.use(express.json());

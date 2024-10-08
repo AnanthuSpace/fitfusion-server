@@ -4,8 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "start": "nodemon --exec ts-node -P tsconfig.json src/app.ts",
     "build": "tsc",
-    "start": "nodemon src/app.ts"
+    "serve": "node dist/app.js"
   },
   "keywords": [],
   "author": "Ananthu Mohan",

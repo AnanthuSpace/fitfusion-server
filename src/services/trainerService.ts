@@ -44,43 +44,44 @@ export class TrainerService implements ITrainerService {
     }
 
 
-    async otpVerificationService(temperoryEmail: string, otp: string) {
+    async otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; trainerData: Omit<TrainerType, "password"> }> {
         console.log("Current OTP store: ", this.otpStore);
         console.log("Verifying OTP for email: ", temperoryEmail);
-
+    
         const storedData = this.otpStore[temperoryEmail];
         console.log("storedData: ", storedData);
-
+    
         if (!storedData) {
             throw new Error("Invalid OTP");
         }
-
+    
         const currentTime = Date.now();
         const otpTime = storedData.timestamp;
         const difference = currentTime - otpTime;
-
+    
         if (difference > 2 * 60 * 1000) {
             throw new Error("OTP expired");
         }
-
+    
         if (storedData.otp !== otp) {
             throw new Error("Invalid OTP");
         }
-
+    
         console.log("OTP matched");
-
+    
         const trainerData = storedData.trainerData;
         const hashedPassword = await bcrypt.hash(trainerData.password, 10);
         trainerData.password = hashedPassword;
         trainerData.trainerId = v4();
         delete this.otpStore[temperoryEmail];
-
+    
         await this._trainerRepository.registerTrainer(trainerData);
-
+    
         const { password, ...trainerDataWithoutSensitiveInfo } = trainerData;
-
-        return { message: "OTP verified", trainerData: trainerDataWithoutSensitiveInfo };
+    
+        return { message: "OTP verified", trainerData: trainerDataWithoutSensitiveInfo as Omit<TrainerType, "password"> };
     }
+    
 
 
     async trainerLoginService(email: string, enteredPassword: string): Promise<any> {
@@ -334,23 +335,21 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<any> {
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<{ success: boolean; message: string; data?: any }> {
         try {
             const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId);
-
+    
             if (result.matchedCount === 0) {
-                throw new Error("No video found with the given videoId for the specified trainerId");
+                return { success: false, message: "No video found with the given video ID" };
             }
-
-            if (result.modifiedCount > 0) {
-                return { success: true, message: "Video edited successfully" };
-            } else {
-                throw new Error("No changes made to the video");
-            }
+    
+            return { success: true, message: "Video details updated successfully" };
         } catch (error: any) {
+            console.error("Error editing video details: ", error);
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+    
 
     async toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any> {
         try {

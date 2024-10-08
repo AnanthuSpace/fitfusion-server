@@ -1,10 +1,10 @@
 import { FullReviewType, ReviewType, TrainerType, UserType } from "../interfaces/common/types";
 import { EditUserInterface, ITutorialVideo } from "../interfaces/common/Interfaces";
 import { IUserRepository } from "../interfaces/userRepository.interface";
-import { Model } from "mongoose";
 import { IDietPlan } from "../interfaces/common/Interfaces";
+import { Model } from "mongoose";
 
-export class userRepository implements IUserRepository {
+export class UserRepository implements IUserRepository {
     private _userModel: Model<UserType>
     private _trainerModel: Model<TrainerType>
     private _dietPlan: Model<IDietPlan>
@@ -24,7 +24,7 @@ export class userRepository implements IUserRepository {
     }
 
     async fetchUser(userId: string) {
-        return await this._userModel.findOne({ userId: userId }, { _id: 0 }).lean();  
+        return await this._userModel.findOne({ userId: userId }, { _id: 0 })
     }
 
     async registerUser(userData: UserType) {
@@ -142,6 +142,7 @@ export class userRepository implements IUserRepository {
     async addReview(reviewData: FullReviewType, trainerId: string) {
         try {
             const existingReview = await this._reviewModel.findOne({ trainerId: trainerId });
+            
             if (existingReview) {
                 const updatedReview = await this._reviewModel.updateOne(
                     { trainerId: trainerId },
@@ -149,17 +150,17 @@ export class userRepository implements IUserRepository {
                 );
                 return updatedReview;
             } else {
-                const fullReview: ReviewType = {
+                const review = await this._reviewModel.create({
                     trainerId: trainerId,
-                    review: [reviewData]
-                };
-                const review = await this._reviewModel.create(fullReview);
+                    review: [reviewData],
+                });
                 return review;
             }
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }
     }
+    
 
     async fetchReview(trainerId: string) {
         try {

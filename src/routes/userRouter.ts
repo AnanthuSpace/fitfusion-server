@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
 import { verifyToken } from "../config/jwtConfig";
-import { userRepository } from "../repositories/userRepository";
+import { UserRepository } from "../repositories/userRepository";
 import { UserService } from "../services/userService";
 import { TrainerRepository } from "../repositories/trainerRepository";
 import { userModel } from "../models/userModel";
@@ -11,9 +11,9 @@ import { ReviewModal } from "../models/reviewModal";
 import { TutorialVideoModal } from "../models/tutorialVideoModal";
 
 const router = Router()
-const UserRepository = new userRepository(userModel, trainerModel, DietPlan, ReviewModal, TutorialVideoModal);
+const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal, TutorialVideoModal);
 const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
-const userService = new UserService(UserRepository, trainerRepository);
+const userService = new UserService(userRepository, trainerRepository);
 const userController = new UserController(userService);
 
 router.post("/signup", userController.registerController);

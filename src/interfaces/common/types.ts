@@ -1,4 +1,7 @@
-export type UserType = {
+import { Document } from "mongoose";
+
+// UserType extending Document for Mongoose compatibility
+export interface UserType extends Document {
     userId: string;
     name: string;
     email: string;
@@ -19,11 +22,11 @@ export type UserType = {
     subscribeList?: string[];
     alreadychattedTrainers?: string[];
     isActive: boolean;
-    transactionHistory: TransactionHistory[]
-};
+    transactionHistory: TransactionHistory[];
+}
 
-export type TrainerType = {
-
+// TrainerType extending Document for Mongoose compatibility
+export interface TrainerType extends Document {
     trainerId: string;
     name: string;
     email: string;
@@ -34,7 +37,7 @@ export type TrainerType = {
     followers?: string[];
     isBlocked: boolean;
     level: number;
-    qualification?: string
+    qualification?: string;
     createdAt: Date;
     profileIMG?: string;
     address?: string;
@@ -46,28 +49,30 @@ export type TrainerType = {
     alreadychattedUsers?: string[];
     isActive: boolean;
     transactionHistory?: TrainerHistory[];
-    wallet: number
+    wallet: number;
 }
 
-export type ReviewType = {
-    trainerId: string,
-    review: FullReviewType[],
+// ReviewType extending Document for Mongoose compatibility
+export interface ReviewType extends Document {
+    trainerId: string;
+    review: FullReviewType[];
 }
 
-export type FullReviewType = {
-    userName: string,
-    rating: number,
-    feedback: number,
+export interface FullReviewType {
+    userName: string;
+    rating: number;
+    feedback: number;
 }
 
-export type TransactionHistory = {
+export interface TransactionHistory {
     trainerId: string;
     trainerName: string;
     amount: number;
-    createdAt?: Date;  
-};
-export type TrainerHistory = {
-    userId: string,
-    userName: string,
-    amount: number
+    createdAt?: Date;
+}
+
+export interface TrainerHistory {
+    userId: string;
+    userName: string;
+    amount: number;
 }

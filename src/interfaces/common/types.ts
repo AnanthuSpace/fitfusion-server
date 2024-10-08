@@ -61,11 +61,11 @@ export type FullReviewType = {
 }
 
 export type TransactionHistory = {
-    trainerId: string,
-    trainerName: string,
-    amount: number
-}
-
+    trainerId: string;
+    trainerName: string;
+    amount: number;
+    createdAt?: Date;  
+};
 export type TrainerHistory = {
     userId: string,
     userName: string,

@@ -24,7 +24,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async fetchUser(userId: string) {
-        return await this._userModel.findOne({ userId: userId }, { _id: 0 })
+        return await this._userModel.findOne({ userId: userId }, { _id: 0 }).lean();  
     }
 
     async registerUser(userData: UserType) {

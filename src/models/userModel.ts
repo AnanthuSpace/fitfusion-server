@@ -1,14 +1,24 @@
 import { Schema, model } from "mongoose";
 import { UserType } from "../interfaces/common/types";
+import { TransactionHistory } from "../interfaces/common/types";
 
 
-const transactionSchema = new Schema({
-    trainnerId: String,
-    trainerName: String,
-    amount: Number,
+const transactionSchema = new Schema<TransactionHistory>({
+    trainerId: {
+        type: String,
+        required: true,
+    },
+    trainerName: {
+        type: String,
+        required: true,
+    },
+    amount: {
+        type: Number,
+        required: true,
+    },
     createdAt: {
         type: Date,
-        default: Date.now, 
+        default: Date.now,
     },
 });
 

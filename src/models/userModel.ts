@@ -1,21 +1,10 @@
 import { Schema, model } from "mongoose";
 import { UserType } from "../interfaces/common/types";
-import { TransactionHistory } from "../interfaces/common/types";
 
-
-const transactionSchema = new Schema<TransactionHistory>({
-    trainerId: {
-        type: String,
-        required: true,
-    },
-    trainerName: {
-        type: String,
-        required: true,
-    },
-    amount: {
-        type: Number,
-        required: true,
-    },
+const transactionSchema = new Schema({
+    trainerId: String,
+    trainerName: String,
+    amount: Number,
     createdAt: {
         type: Date,
         default: Date.now,
@@ -25,7 +14,8 @@ const transactionSchema = new Schema<TransactionHistory>({
 const userSchema = new Schema<UserType>({
     userId: {
         type: String,
-        required: true
+        required: true,
+        unique: true, 
     },
     name: {
         type: String,
@@ -91,7 +81,7 @@ const userSchema = new Schema<UserType>({
         type: Boolean,
         default: false
     },
-    transactionHistory: [transactionSchema]
+    transactionHistory: [transactionSchema],
 });
 
 

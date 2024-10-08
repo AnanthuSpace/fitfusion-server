@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import ChatService from "../services/chatService";
 import { ChatRepository } from "../repositories/chatRepository";
-import { UserRepository } from "../repositories/userRepository";
+import { userRepository } from "../repositories/userRepository";
 import { TrainerRepository } from "../repositories/trainerRepository";
 import { chatModel } from "../models/chatModal";
 import { userModel } from "../models/userModel";
@@ -24,9 +24,9 @@ export const configureSocket = (server: http.Server) => {
   });
 
   const chatRepository = new ChatRepository(chatModel);
-  const userRepository = new UserRepository(userModel, trainerModel, DietPlan, ReviewModal, TutorialVideoModal);
+  const UserRepository = new userRepository(userModel, trainerModel, DietPlan, ReviewModal, TutorialVideoModal);
   const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
-  const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
+  const chatService = new ChatService(chatRepository, UserRepository, trainerRepository);
   const isOnline: { [key: string]: string } = {}
 
   io.on("connection", (socket: Socket) => {

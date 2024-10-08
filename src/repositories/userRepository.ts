@@ -4,7 +4,7 @@ import { IUserRepository } from "../interfaces/userRepository.interface";
 import { Model } from "mongoose";
 import { IDietPlan } from "../interfaces/common/Interfaces";
 
-export class UserRepository implements IUserRepository {
+export class userRepository implements IUserRepository {
     private _userModel: Model<UserType>
     private _trainerModel: Model<TrainerType>
     private _dietPlan: Model<IDietPlan>

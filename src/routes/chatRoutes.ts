@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ChatRepository } from "../repositories/chatRepository";
-import { UserRepository } from "../repositories/userRepository";
+import { userRepository } from "../repositories/userRepository";
 import { TrainerRepository } from "../repositories/trainerRepository";
 import ChatController from '../controllers/chatController';
 import { verifyToken } from '../config/jwtConfig';
@@ -16,9 +16,9 @@ const router = Router();
 
 const chatRepository = new ChatRepository(chatModel);
 const trainerRepository = new TrainerRepository(trainerModel, userModel, DietPlan, TutorialVideoModal);
-const userRepository = new UserRepository(userModel, trainerModel, DietPlan,ReviewModal, TutorialVideoModal);
+const UserRepository = new userRepository(userModel, trainerModel, DietPlan,ReviewModal, TutorialVideoModal);
 
-const chatService = new ChatService(chatRepository, userRepository, trainerRepository);
+const chatService = new ChatService(chatRepository, UserRepository, trainerRepository);
 const chatController = new ChatController(chatService);
 
 router.get('/fetchChat', verifyToken, chatController.fetchChat);

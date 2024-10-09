@@ -1,4 +1,4 @@
-import { FullReviewType, ReviewType, TrainerType, UserType } from "../interfaces/common/types";
+import { FullReviewType, ReviewType, TrainerType, TransactionHistory, UserType } from "../interfaces/common/types";
 import { EditUserInterface, ITutorialVideo } from "../interfaces/common/Interfaces";
 import { IUserRepository } from "../interfaces/userRepository.interface";
 import { IDietPlan } from "../interfaces/common/Interfaces";
@@ -19,35 +19,35 @@ export class UserRepository implements IUserRepository {
         this._tutorialVideoModel = TutorialVideoModal
     }
 
-    async findUser(email: string) {
-        return await this._userModel.findOne({ email: email }, { _id: 0, password: 0 })
+    async findUser(email: string): Promise<UserType | null> {
+        return await this._userModel.findOne({ email: email }, { _id: 0, password: 0 }).lean();
+    }    
+
+    async fetchUser(userId: string): Promise<UserType | null> {
+        return await this._userModel.findOne({ userId: userId }, { _id: 0 }).lean()
     }
 
-    async fetchUser(userId: string) {
-        return await this._userModel.findOne({ userId: userId }, { _id: 0 })
-    }
-
-    async registerUser(userData: UserType) {
+    async registerUser(userData: UserType): Promise<UserType> {
         return await this._userModel.create(userData)
     }
 
-    async activeUser(email: string) {
+    async activeUser(email: string): Promise<any> {
         return await this._userModel.updateOne({ email: email }, { $set: { isActive: true } })
     }
 
-    async inactiveUser(userId: string) {
+    async inactiveUser(userId: string): Promise<any> {
         return await this._userModel.updateOne({ userId: userId }, { $set: { isActive: false } })
     }
 
-    async editUser(editUserData: EditUserInterface, userId: string) {
+    async editUser(editUserData: EditUserInterface, userId: string): Promise<any> {
         return await this._userModel.updateOne({ userId }, { $set: editUserData })
     }
 
-    async addUserDetails(userId: string, userDetails: UserType) {
+    async addUserDetails(userId: string, userDetails: UserType): Promise<any> {
         return await this._userModel.updateOne({ userId }, { $set: userDetails })
     }
 
-    async changePass(newPassword: string, userId: string) {
+    async changePass(newPassword: string, userId: string): Promise<any> {
         const res = await this._userModel.updateOne(
             { userId: userId },
             { $set: { password: newPassword } }
@@ -56,20 +56,20 @@ export class UserRepository implements IUserRepository {
     }
 
 
-    async findEditingData(userId: string) {
+    async findEditingData(userId: string) : Promise<UserType | null>{
         return await this._userModel.findOne({ userId: userId }, { _id: 0 })
     }
 
 
-    async blockUser(userId: string) {
+    async blockUser(userId: string): Promise<any> {
         return await this._userModel.updateOne({ userId }, { $set: { isBlocked: true } })
     }
 
-    async fetchTrainers() {
+    async fetchTrainers(): Promise<TrainerType[]> {
         return await this._trainerModel.find({ verified: 'verified', }, { _id: 0, password: 0 }).lean()
     }
 
-    async updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<void> {
+    async updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<any> {
         await this._userModel.findOneAndUpdate(
             { userId: userId },
             {
@@ -87,7 +87,7 @@ export class UserRepository implements IUserRepository {
     }
 
 
-    async addNewConnectionToAlreadyChattedTrainerListRepository(userId: string, trainerId: string) {
+    async addNewConnectionToAlreadyChattedTrainerListRepository(userId: string, trainerId: string): Promise<any> {
         try {
             return await this._userModel.updateOne(
                 { userId: userId },
@@ -98,7 +98,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchAlreadyChattedTrainer(alreadyChatted: string[]) {
+    async fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<TrainerType[]> {
         try {
             const trainers = await this._trainerModel.find(
                 { trainerId: { $in: alreadyChatted } },
@@ -110,7 +110,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchDeitPlans(trainerId: string) {
+    async fetchDeitPlans(trainerId: string): Promise<any[]> {
         try {
             const dietPlans = await this._dietPlan.find({ trainerId: trainerId }, { _id: 0 });
             return dietPlans;
@@ -128,7 +128,7 @@ export class UserRepository implements IUserRepository {
         })
     }
 
-    async fetchTrainerScroll(page: number) {
+    async fetchTrainerScroll(page: number): Promise<any> {
         try {
             return await this._trainerModel.find()
                 .skip((page - 1) * 8)
@@ -139,7 +139,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async addReview(reviewData: FullReviewType, trainerId: string) {
+    async addReview(reviewData: FullReviewType, trainerId: string): Promise<any> {
         try {
             const existingReview = await this._reviewModel.findOne({ trainerId: trainerId });
             
@@ -162,7 +162,7 @@ export class UserRepository implements IUserRepository {
     }
     
 
-    async fetchReview(trainerId: string) {
+    async fetchReview(trainerId: string): Promise<any> {
         try {
             return await this._reviewModel.findOne({ trainerId: trainerId }, { _id: 0 });
         } catch (error: any) {
@@ -170,7 +170,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchSingleTrainer(trainerId: string) {
+    async fetchSingleTrainer(trainerId: string): Promise<any> {
         try {
             return await this._trainerModel.findOne({ trainerId: trainerId }, {_id:0}).lean()
         } catch (error: any) {
@@ -178,7 +178,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchVideos(trainerId: string) {
+    async fetchVideos(trainerId: string): Promise<any> {
         try {
             return await this._tutorialVideoModel.findOne({ trainerId: trainerId }, { _id: 0, videos: 1 }).lean()
         } catch (error: any) {
@@ -186,7 +186,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchAllVideos(trainerIds: string[]) {
+    async fetchAllVideos(trainerIds: string[]): Promise<any> {
         try {
             return await this._tutorialVideoModel.find({ trainerId: { $in: trainerIds } }, { _id: 0 })
         } catch (error: any) {
@@ -194,7 +194,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async getTransactionHostory(userId: string) {
+    async getTransactionHostory(userId: string): Promise<TransactionHistory[] | any> {
         try {
             return await this._userModel.findOne({userId: userId},{transactionHistory:1, _id:0})
         } catch (error: any) {

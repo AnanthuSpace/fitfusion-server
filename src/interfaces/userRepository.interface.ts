@@ -11,14 +11,14 @@ export interface IUserRepository {
   addUserDetails(userId: string, userDetails: UserType): Promise<any>;
   changePass(newPassword: string, userId: string): Promise<any>;
   findEditingData(userId: string): Promise<UserType | null>;
-  registerThroghGoogle(userId: string, name: string, email: string, hashedPassword: string): Promise<any>
+  registerThroghGoogle(userId: string, name: string, email: string, hashedPassword: string): Promise<any>;
   blockUser(userId: string): Promise<any>;
   fetchTrainers(): Promise<TrainerType[]>;
   updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<any>;
   addNewConnectionToAlreadyChattedTrainerListRepository(userId: string, trainerId: string): Promise<any>;
   fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<TrainerType[]>;
-  fetchDeitPlans(trainerId: string): Promise<any[]>;
-  fetchTrainerScroll(page: number): Promise<any[]>;
+  fetchDeitPlans(trainerId: string): Promise<any>;
+  fetchTrainerScroll(page: number): Promise<any>;
   addReview(reviewData: FullReviewType, trainerId: string): Promise<any>;
   fetchReview(trainerId: string): Promise<any>
   fetchSingleTrainer(trainerId: string): Promise<any>

@@ -14,7 +14,7 @@ import { TutorialVideoModal } from "../models/tutorialVideoModal";
 export const configureSocket = (server: http.Server) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: ["http://localhost:5173", "https://fitfusion-client.vercel.app", "http://15.206.195.192:3000"],
       methods: ["GET", "POST"],
       credentials: true,
     },

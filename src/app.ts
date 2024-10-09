@@ -19,7 +19,7 @@ configureSocket(server);
 dbConnection();
 
 app.use(cors({
-  origin: [clientURL],
+  origin: ["http://localhost:5173", clientURL, "http://15.206.195.192:3000"],
   methods: ['GET', 'POST', 'PUT', 'PATCH'],
   credentials: true,
 }));

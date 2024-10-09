@@ -13,13 +13,14 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 const clientURL = process.env.clientURL as string;
+const localhostURL = process.env.localhostURL as string
 
 configureSocket(server);
 
 dbConnection();
 
 app.use(cors({
-  origin: ["http://localhost:5173", clientURL, "http://15.206.195.192:3000"],
+  origin: [localhostURL, clientURL],
   methods: ['GET', 'POST', 'PUT', 'PATCH'],
   credentials: true,
 }));

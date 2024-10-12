@@ -278,6 +278,7 @@ export class UserService implements UserServiceInterface {
         if (!trainer) {
             throw new Error('Trainer not found');
         }
+        
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             line_items: [
@@ -294,14 +295,16 @@ export class UserService implements UserServiceInterface {
                 },
             ],
             mode: "payment",
-            success_url: `${process.env.localhostURL}payment-success`,
-            cancel_url: `${process.env.localhostURL}payment-failed`,
+            success_url: `${process.env.clientURL}/payment-success`,
+            cancel_url: `${process.env.clientURL}/payment-failed`,
             metadata: {
                 trainerId,
                 userId,
             }
         });
 
+        console.log("session",session);
+        
         const userData = await this._userRepository.updateUserAfterPayment(userId, trainerId, trainerName, amount);
         const trainerData = await this._trainerRepository.updateTrainerSubscription(trainerId, userId, userName, amount);
 

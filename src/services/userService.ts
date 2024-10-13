@@ -273,44 +273,71 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-    async createCheckoutSession(trainerId: string, trainerName: string, amount: number, userId: string, userName: string): Promise<PaymentSessionResponse> {
+    async createCheckoutSession(
+        trainerId: string,
+        trainerName: string,
+        amount: number,
+        userId: string,
+        userName: string
+      ): Promise<PaymentSessionResponse> {
         const trainer = await this._trainerRepository.findEditingData(trainerId);
         if (!trainer) {
-            throw new Error('Trainer not found');
+          throw new Error("Trainer not found");
         }
-        
-        const session = await stripe.checkout.sessions.create({
+      
+        // Validate clientURL
+        const clientURL = process.env.clientURL;
+        if (!clientURL || !/^https?:\/\/[\w-]+\.[\w-]+/.test(clientURL)) {
+          throw new Error("Invalid clientURL in environment variables");
+        }
+      
+        try {
+          const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             line_items: [
-                {
-                    price_data: {
-                        currency: "usd",
-                        product_data: {
-                            name: "Trainer Subscription",
-                            metadata: { trainerId },
-                        },
-                        unit_amount: amount * 100,
-                    },
-                    quantity: 1,
+              {
+                price_data: {
+                  currency: "usd",
+                  product_data: {
+                    name: "Trainer Subscription",
+                    metadata: { trainerId },
+                  },
+                  unit_amount: amount * 100,
                 },
+                quantity: 1,
+              },
             ],
             mode: "payment",
-            success_url: `${process.env.clientURL}payment-success`,
-            cancel_url: `${process.env.clientURL}payment-failed`,
+            success_url: `${clientURL}/payment-success`,
+            cancel_url: `${clientURL}/payment-failed`,
             metadata: {
-                trainerId,
-                userId,
-            }
-        });
-
-        console.log("session",session);
-        
-        const userData = await this._userRepository.updateUserAfterPayment(userId, trainerId, trainerName, amount);
-        const trainerData = await this._trainerRepository.updateTrainerSubscription(trainerId, userId, userName, amount);
-
-        return { session, userData, trainerData };
-    }
-
+              trainerId,
+              userId,
+            },
+          });
+      
+          console.log("session", session);
+      
+          const userData = await this._userRepository.updateUserAfterPayment(
+            userId,
+            trainerId,
+            trainerName,
+            amount
+          );
+          const trainerData = await this._trainerRepository.updateTrainerSubscription(
+            trainerId,
+            userId,
+            userName,
+            amount
+          );
+      
+          return { session, userData, trainerData };
+        } catch (error) {
+          console.error("Stripe session creation failed:", error);
+          throw new Error("Failed to create Stripe checkout session");
+        }
+      }
+      
     async fetchUserTrainer(userId: string) {
         try {
             const trainersData = await this._userRepository.fetchTrainers()

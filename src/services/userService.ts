@@ -295,8 +295,8 @@ export class UserService implements UserServiceInterface {
                 },
             ],
             mode: "payment",
-            success_url: `${process.env.clientURL}/payment-success`,
-            cancel_url: `${process.env.clientURL}/payment-failed`,
+            success_url: `${process.env.clientURL}payment-success`,
+            cancel_url: `${process.env.clientURL}payment-failed`,
             metadata: {
                 trainerId,
                 userId,

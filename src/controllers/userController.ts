@@ -215,7 +215,7 @@ export class UserController {
 
             const result = await this._userService.createCheckoutSession(trainerId, trainerName, amount, userId, userName);
 
-            res.status(200).json({ sessionId: result.session.id, trainerData: result.trainerData, userData: result.userData });
+            res.status(200).json({ sessionId: result.session.id });
         } catch (error: any) {
             console.log(error);
 

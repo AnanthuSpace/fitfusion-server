@@ -62,6 +62,7 @@ export interface FullReviewType {
     userName: string;
     rating: number;
     feedback: number;
+    createdAt: Date;
 }
 
 export interface TransactionHistory {

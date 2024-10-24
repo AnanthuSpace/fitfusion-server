@@ -32,5 +32,8 @@ router.get(`/get-profile`, verifyToken, trainerController.profileFetch)
 router.get(`/get-videos`, verifyToken, trainerController.getVideos)
 router.get(`/fetch-transaction-history`, verifyToken, trainerController.getTransaction)
 router.patch(`/toggleListing`, verifyToken, trainerController.toggleVideoListing)
+router.get(`/dashboard-data`, verifyToken, trainerController.getDashBoardData)
+router.get(`/totalcounts`, verifyToken, trainerController.getTotalCountOfTrainerData)
+router.get(`/fetch-review`, verifyToken, trainerController.getAllReview)
 
 export default router

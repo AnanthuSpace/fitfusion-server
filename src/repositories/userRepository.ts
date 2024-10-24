@@ -164,11 +164,23 @@ export class UserRepository implements IUserRepository {
 
     async fetchReview(trainerId: string): Promise<any> {
         try {
-            return await this._reviewModel.findOne({ trainerId: trainerId }, { _id: 0 });
+            const trainerReview = await this._reviewModel.findOne({ trainerId: trainerId }, { _id: 0, review: 1 });
+            
+            if (trainerReview && trainerReview.review && trainerReview.review.length > 0) {
+                const sortedReviews = trainerReview.review
+                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) 
+                    .slice(0, 2); 
+                
+                return sortedReviews;
+            } else {
+                return []; 
+            }
         } catch (error: any) {
-            throw new Error(`Error adding review: ${error.message}`);
+            throw new Error(`Error fetching review: ${error.message}`);
         }
     }
+    
+    
 
     async fetchSingleTrainer(trainerId: string): Promise<any> {
         try {

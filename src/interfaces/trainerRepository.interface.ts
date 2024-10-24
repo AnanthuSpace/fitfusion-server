@@ -6,12 +6,12 @@ import { UserType } from "./common/types";
 export interface ITrainerRepository {
     findTrainerInRegister(email: string): Promise<TrainerType | null>;
     registerTrainer(trainerData: TrainerType): Promise<TrainerType>;
-    registerThroghGoogle(trainerId: string, name: string, email: string, password: string) : Promise<any>
+    registerThroghGoogle(trainerId: string, name: string, email: string, password: string): Promise<any>
     editTrainer(editTrainerData: EditTrainerInterface, trainerId: string): Promise<any>;
     changePass(newPassword: string, trainerId: string): Promise<any>;
     findEditingData(trainerId: string): Promise<TrainerType | null>;
     profileUpdate(trainerId: string, uploadResult: any): Promise<any>;
-    updateTrainerSubscription(trainerId: string, userId: string , userName: string, amount: number): Promise<void>;
+    updateTrainerSubscription(trainerId: string, userId: string, userName: string, amount: number): Promise<void>;
     fetchCustomer(userIds: string[]): Promise<UserType[]>;
     fetchDeitPlans(trainerId: string): Promise<IDietPlan[]>;
     AddDietPlan(dietPlan: IDietPlan): Promise<IDietPlan>;
@@ -20,9 +20,12 @@ export interface ITrainerRepository {
     fetchAlreadyChatted(alreadyChatted: string[]): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
     videoUpload(trainerId: string, videoUploadResult: any, thumbnailUploadResult: any, title: string, description: string, videoId: string): Promise<any>
-    profileFetch(trainerId: string) : Promise<any>
+    profileFetch(trainerId: string): Promise<any>
     getVideos(trainerId: string, page: number): Promise<ITutorialVideo>
     getTransaction(userId: string): Promise<TrainerHistory[] | any>
     editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<any>
     toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any>
+    getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
+    getTotalCountOfTrainerData(trainerId: string): Promise<any>
+    getAllReview(trainerId: string): Promise<any>
 }

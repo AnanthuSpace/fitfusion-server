@@ -10,6 +10,7 @@ const reviewSchema = new Schema<ReviewType>({
         userName: String,
         rating: Number,
         feedback: String,
+        createdAt: { type: Date, default: Date.now }
     }
     ]
 })

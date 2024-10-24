@@ -23,5 +23,8 @@ export interface ITrainerService {
     getTransaction(userId: string): Promise<any>
     editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<any>
     toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any>
+    getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
+    getTotalCountOfTrainerData(trainerId: string): Promise<any>
+    getAllReview(trainerId: string): Promise<any>
 }
 

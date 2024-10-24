@@ -68,12 +68,12 @@ export class TrainerRepository implements ITrainerRepository {
                         amount: amount
                     }
                 },
-                $inc: { wallet: amount } 
+                $inc: { wallet: amount }
             },
             { new: true }
         );
     }
-    
+
 
     async fetchCustomer(userIds: string[]) {
         try {
@@ -212,6 +212,121 @@ export class TrainerRepository implements ITrainerRepository {
             )
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
+        }
+    }
+
+    async getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any | null> {
+        try {
+            const dashboardData = await this._trainerModel.aggregate([
+
+                {
+                    $match: { trainerId: trainerId }
+                },
+
+                {
+                    $unwind: "$transactionHistory"
+                },
+
+                {
+                    $match: {
+                        "transactionHistory.createdAt": {
+                            $gte: new Date(startDate),
+                            $lte: new Date(endDate)
+                        }
+                    }
+                },
+
+                {
+                    $project: {
+                        day: { $dateToString: { format: "%Y-%m-%d", date: "$transactionHistory.createdAt" } },
+                        userId: "$transactionHistory.userId",
+                        transactionHistory: 1,
+                    }
+                },
+
+                {
+                    $group: {
+                        _id: "$day",
+                        subscribedUsers: { $addToSet: "$userId" },
+                        totalTransactionsCount: { $sum: 1 },
+                    }
+                },
+
+                {
+                    $project: {
+                        _id: 0,
+                        day: "$_id",
+                        totalTransactionsCount: 1,
+                        subscribedUsersCount: { $size: "$subscribedUsers" }
+                    }
+                },
+
+                {
+                    $sort: { day: -1 }
+                }
+            ]);
+
+            if (!dashboardData || dashboardData.length === 0) {
+                throw new Error('No transactions found for the specified date range');
+            }
+
+            return dashboardData;
+        } catch (error: any) {
+            throw new Error(`Error retrieving dashboard data: ${error.message}`);
+        }
+    }
+
+    async getTotalCountOfTrainerData(trainerId: string): Promise<any> {
+        const data = await this._trainerModel.aggregate([
+            { $match: { trainerId: trainerId } },
+            {
+                $lookup: {
+                    from: "tutorialvideos",
+                    localField: "trainerId",
+                    foreignField: "trainerId",
+                    as: "videoData"
+                }
+            },
+            {
+                $unwind: "$videoData"
+            },
+            {
+                $lookup: {
+                    from: "reviews",
+                    localField: "trainerId",
+                    foreignField: "trainerId",
+                    as: "reviewData"
+                }
+            },
+            {
+                $unwind: "$videoData"
+            },
+
+        ])
+        if (data[0]) {
+            return {
+                videosCount: data[0]?.videoData.videos.length,
+                totalRevenue: data[0]?.wallet,
+                totalReview: data[0]?.reviewData.length,
+                newReviews: data[0].reviewData[0].review
+            }
+        } else return null
+    }
+
+    async getAllReview(trainerId: string): Promise<any> {
+        const review = await this._trainerModel.aggregate([
+            { $match: { trainerId: trainerId } },
+            {
+                $lookup: {
+                    from: "reviews",
+                    localField: "trainerId",
+                    foreignField: "trainerId",
+                    as: "reviewData"
+                }
+            },
+        ])
+        return {
+            reviews: review[0].reviewData[0].review
         }
     }
 }

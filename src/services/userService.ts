@@ -403,6 +403,7 @@ export class UserService implements UserServiceInterface {
     async fetchReview(trainerId: string) {
         try {
             const result = await this._userRepository.fetchReview(trainerId)
+            console.log("jo", result)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -416,7 +417,6 @@ export class UserService implements UserServiceInterface {
 
             const url = await getObjectURL(`trainerProfile/${result.profileIMG}`)
             result = { ...result, profileIMG: url }
-            console.log(result);
 
             return result
         } catch (error: any) {

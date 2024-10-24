@@ -268,16 +268,49 @@ export class TrainerController {
         }
     }
 
-    toggleVideoListing =async(req: CustomRequest, res: Response) => {
+    toggleVideoListing = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string
-            const { videoId, listed } = req.body 
+            const { videoId, listed } = req.body
             const response = await this._trainerService.toggleVideoListing(trainerId, videoId, listed);
             if (response.success) {
                 return res.status(200).json({ success: true, response });
             } else {
-                return res.status(400).json({ success: false, response});
+                return res.status(400).json({ success: false, response });
             }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    getDashBoardData = async ( req: CustomRequest, res: Response) => {
+        try {
+            const trainerId = req.id as string
+            const startDate = req.query.startDate as string
+            const endDate = req.query.endDate as string
+            const response = await this._trainerService.getDashBoardData(trainerId, startDate, endDate)
+            return res.status(200).json({ success: true, response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    getTotalCountOfTrainerData = async (req: CustomRequest, res: Response) => {
+        try {
+            const trainerId = req.id as string
+            const response = await this._trainerService.getTotalCountOfTrainerData(trainerId)
+            return res.status(200).json({ success: true, response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    getAllReview = async (req: CustomRequest, res: Response) => {
+        try {
+            const trainerId = req.id as string
+            console.log("hiwbjvd")
+            const response = await this._trainerService.getAllReview(trainerId)
+            return res.status(200).json({ success: true, response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

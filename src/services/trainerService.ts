@@ -47,41 +47,41 @@ export class TrainerService implements ITrainerService {
     async otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; trainerData: Omit<TrainerType, "password"> }> {
         console.log("Current OTP store: ", this.otpStore);
         console.log("Verifying OTP for email: ", temperoryEmail);
-    
+
         const storedData = this.otpStore[temperoryEmail];
         console.log("storedData: ", storedData);
-    
+
         if (!storedData) {
             throw new Error("Invalid OTP");
         }
-    
+
         const currentTime = Date.now();
         const otpTime = storedData.timestamp;
         const difference = currentTime - otpTime;
-    
+
         if (difference > 2 * 60 * 1000) {
             throw new Error("OTP expired");
         }
-    
+
         if (storedData.otp !== otp) {
             throw new Error("Invalid OTP");
         }
-    
+
         console.log("OTP matched");
-    
+
         const trainerData = storedData.trainerData;
         const hashedPassword = await bcrypt.hash(trainerData.password, 10);
         trainerData.password = hashedPassword;
         trainerData.trainerId = v4();
         delete this.otpStore[temperoryEmail];
-    
+
         await this._trainerRepository.registerTrainer(trainerData);
-    
+
         const { password, ...trainerDataWithoutSensitiveInfo } = trainerData;
-    
+
         return { message: "OTP verified", trainerData: trainerDataWithoutSensitiveInfo as Omit<TrainerType, "password"> };
     }
-    
+
 
 
     async trainerLoginService(email: string, enteredPassword: string): Promise<any> {
@@ -168,7 +168,7 @@ export class TrainerService implements ITrainerService {
     }
 
 
-    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string) {
+    async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string): Promise<any> {
         const editTrainerData: EditTrainerInterface = {
             name,
             phone,
@@ -182,11 +182,9 @@ export class TrainerService implements ITrainerService {
         console.log("Edit trainer service : ", editTrainerData)
         const res = await this._trainerRepository.editTrainer(editTrainerData, trainerId)
         console.log("Updation : ", res);
-
         if (!res.modifiedCount) {
             throw new Error("No changes found")
-        }
-        return { message: "Updated successfully" };
+        } else if (res.modifiedCount) return { message: "Updated successfully" };
     }
 
     async verifyPassword(password: string, trainerId: string): Promise<boolean> {
@@ -338,18 +336,18 @@ export class TrainerService implements ITrainerService {
     async editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<{ success: boolean; message: string; data?: any }> {
         try {
             const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId);
-    
+
             if (result.matchedCount === 0) {
                 return { success: false, message: "No video found with the given video ID" };
             }
-    
+
             return { success: true, message: "Video details updated successfully" };
         } catch (error: any) {
             console.error("Error editing video details: ", error);
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
-    
+
 
     async toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any> {
         try {
@@ -364,6 +362,33 @@ export class TrainerService implements ITrainerService {
             } else {
                 throw new Error("No changes made to the video");
             }
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any> {
+        try {
+            const result = await this._trainerRepository.getDashBoardData(trainerId, startDate, endDate)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async getTotalCountOfTrainerData(trainerId: string): Promise<any> {
+        try {
+            const result = await this._trainerRepository.getTotalCountOfTrainerData(trainerId)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
+    async getAllReview(trainerId: string): Promise<any> {
+        try {
+            const result = await this._trainerRepository.getAllReview(trainerId)
+            return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
         }

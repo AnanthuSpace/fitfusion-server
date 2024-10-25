@@ -186,18 +186,26 @@ export class TrainerRepository implements ITrainerRepository {
     }
 
 
-    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string) {
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoUploadResult: string, thumbnailUploadResult: string) {
         try {
-            return await this._tutorialModal.updateOne({ trainerId: trainerId, "videos.videoId": videoId },
-                {
-                    $set: {
-                        "videos.$.title": title,
-                        "videos.$.description": description
-                    }
-                }
-            )
+            const updateFields: any = {
+                "videos.$.title": title,
+                "videos.$.description": description,
+            };
+
+            if (videoUploadResult) {
+                updateFields["videos.$.videoUrl"] = videoUploadResult;
+            }
+            if (thumbnailUploadResult) {
+                updateFields["videos.$.thumbnail"] = thumbnailUploadResult;
+            }
+
+            return await this._tutorialModal.updateOne(
+                { trainerId: trainerId, "videos.videoId": videoId },
+                { $set: updateFields }
+            );
         } catch (error: any) {
-            throw new Error(`Error adding review: ${error.message}`);
+            throw new Error(`Error updating video details: ${error.message}`);
         }
     }
 

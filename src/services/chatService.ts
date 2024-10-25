@@ -41,7 +41,7 @@ class ChatService implements IChatService {
     }
   }
 
- createConnectionAndSaveMessageService = async (message: Omit<MessageType, 'chatMembers'>) => {
+  createConnectionAndSaveMessageService = async (message: Omit<MessageType, 'chatMembers'>, isUser: boolean) => {
     try {
 
 
@@ -49,12 +49,21 @@ class ChatService implements IChatService {
         chatMembers: [message.details[0].senderId, message.details[0].receiverId],
         details: message.details
       };
-
-      const connectionDetails = await Promise.all([
-        this._userRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].receiverId, newChatDocument.details[0].senderId),
-        this._trainerRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].senderId, newChatDocument.details[0].receiverId),
-        this._chatRepository.createConnectionAndSaveMessageRepository(newChatDocument)
-      ]);
+      let connectionDetails;
+      console.log(newChatDocument.details[0])
+      if (isUser) {
+        connectionDetails = await Promise.all([
+          this._userRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].senderId, newChatDocument.details[0].receiverId),
+          this._trainerRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].receiverId, newChatDocument.details[0].senderId),
+          this._chatRepository.createConnectionAndSaveMessageRepository(newChatDocument)
+        ]);
+      } else {
+        connectionDetails = await Promise.all([
+          this._userRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].receiverId, newChatDocument.details[0].senderId),
+          this._trainerRepository.addNewConnectionToAlreadyChattedTrainerListRepository(newChatDocument.details[0].senderId, newChatDocument.details[0].receiverId),
+          this._chatRepository.createConnectionAndSaveMessageRepository(newChatDocument)
+        ]);
+      }
 
       return connectionDetails;
     } catch (error) {

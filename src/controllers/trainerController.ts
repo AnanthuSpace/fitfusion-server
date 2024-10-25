@@ -208,11 +208,6 @@ export class TrainerController {
             const trainerId = req.id as string
             const { title, description } = req.body;
 
-            if (!videoFile || !thumbnail) {
-                res.status(400).json({ message: "Video file or thumbnail is missing." });
-                return;
-            }
-
             const result = await this._trainerService.saveVideoUrl(trainerId, videoFile, thumbnail, title, description);
             res.status(200).json({ message: "Video uploaded successfully", result });
         } catch (error) {
@@ -256,8 +251,13 @@ export class TrainerController {
     editVideo = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string;
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const videoFile = files?.videoFile ? files.videoFile[0] : null;
+            const thumbnail = files?.thumbnail ? files.thumbnail[0] : null;
+
             const { title, description, videoId } = req.body;
-            const response = await this._trainerService.editVideoDetails(trainerId, title, description, videoId);
+
+            const response = await this._trainerService.editVideoDetails(trainerId, title, description, videoId, videoFile, thumbnail);
             if (response.success) {
                 return res.status(200).json({ success: true, message: response.message });
             } else {
@@ -267,6 +267,7 @@ export class TrainerController {
             return res.status(500).json({ success: false, message: error.message || 'Internal server error' });
         }
     }
+
 
     toggleVideoListing = async (req: CustomRequest, res: Response) => {
         try {
@@ -283,7 +284,7 @@ export class TrainerController {
         }
     }
 
-    getDashBoardData = async ( req: CustomRequest, res: Response) => {
+    getDashBoardData = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string
             const startDate = req.query.startDate as string

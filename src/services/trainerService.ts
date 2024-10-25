@@ -333,15 +333,35 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<{ success: boolean; message: string; data?: any }> {
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: any, thumbnail: any): Promise<{ success: boolean; message: string; data?: any }> {
         try {
-            const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId);
+            const bucketName = "fitfusion-tutorial"
+            const Key = `trainer/Videos/`;
+            const thumnailKey = `trainer/thumbnails/`;
+            console.log("Hiiiiiiiii")
 
+            let videoUploadResult = ""
+            let thumbnailUploadResult = ""
+            let videoURL = ""
+            let thumbnailURL = ""
+
+            if (videoFile) {
+                videoUploadResult = await UpdateToAws(bucketName, Key, videoFile)
+                videoURL = await getObjectURL(`trainers/Videos/,${videoUploadResult}`)
+            }
+
+            if (thumbnail) {
+                thumbnailUploadResult = await UpdateToAws(bucketName, thumnailKey, thumbnail)
+                thumbnailURL = await getObjectURL(`trainers/thumbnails/,${thumbnailUploadResult}`)
+            }
+
+            const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId, videoUploadResult, thumbnailUploadResult);
+            
             if (result.matchedCount === 0) {
                 return { success: false, message: "No video found with the given video ID" };
             }
 
-            return { success: true, message: "Video details updated successfully" };
+            return { success: true, message: "Video details updated successfully", data: { videoURL, thumbnailURL } };
         } catch (error: any) {
             console.error("Error editing video details: ", error);
             return { success: false, message: error.message || 'Internal server error' };

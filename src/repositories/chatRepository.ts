@@ -29,7 +29,7 @@ export class ChatRepository implements IChatRepository {
     try {
       return this._chatModel.updateOne(
         {
-          $or: [
+          $and: [
             { chatMembers: { $elemMatch: { $eq: newMessageDetails.senderId } } },
             { chatMembers: { $elemMatch: { $eq: newMessageDetails.receiverId } } }
           ]

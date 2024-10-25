@@ -23,7 +23,7 @@ export interface ITrainerRepository {
     profileFetch(trainerId: string): Promise<any>
     getVideos(trainerId: string, page: number): Promise<ITutorialVideo>
     getTransaction(userId: string): Promise<TrainerHistory[] | any>
-    editVideoDetails(trainerId: string, title: string, description: string, videoId: string): Promise<any>
+    editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: string, thumbnail: string): Promise<any>
     toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any>
     getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
     getTotalCountOfTrainerData(trainerId: string): Promise<any>

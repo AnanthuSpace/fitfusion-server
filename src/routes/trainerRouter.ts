@@ -27,7 +27,7 @@ router.post('/add-diet', verifyToken, trainerController.addDietPlan);
 router.get('/fetch-deit', verifyToken, trainerController.fetchDeitPlans);
 router.post('/getUsersByIds', verifyToken, trainerController.fetchAlreadyChatted);
 router.put('/upload-video', verifyToken, upload.fields([{ name: 'videoFile', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), trainerController.uploadVideo);
-router.put('/edit-video', verifyToken, trainerController.editVideo);
+router.put('/edit-video', verifyToken, upload.fields([{ name: 'videoFile', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), trainerController.editVideo);
 router.get(`/get-profile`, verifyToken, trainerController.profileFetch)
 router.get(`/get-videos`, verifyToken, trainerController.getVideos)
 router.get(`/fetch-transaction-history`, verifyToken, trainerController.getTransaction)

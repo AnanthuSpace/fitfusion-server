@@ -38,14 +38,14 @@ export const configureSocket = (server: http.Server) => {
 
       isOnline[sender] = socket.id;
       console.log(isOnline);
-      
+
       socket.join(room);
       if (isOnline[reciver]) {
-        console.log(true,reciver);
-        
+        console.log(true, reciver);
+
         io.emit("userIsOnline", { user_id: reciver })
-      } else {   
-        console.log(false, reciver); 
+      } else {
+        console.log(false, reciver);
         io.emit("userIsOffline", { user_id: reciver })
       }
       console.log(`User joined room: ${room}`);
@@ -55,7 +55,7 @@ export const configureSocket = (server: http.Server) => {
       isOnline[user] = socket.id;
       console.log(`User ${user} is now online`);
       console.log(isOnline);
-      
+
     })
 
     socket.on("leaveTheChatPage", ({ user }) => {
@@ -64,7 +64,7 @@ export const configureSocket = (server: http.Server) => {
       io.emit("userIsOffline", { user_id: user })
     });
 
-    socket.on("sendMessage", async ({ message, firstTimeChat }) => {
+    socket.on("sendMessage", async ({ message, firstTimeChat, isUser = false }) => {
       try {
         const formattedMessage = {
           details: [
@@ -80,11 +80,11 @@ export const configureSocket = (server: http.Server) => {
         let savedMessage: null | any = null
 
         if (firstTimeChat === true) {
-          const connectionDetails = await chatService.createConnectionAndSaveMessageService(formattedMessage);
+          const connectionDetails = await chatService.createConnectionAndSaveMessageService(formattedMessage, isUser);
           savedMessage = connectionDetails[2].details[0];
-          console.log("connectionDetails : ", connectionDetails[2].details[0]);
         } else {
           savedMessage = await chatService.saveMessageService(message.senderId, message.recieverId, message.text);
+          console.log(savedMessage)
         };
         const chatRoom = [message.senderId, message.recieverId].sort().join("-");
         io.to(chatRoom).emit("receiveMessage", savedMessage);

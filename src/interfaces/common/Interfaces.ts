@@ -29,8 +29,8 @@ export interface EditTrainerInterface {
 
 export interface PaymentSessionResponse {
     session: Stripe.Checkout.Session;
-    userData: any;
-    trainerData: any;
+    // userData: any;
+    // trainerData: any;
 }
 
 export interface MessageType {

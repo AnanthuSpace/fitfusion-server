@@ -1,7 +1,6 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import { UserType } from "../interfaces/common/types";
 import { UserServiceInterface } from "../interfaces/userService.interface";
-
 
 interface CustomRequest extends Request {
     id?: string;
@@ -98,7 +97,7 @@ export class UserController {
         try {
             const token = req.body.token
             const response = await this._userService.googleLoginUser(token)
-            if (response === "NotExisted") return res.status(400).json({message:"User is not existed please register", response})
+            if (response === "NotExisted") return res.status(400).json({ message: "User is not existed please register", response })
             return res.status(200).json(response);
         } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
@@ -210,7 +209,7 @@ export class UserController {
 
     createCheckoutSession = async (req: CustomRequest, res: Response): Promise<void> => {
         try {
-            const { trainerId, trainerName, amount, userName }: { trainerId: string;  trainerName: string; amount: number, userName: string } = req.body;
+            const { trainerId, trainerName, amount, userName }: { trainerId: string; trainerName: string; amount: number, userName: string } = req.body;
             const userId = req.id as string;
 
             const result = await this._userService.createCheckoutSession(trainerId, trainerName, amount, userId, userName);
@@ -223,6 +222,26 @@ export class UserController {
                 message: "Failed to create checkout session",
                 error: error.message,
             });
+        }
+    }
+
+    verifyThePayment = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const session_id = req.query.session_id as string
+            const response = await this._userService.verifyThePayment(session_id)
+            if (response.success) {
+                return res.redirect(302, `${process.env.localhostURL}/payment-success`);
+            }
+        } catch (error: any) {
+            res.status(500).json({ message: 'Error verifying payment', error: error.message });
+        }
+    };
+
+    canclePayment = async (req: Request, res: Response): Promise<any> => {
+        try {
+            return res.redirect(`${process.env.localhostURL}/payment-failed`);
+        } catch (error: any) {
+            res.status(500).json({ message: 'Error verifying payment', error: error.message });
         }
     }
 
@@ -309,11 +328,11 @@ export class UserController {
         }
     }
 
-    getTransactionHostory = async(req: CustomRequest, res: Response) => {
+    getTransactionHostory = async (req: CustomRequest, res: Response) => {
         try {
             const userId = req.id as string
             const response = await this._userService.getTransactionHostory(userId)
-            return  res.status(200).json({ success: true, data: response });
+            return res.status(200).json({ success: true, data: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

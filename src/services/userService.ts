@@ -11,6 +11,7 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 import { verifyGoogleToken } from "../config/googleAuth";
+import { stringify } from "querystring";
 
 dotenv.config();
 
@@ -286,6 +287,7 @@ export class UserService implements UserServiceInterface {
         }
 
         const clientURL = process.env.clientURL;
+        const BaseURL = process.env.BASE_URL;
 
         if (!clientURL || !/^https?:\/\/[\w-]+\.[\w-]+/.test(clientURL)) {
             throw new Error("Invalid clientURL in environment variables");
@@ -308,35 +310,51 @@ export class UserService implements UserServiceInterface {
                     },
                 ],
                 mode: "payment",
-                success_url: `${clientURL}/payment-success`,
-                cancel_url: `${clientURL}/payment-failed`,
+                success_url: `${BaseURL}/success?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${BaseURL}/payment-failed`,
                 metadata: {
                     trainerId,
+                    trainerName,
                     userId,
+                    userName,
+                    amount
                 },
             });
 
-            console.log("session", session);
-
-            const userData = await this._userRepository.updateUserAfterPayment(
-                userId,
-                trainerId,
-                trainerName,
-                amount
-            );
-            const trainerData = await this._trainerRepository.updateTrainerSubscription(
-                trainerId,
-                userId,
-                userName,
-                amount
-            );
-
-            return { session, userData, trainerData };
+            return { session };
         } catch (error) {
             console.error("Stripe session creation failed:", error);
             throw new Error("Failed to create Stripe checkout session");
         }
     }
+
+    async verifyThePayment(session_id: string) {
+        try {
+            const session = await stripe.checkout.sessions.retrieve(session_id);
+            console.log("Session ID:", session.id);
+
+            const { amount, trainerId, trainerName, userId, userName } = session.metadata as {
+                amount: string;
+                trainerId: string;
+                trainerName: string;
+                userId: string;
+                userName: string;
+            };
+    
+            const amountInt = parseInt(amount, 10);
+
+            const [userData, trainerData] = await Promise.all([
+                this._userRepository.updateUserAfterPayment(userId, trainerId, trainerName, amountInt),
+                this._trainerRepository.updateTrainerSubscription(trainerId, userId, userName, amountInt)
+            ]);
+    
+            return { success: true, userData, trainerData };
+        } catch (error: any) {
+            console.error("Payment verification error:", error);
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
 
     async fetchUserTrainer(userId: string) {
         try {

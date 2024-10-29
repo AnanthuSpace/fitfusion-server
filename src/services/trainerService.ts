@@ -199,7 +199,7 @@ export class TrainerService implements ITrainerService {
 
         if (!res) {
             throw new Error("No changes detected");
-        } else return res ;
+        } else return res;
     }
 
     async verifyPassword(password: string, trainerId: string): Promise<boolean> {
@@ -292,6 +292,11 @@ export class TrainerService implements ITrainerService {
             const Key = `trainer/Videos/`;
             const thumnailKey = `trainer/thumbnails/`;
 
+            console.log(videoFile, thumbnail)
+            console.log("bucketname", bucketName)
+            console.log("key", Key)
+            console.log("thumbnarikey", thumnailKey)
+            
             const videoUploadResult = await UpdateToAws(bucketName, Key, videoFile)
             const videoURL = await getObjectURL(`trainers/Videos/,${videoUploadResult}`)
             const videoId = v4()

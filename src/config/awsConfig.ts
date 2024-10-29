@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsCommand, ListObjectsCommandOutput, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as crypto from 'crypto';
 import dotenv from 'dotenv';
@@ -18,6 +18,8 @@ export const UpdateToAws = async (bucketName: string, profileKey: string, file: 
 
         const uniqueName = crypto.randomBytes(16).toString('hex') + '-' + file.originalname;
 
+        console.log("uniqueName : ", uniqueName)
+
         const params = {
             Bucket: bucketName,
             Key: `${profileKey}${uniqueName}`,
@@ -25,9 +27,10 @@ export const UpdateToAws = async (bucketName: string, profileKey: string, file: 
             ContentType: file.mimetype,
         };
 
+        console.log("params :", params)
         const command = new PutObjectCommand(params);
         const sent = await s3Client.send(command);
-
+        console.log(sent)
         if (sent && sent.$metadata.httpStatusCode === 200) {
             const fileUrl = uniqueName;
             return fileUrl;

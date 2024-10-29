@@ -93,8 +93,7 @@ export class TrainerController {
             const { name, phone, address, gender, qualification, achivements, feePerMonth, experience } = req.body;
             const trainerId = req.id as string;
             const data = await this._trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience);
-            console.log("Data : ", data);
-            return res.status(200).json({ success: true, message: "Updated successfully" });
+            return res.status(200).json({ success: true, message: "Updated successfully" , data});
         } catch (error: any) {
             if (error.message === "No changes found") {
                 return res.status(304).json({ success: false, message: "No changes found" });

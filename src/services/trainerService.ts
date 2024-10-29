@@ -169,7 +169,7 @@ export class TrainerService implements ITrainerService {
 
 
     async editTrainerService(name: string, phone: string, address: string, gender: string, qualification: string, achivements: string, trainerId: string, feePerMonth: string, experience: string): Promise<any> {
-        const editTrainerData: EditTrainerInterface = {
+        let editTrainerData: EditTrainerInterface = {
             name,
             phone,
             address,
@@ -179,12 +179,27 @@ export class TrainerService implements ITrainerService {
             feePerMonth,
             experience,
         }
-        console.log("Edit trainer service : ", editTrainerData)
+
+        const existingTrainerData = await this._trainerRepository.findEditingData(trainerId)
+
+        let check: Partial<EditTrainerInterface> = {};
+        if (existingTrainerData?.name !== name) check.name = name;
+        if (existingTrainerData?.phone !== phone) check.phone = phone;
+        if (existingTrainerData?.address !== address) check.address = address;
+        if (existingTrainerData?.gender !== gender) check.gender = gender;
+        if (existingTrainerData?.qualification !== qualification) check.qualification = qualification;
+        if (existingTrainerData?.achivements !== achivements) check.achivements = achivements;
+        if (existingTrainerData?.feePerMonth !== feePerMonth) check.feePerMonth = feePerMonth;
+        if (existingTrainerData?.experience !== experience) check.experience = experience;
+
+        if (Object.keys(check).length === 0) {
+            throw new Error("No changes detected");
+        }
         const res = await this._trainerRepository.editTrainer(editTrainerData, trainerId)
-        console.log("Updation : ", res);
-        if (!res.modifiedCount) {
-            throw new Error("No changes found")
-        } else if (res.modifiedCount) return { message: "Updated successfully" };
+
+        if (!res) {
+            throw new Error("No changes detected");
+        } else return res ;
     }
 
     async verifyPassword(password: string, trainerId: string): Promise<boolean> {
@@ -250,9 +265,9 @@ export class TrainerService implements ITrainerService {
 
     async addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, 'trainerId'>) {
         try {
-            const existed = this._trainerRepository.existedDiet(trainerId, dietPlan.dietName)
+            const existed = await this._trainerRepository.existedDiet(trainerId, dietPlan.dietName)
             if (!existed) {
-                const result = this._trainerRepository.AddDietPlan({ ...dietPlan, trainerId })
+                const result = await this._trainerRepository.AddDietPlan({ ...dietPlan, trainerId })
                 return result;
             } else {
                 throw new Error('A diet plan with this name already exists for this trainer');
@@ -356,7 +371,7 @@ export class TrainerService implements ITrainerService {
             }
 
             const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId, videoUploadResult, thumbnailUploadResult);
-            
+
             if (result.matchedCount === 0) {
                 return { success: false, message: "No video found with the given video ID" };
             }

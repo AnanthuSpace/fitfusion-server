@@ -25,7 +25,7 @@ export class TrainerRepository implements ITrainerRepository {
     }
 
     async editTrainer(editTrainerData: EditTrainerInterface, trainerId: string) {
-        return await this._trainerModel.updateOne({ trainerId }, { $set: editTrainerData })
+        return await this._trainerModel.findOneAndUpdate({ trainerId }, { $set: editTrainerData }, { new: true, projection: { _id: 0, password: 0 }  } )
     }
 
     registerThroghGoogle(trainerId: string, name: string, email: string, password: string): Promise<any> {

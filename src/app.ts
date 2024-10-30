@@ -19,15 +19,16 @@ configureSocket(server);
 
 dbConnection();
 
-app.use(cors({
+const corsOptions = {
   origin: [localhostURL, clientURL],
-  methods: ['GET', 'POST', 'PUT', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
-}));
+};
 
-
+app.use(cors(corsOptions));
 app.use(express.static("public"));
-app.use(express.json());
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 app.use('/', userRouter);
 app.use('/admin', adminRouter);

@@ -287,7 +287,7 @@ export class UserService implements UserServiceInterface {
         }
 
         const clientURL = process.env.clientURL;
-        const BaseURL = process.env.BASE_URL;
+        const BACKEND_URL = process.env.BACKEND_URL;
 
         if (!clientURL || !/^https?:\/\/[\w-]+\.[\w-]+/.test(clientURL)) {
             throw new Error("Invalid clientURL in environment variables");
@@ -310,8 +310,8 @@ export class UserService implements UserServiceInterface {
                     },
                 ],
                 mode: "payment",
-                success_url: `${BaseURL}/success?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${BaseURL}/payment-failed`,
+                success_url: `${BACKEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${BACKEND_URL}/payment-failed`,
                 metadata: {
                     trainerId,
                     trainerName,

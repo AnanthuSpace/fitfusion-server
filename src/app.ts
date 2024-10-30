@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import chatRouter from './routes/chatRoutes';
 import userRouter from './routes/userRouter';
 import adminRouter from './routes/adminRouter';
 import trainRouter from './routes/trainerRouter';
-import chatRouter from './routes/chatRoutes';
 import { dbConnection } from './config/dbConfig';
 import cors from 'cors';
 import http from 'http';
@@ -23,6 +23,7 @@ const corsOptions = {
   origin: [localhostURL, clientURL],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));

@@ -230,7 +230,7 @@ export class UserController {
             const session_id = req.query.session_id as string
             const response = await this._userService.verifyThePayment(session_id)
             if (response.success) {
-                return res.redirect(302, `${process.env.localhostURL}/payment-success`);
+                return res.redirect(302, `${process.env.clientURL}/payment-success`);
             }
         } catch (error: any) {
             res.status(500).json({ message: 'Error verifying payment', error: error.message });
@@ -239,7 +239,7 @@ export class UserController {
 
     canclePayment = async (req: Request, res: Response): Promise<any> => {
         try {
-            return res.redirect(`${process.env.localhostURL}/payment-failed`);
+            return res.redirect(`${process.env.clientURL}/payment-failed`);
         } catch (error: any) {
             res.status(500).json({ message: 'Error verifying payment', error: error.message });
         }

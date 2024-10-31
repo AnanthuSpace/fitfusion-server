@@ -21,7 +21,7 @@ export class UserRepository implements IUserRepository {
 
     async findUser(email: string): Promise<UserType | null> {
         return await this._userModel.findOne({ email: email }, { _id: 0, password: 0 }).lean();
-    }    
+    }
 
     async fetchUser(userId: string): Promise<UserType | null> {
         return await this._userModel.findOne({ userId: userId }, { _id: 0 }).lean()
@@ -56,7 +56,7 @@ export class UserRepository implements IUserRepository {
     }
 
 
-    async findEditingData(userId: string) : Promise<UserType | null>{
+    async findEditingData(userId: string): Promise<UserType | null> {
         return await this._userModel.findOne({ userId: userId }, { _id: 0 })
     }
 
@@ -98,17 +98,57 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<TrainerType[]> {
+    async fetchAlreadyChattedTrainer(alreadyChatted: string[], userId: string): Promise<TrainerType[]> {
         try {
-            const trainers = await this._trainerModel.find(
-                { trainerId: { $in: alreadyChatted } },
-                { _id: 0, name: 1, trainerId: 1 }
-            );
-            return trainers
+            const trainers = await this._trainerModel.aggregate([
+                {
+                    $match: { trainerId: { $in: alreadyChatted } }
+                },
+                {
+                    $lookup: {
+                        from: "chats",
+                        let: { trainerId: "$trainerId" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $in: [userId, "$chatMembers"] },
+                                            { $in: ["$$trainerId", "$chatMembers"] }
+                                        ]
+                                    }
+                                }
+                            },
+                            { $unwind: "$details" },
+                            { $sort: { "details.time": -1 } },
+                            { $limit: 1 },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    message: "$details.messages",
+                                    time:"$details.time"
+                                }
+                            }
+                        ],
+                        as: "latestMessage"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        name: 1,
+                        trainerId: 1,
+                        message: { $arrayElemAt: ["$latestMessage.message", 0] },
+                        time: { $arrayElemAt: ["$latestMessage.time", 0] } 
+                    }
+                }
+            ]);
+            return trainers;
         } catch (error: any) {
-            throw new Error(`Error adding connection: ${error.message}`);
+            throw new Error(`Error fetching already chatted trainers: ${error.message}`);
         }
     }
+
 
     async fetchDeitPlans(trainerId: string): Promise<any[]> {
         try {
@@ -142,7 +182,7 @@ export class UserRepository implements IUserRepository {
     async addReview(reviewData: FullReviewType, trainerId: string): Promise<any> {
         try {
             const existingReview = await this._reviewModel.findOne({ trainerId: trainerId });
-            
+
             if (existingReview) {
                 const updatedReview = await this._reviewModel.updateOne(
                     { trainerId: trainerId },
@@ -160,31 +200,31 @@ export class UserRepository implements IUserRepository {
             throw new Error(`Error adding review: ${error.message}`);
         }
     }
-    
+
 
     async fetchReview(trainerId: string): Promise<any> {
         try {
             const trainerReview = await this._reviewModel.findOne({ trainerId: trainerId }, { _id: 0, review: 1 });
-            
+
             if (trainerReview && trainerReview.review && trainerReview.review.length > 0) {
                 const sortedReviews = trainerReview.review
-                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) 
-                    .slice(0, 2); 
-                
+                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 2);
+
                 return sortedReviews;
             } else {
-                return []; 
+                return [];
             }
         } catch (error: any) {
             throw new Error(`Error fetching review: ${error.message}`);
         }
     }
-    
-    
+
+
 
     async fetchSingleTrainer(trainerId: string): Promise<any> {
         try {
-            return await this._trainerModel.findOne({ trainerId: trainerId }, {_id:0}).lean()
+            return await this._trainerModel.findOne({ trainerId: trainerId }, { _id: 0 }).lean()
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }
@@ -208,7 +248,7 @@ export class UserRepository implements IUserRepository {
 
     async getTransactionHostory(userId: string): Promise<TransactionHistory[] | any> {
         try {
-            return await this._userModel.findOne({userId: userId},{transactionHistory:1, _id:0})
+            return await this._userModel.findOne({ userId: userId }, { transactionHistory: 1, _id: 0 })
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }

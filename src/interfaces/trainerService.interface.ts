@@ -16,7 +16,7 @@ export interface ITrainerService {
     fetchCustomer(userIds: string[]): Promise<any>;
     fetchDeitPlans(trainerId: string): Promise<any>;
     addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, "trainerId">): Promise<any>;
-    fetchAlreadyChatted(alreadyChatted: string[]): Promise<any>;
+    fetchAlreadyChatted(alreadyChatted: string[], trainerId: string): Promise<any>;
     saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any>;
     profileFetch(trainerId: string): Promise<any>;
     getVideos(trainerId: string, page: number): Promise<any>

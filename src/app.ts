@@ -31,10 +31,10 @@ app.use(express.static("public"));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
-app.use('/', userRouter);
 app.use('/admin', adminRouter);
 app.use('/trainer', trainRouter);
 app.use('/chat', chatRouter);
+app.use('/', userRouter);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

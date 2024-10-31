@@ -277,9 +277,9 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async fetchAlreadyChatted(alreadyChatted: string[]) {
+    async fetchAlreadyChatted(alreadyChatted: string[], trainerId: string) {
         try {
-            const users = await this._trainerRepository.fetchAlreadyChatted(alreadyChatted);
+            const users = await this._trainerRepository.fetchAlreadyChatted(alreadyChatted, trainerId);
             return users
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -296,7 +296,7 @@ export class TrainerService implements ITrainerService {
             console.log("bucketname", bucketName)
             console.log("key", Key)
             console.log("thumbnarikey", thumnailKey)
-            
+
             const videoUploadResult = await UpdateToAws(bucketName, Key, videoFile)
             const videoURL = await getObjectURL(`trainers/Videos/,${videoUploadResult}`)
             const videoId = v4()

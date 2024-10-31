@@ -16,7 +16,7 @@ export interface IUserRepository {
   fetchTrainers(): Promise<TrainerType[]>;
   updateUserAfterPayment(userId: string, trainerId: string, trainerName: string, amount: number): Promise<any>;
   addNewConnectionToAlreadyChattedTrainerListRepository(userId: string, trainerId: string): Promise<any>;
-  fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<TrainerType[]>;
+  fetchAlreadyChattedTrainer(alreadyChatted: string[], userId: string): Promise<TrainerType[]>;
   fetchDeitPlans(trainerId: string): Promise<any>;
   fetchTrainerScroll(page: number): Promise<any>;
   addReview(reviewData: FullReviewType, trainerId: string): Promise<any>;

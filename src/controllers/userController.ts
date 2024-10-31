@@ -248,7 +248,8 @@ export class UserController {
     fetchAlreadyChattedTrainer = async (req: CustomRequest, res: Response) => {
         try {
             const { alreadyChatted } = req.body;
-            const response = await this._userService.fetchAlreadyChattedTrainer(alreadyChatted);
+            const userId = req.id as string 
+            const response = await this._userService.fetchAlreadyChattedTrainer(alreadyChatted, userId);
             return res.status(200).json({
                 success: true,
                 users: response,

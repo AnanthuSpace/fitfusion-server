@@ -1,3 +1,4 @@
+import { time } from "console";
 import { EditTrainerInterface, IDietPlan, ITutorialVideo } from "../interfaces/common/Interfaces";
 import { TrainerType, UserType } from "../interfaces/common/types";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
@@ -122,17 +123,57 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async fetchAlreadyChatted(alreadyChatted: string[]) {
+    async fetchAlreadyChatted(alreadyChatted: string[], trainerId: string) {
         try {
-            const users = await this._userModel.find(
-                { userId: { $in: alreadyChatted } },
-                { _id: 0, name: 1, userId: 1 }
-            );
-            return users
+            const users = await this._userModel.aggregate([
+                {
+                    $match: { userId: { $in: alreadyChatted } }
+                },
+                {
+                    $lookup: {
+                        from: "chats",
+                        let: { userId: "$userId" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $in: [trainerId, "$chatMembers"] },
+                                            { $in: ["$$userId", "$chatMembers"] }
+                                        ]
+                                    }
+                                }
+                            },
+                            { $unwind: "$details" },
+                            { $sort: { "details.time": -1 } },
+                            { $limit: 1 },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    message: "$details.messages",
+                                    time: "$details.time" 
+                                }
+                            }
+                        ],
+                        as: "latestMessage"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        name: 1,
+                        userId: 1,
+                        message: { $arrayElemAt: ["$latestMessage.message", 0] },
+                        time: { $arrayElemAt: ["$latestMessage.time", 0] } 
+                    }
+                }
+            ]);
+            return users;
         } catch (error: any) {
-            throw new Error(`Error adding connection: ${error.message}`);
+            throw new Error(`Error fetching already chatted users: ${error.message}`);
         }
     }
+    
 
     async ratingUpdate(trainerId: string, updatedAverageRating: number) {
         try {

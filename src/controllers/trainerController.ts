@@ -189,7 +189,8 @@ export class TrainerController {
     fetchAlreadyChatted = async (req: CustomRequest, res: Response) => {
         try {
             const { alreadyChatted } = req.body;
-            const response = await this._trainerService.fetchAlreadyChatted(alreadyChatted);
+            const trainerId = req.id as string
+            const response = await this._trainerService.fetchAlreadyChatted(alreadyChatted, trainerId);
             return res.status(200).json({
                 success: true,
                 users: response,

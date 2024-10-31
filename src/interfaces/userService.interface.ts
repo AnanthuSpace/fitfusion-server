@@ -17,7 +17,7 @@ export interface UserServiceInterface {
     blockUser(userId: string): Promise<any>;
     createCheckoutSession(trainerId: string, trainerName: string, amount: number, userId: string, userName: string): Promise<PaymentSessionResponse>;
     fetchUserTrainer(userId: string): Promise<{ trainersData: any; userData: any; success?: boolean; message?: string }>;
-    fetchAlreadyChattedTrainer(alreadyChatted: string[]): Promise<any>;
+    fetchAlreadyChattedTrainer(alreadyChatted: string[], userId: string): Promise<any>;
     fetchDeitPlans(trainerId: string): Promise<any>;
     fetchTrainerScroll(page: number): Promise<any>;
     addReview(params: { trainerId: string; reviewData: FullReviewType; curruntRating: number; reviewCount: number }): Promise<number | { success: boolean; message: string }>;

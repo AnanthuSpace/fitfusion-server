@@ -17,7 +17,7 @@ export interface ITrainerRepository {
     AddDietPlan(dietPlan: IDietPlan): Promise<IDietPlan>;
     existedDiet(trainerId: string, dietName: string): Promise<boolean>;
     addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string): Promise<any>;
-    fetchAlreadyChatted(alreadyChatted: string[]): Promise<Partial<UserType>[]>;
+    fetchAlreadyChatted(alreadyChatted: string[], trainerId: string): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
     videoUpload(trainerId: string, videoUploadResult: any, thumbnailUploadResult: any, title: string, description: string, videoId: string): Promise<any>
     profileFetch(trainerId: string): Promise<any>

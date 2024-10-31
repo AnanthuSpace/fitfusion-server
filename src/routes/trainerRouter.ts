@@ -26,12 +26,7 @@ router.post('/customers', verifyToken, trainerController.fetchCustomer);
 router.post('/add-diet', verifyToken, trainerController.addDietPlan);
 router.get('/fetch-deit', verifyToken, trainerController.fetchDeitPlans);
 router.post('/getUsersByIds', verifyToken, trainerController.fetchAlreadyChatted);
-router.put('/upload-video', verifyToken, 
-    (req, res, next) => {
-        console.log("Route level middleware executed"); // This will log whenever this route is hit
-        next(); // Call next to continue to the next middleware
-      },
-      upload.fields([{ name: 'videoFile', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), trainerController.uploadVideo);
+router.put('/upload-video', verifyToken, upload.fields([{ name: 'videoFile', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), trainerController.uploadVideo);
 router.put('/edit-video', verifyToken, upload.fields([{ name: 'videoFile', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), trainerController.editVideo);
 router.get(`/get-profile`, verifyToken, trainerController.profileFetch)
 router.get(`/get-videos`, verifyToken, trainerController.getVideos)

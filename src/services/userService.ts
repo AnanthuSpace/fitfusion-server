@@ -340,14 +340,14 @@ export class UserService implements UserServiceInterface {
                 userId: string;
                 userName: string;
             };
-    
+
             const amountInt = parseInt(amount, 10);
 
             const [userData, trainerData] = await Promise.all([
                 this._userRepository.updateUserAfterPayment(userId, trainerId, trainerName, amountInt),
                 this._trainerRepository.updateTrainerSubscription(trainerId, userId, userName, amountInt)
             ]);
-    
+
             return { success: true, userData, trainerData };
         } catch (error: any) {
             console.error("Payment verification error:", error);
@@ -367,9 +367,9 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-    async fetchAlreadyChattedTrainer(alreadyChatted: string[]) {
+    async fetchAlreadyChattedTrainer(alreadyChatted: string[], userId: string) {
         try {
-            const trainers = await this._userRepository.fetchAlreadyChattedTrainer(alreadyChatted);
+            const trainers = await this._userRepository.fetchAlreadyChattedTrainer(alreadyChatted, userId);
             return trainers
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };

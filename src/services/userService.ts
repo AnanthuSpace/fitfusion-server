@@ -447,12 +447,12 @@ export class UserService implements UserServiceInterface {
             let tutorialVideo = await this._userRepository.fetchVideos(trainerId)
             const videosWithUrls = await Promise.all(
                 tutorialVideo.videos.map(async (video: any) => {
-                    const videoURL = await getVideos(`trainer/Videos/${video.videoUrl}`);
+                    // const videoURL = await getVideos(`trainer/Videos/${video.videoUrl}`);
                     const thumbnailURL = await getVideos(`trainer/thumbnails/${video.thumbnail}`);
 
                     return {
                         ...video,
-                        videoUrl: videoURL,
+                        // videoUrl: videoURL,
                         thumbnail: thumbnailURL,
                     };
                 })
@@ -506,4 +506,13 @@ export class UserService implements UserServiceInterface {
         }
     }
 
+    async fetchSingleVideo(videoUrl: string): Promise<any> {
+        try {
+            const videoLink = await getVideos(`trainer/Videos/${videoUrl}`)
+            console.log(videoLink)
+            return videoLink
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
 }

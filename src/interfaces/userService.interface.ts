@@ -27,4 +27,5 @@ export interface UserServiceInterface {
     fetchAllVideos(trainerIds: string[]): Promise<any>
     getTransactionHostory(userId: string): Promise<any>
     verifyThePayment(session_id: string): Promise<any>
+    fetchSingleVideo(videoUrl: string): Promise<any>
 }

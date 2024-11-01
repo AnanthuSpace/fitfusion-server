@@ -93,16 +93,28 @@ export const configureSocket = (server: http.Server) => {
     });
 
 
+    // Block user
+    socket.on("blockTheUser", (data) => {
+      const { userId } = data
+      io.emit("isUserBlocked", {
+        from: socket.id,
+        blockedId: userId,
+      })
+    })
+
+    // Block Trainer
+    socket.on("blockTheTrainer", (data) => {
+      const { trainerId } = data
+      io.emit("isTrainerBlocked", {
+        from: socket.id,
+        blockedId: trainerId,
+      })
+    })
+
 
     // Video call Configeration
-    // socket.on("joinVideoRoom", ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
-    //   const room = `videoCall_${[senderId, receiverId].sort().join("-")}`;
-    //   console.log(`Room joined: ${room} by ${senderId}`)
-    //   socket.join(room);
-    // });
 
     socket.on("startCall", (data) => {
-      console.log("Call started with data:", data);
       const { receivedId, receiverName } = data;
 
       io.emit("incomingCall", {
@@ -112,22 +124,18 @@ export const configureSocket = (server: http.Server) => {
       });
     });
 
-    // socket.on("offer", ({ offer, roomId }) => {
-    //   console.log(`Offer received for room video call${roomId}`);
-    //   socket.to(roomId).emit("offer", offer);
-    // });
+    socket.on("offer", (data) => {
+      socket.to(data.roomId).emit("offer", data.offer);
+    });
 
+    socket.on("answer", (data) => {
+      socket.to(data.roomId).emit("answer", data.answer);
+    });
 
-    // socket.on("answer", ({ answer, roomId }) => {
-    //   console.log(`Answer received for room ${roomId}`);
-    //   socket.to(roomId).emit("answer", answer);  
-    // });
+    socket.on("ice-candidate", (data) => {
+      socket.to(data.roomId).emit("ice-candidate", data.candidate);
+    });
 
-
-    // socket.on("ice-candidate", ({ candidate, roomId }) => {
-    //   console.log(`ICE candidate received for room ${roomId}`);
-    //   socket.to(roomId).emit("ice-candidate", candidate);
-    // });
 
     socket.on("disconnect", () => {
       console.log("A user disconnected");

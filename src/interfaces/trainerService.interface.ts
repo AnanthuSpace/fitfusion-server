@@ -26,5 +26,6 @@ export interface ITrainerService {
     getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
     getTotalCountOfTrainerData(trainerId: string): Promise<any>
     getAllReview(trainerId: string): Promise<any>
+    singleTrainerVideo(videoUrl: string): Promise<any>
 }
 

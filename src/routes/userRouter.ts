@@ -40,5 +40,6 @@ router.get('/fetch-trainer-videos', verifyToken, userController.fetchVideos)
 router.get('/fetch-all-videos', verifyToken, userController.fetchAllVideos)
 router.get('/fetch-transaction-history', verifyToken, userController.getTransactionHostory)
 router.get('/success', userController.verifyThePayment)
+router.get('/single-video', verifyToken, userController.fetchSingleVideo)
 
 export default router

@@ -93,7 +93,7 @@ export class TrainerController {
             const { name, phone, address, gender, qualification, achivements, feePerMonth, experience } = req.body;
             const trainerId = req.id as string;
             const data = await this._trainerService.editTrainerService(name, phone, address, gender, qualification, achivements, trainerId, feePerMonth, experience);
-            return res.status(200).json({ success: true, message: "Updated successfully" , data});
+            return res.status(200).json({ success: true, message: "Updated successfully", data });
         } catch (error: any) {
             if (error.message === "No changes found") {
                 return res.status(304).json({ success: false, message: "No changes found" });
@@ -309,9 +309,18 @@ export class TrainerController {
     getAllReview = async (req: CustomRequest, res: Response) => {
         try {
             const trainerId = req.id as string
-            console.log("hiwbjvd")
             const response = await this._trainerService.getAllReview(trainerId)
             return res.status(200).json({ success: true, response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    singleTrainerVideo = async (req: CustomRequest, res: Response) => {
+        try {
+            const videoUrl = req.query.videoUrl as string
+            const response = await this._trainerService.singleTrainerVideo(videoUrl)
+            return res.status(200).json({ success: true, data: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

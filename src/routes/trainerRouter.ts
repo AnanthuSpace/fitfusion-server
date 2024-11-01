@@ -35,5 +35,6 @@ router.patch(`/toggleListing`, verifyToken, trainerController.toggleVideoListing
 router.get(`/dashboard-data`, verifyToken, trainerController.getDashBoardData)
 router.get(`/totalcounts`, verifyToken, trainerController.getTotalCountOfTrainerData)
 router.get(`/fetch-review`, verifyToken, trainerController.getAllReview)
+router.get(`/single-video`, verifyToken, trainerController.singleTrainerVideo)
 
 export default router

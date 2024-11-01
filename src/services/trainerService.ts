@@ -435,4 +435,13 @@ export class TrainerService implements ITrainerService {
         }
     }
 
+    async singleTrainerVideo(videoUrl: string): Promise<any> {
+        try {
+            const videoLink = await getVideos(`trainer/Videos/${videoUrl}`)
+            return videoLink
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
 }

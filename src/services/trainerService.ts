@@ -329,15 +329,16 @@ export class TrainerService implements ITrainerService {
             let trainerVideo = await this._trainerRepository.getVideos(trainerId, page)
             const allVideos = await Promise.all(
                 trainerVideo.videos.map(async (video: any) => {
-                    const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
+                    // const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
                     const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)
                     return {
                         ...video,
-                        videoUrl: videoLink,
+                        // videoUrl: videoLink,
                         thumbnail: thumbnailLink
                     };
                 })
             )
+            console.log(allVideos)
             return allVideos
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };

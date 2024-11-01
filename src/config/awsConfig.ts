@@ -19,7 +19,7 @@ export const UpdateToAws = async (bucketName: string, profileKey: string, file: 
         const uniqueName = crypto.randomBytes(16).toString('hex') + '-' + file.originalname;
 
         console.log("uniqueName : ", uniqueName)
-
+        
         const params = {
             Bucket: bucketName,
             Key: `${profileKey}${uniqueName}`,

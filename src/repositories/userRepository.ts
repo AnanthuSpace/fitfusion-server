@@ -209,8 +209,6 @@ export class UserRepository implements IUserRepository {
             if (trainerReview && trainerReview.review && trainerReview.review.length > 0) {
                 const sortedReviews = trainerReview.review
                     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                    .slice(0, 2);
-
                 return sortedReviews;
             } else {
                 return [];

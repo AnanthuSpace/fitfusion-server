@@ -32,7 +32,6 @@ export const configureSocket = (server: http.Server) => {
 
   io.on("connection", (socket: Socket) => {
 
-    // Normal Chatting configerations
     socket.on("joinRoom", ({ sender, reciver }: { sender: string; reciver: string }) => {
       const room = [sender, reciver].sort().join("-")
 
@@ -94,30 +93,41 @@ export const configureSocket = (server: http.Server) => {
     });
 
 
+
     // Video call Configeration
-    socket.on("joinVideoRoom", ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
-      const room = [senderId, receiverId].sort().join("_");
-      console.log(`Room joined: ${room} by ${senderId}`)
-      socket.join(room);
+    // socket.on("joinVideoRoom", ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
+    //   const room = `videoCall_${[senderId, receiverId].sort().join("-")}`;
+    //   console.log(`Room joined: ${room} by ${senderId}`)
+    //   socket.join(room);
+    // });
+
+    socket.on("startCall", (data) => {
+      console.log("Call started with data:", data);
+      const { receivedId, receiverName } = data;
+
+      io.emit("incomingCall", {
+        from: socket.id,
+        callerId: receivedId,
+        callerName: receiverName,
+      });
     });
 
-
-    socket.on("offer", ({ offer, roomId }) => {
-      console.log(`Offer received for room video call${roomId}`);
-      socket.to(roomId).emit("offer", offer);
-    });
-
-
-    socket.on("answer", ({ answer, roomId }) => {
-      console.log(`Answer received for room ${roomId}`);
-      socket.to(roomId).emit("answer", answer);
-    });
+    // socket.on("offer", ({ offer, roomId }) => {
+    //   console.log(`Offer received for room video call${roomId}`);
+    //   socket.to(roomId).emit("offer", offer);
+    // });
 
 
-    socket.on("ice-candidate", ({ candidate, roomId }) => {
-      console.log(`ICE candidate received for room ${roomId}`);
-      socket.to(roomId).emit("ice-candidate", candidate);
-    });
+    // socket.on("answer", ({ answer, roomId }) => {
+    //   console.log(`Answer received for room ${roomId}`);
+    //   socket.to(roomId).emit("answer", answer);  
+    // });
+
+
+    // socket.on("ice-candidate", ({ candidate, roomId }) => {
+    //   console.log(`ICE candidate received for room ${roomId}`);
+    //   socket.to(roomId).emit("ice-candidate", candidate);
+    // });
 
     socket.on("disconnect", () => {
       console.log("A user disconnected");

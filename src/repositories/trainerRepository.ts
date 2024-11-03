@@ -26,7 +26,7 @@ export class TrainerRepository implements ITrainerRepository {
     }
 
     async editTrainer(editTrainerData: EditTrainerInterface, trainerId: string) {
-        return await this._trainerModel.findOneAndUpdate({ trainerId }, { $set: editTrainerData }, { new: true, projection: { _id: 0, password: 0 }  } )
+        return await this._trainerModel.findOneAndUpdate({ trainerId }, { $set: editTrainerData }, { new: true, projection: { _id: 0, password: 0 } })
     }
 
     registerThroghGoogle(trainerId: string, name: string, email: string, password: string): Promise<any> {
@@ -86,8 +86,9 @@ export class TrainerRepository implements ITrainerRepository {
 
     async fetchDeitPlans(trainerId: string) {
         try {
-            const dietPlans = await this._dietModel.find({ trainerId: trainerId }, { _id: 0 }).lean()
-            return dietPlans
+            const dietPlans = await this._dietModel.find({ trainerId: trainerId }).lean()
+            const reversedDietPlans = dietPlans.reverse();
+            return reversedDietPlans
         } catch (error: any) {
             throw new Error(`Error adding connection: ${error.message}`);
         }
@@ -107,6 +108,15 @@ export class TrainerRepository implements ITrainerRepository {
         try {
             const diet = await this._dietModel.findOne({ trainerId, dietName });
             return !!diet;
+        } catch (error: any) {
+            throw new Error(`Error checking diet existence: ${error.message}`);
+        }
+    }
+
+    async deleteDiet( dietId: string) {
+        try {
+            const result = await this._dietModel.deleteOne({ _id: dietId })
+            return result
         } catch (error: any) {
             throw new Error(`Error checking diet existence: ${error.message}`);
         }
@@ -151,7 +161,7 @@ export class TrainerRepository implements ITrainerRepository {
                                 $project: {
                                     _id: 0,
                                     message: "$details.messages",
-                                    time: "$details.time" 
+                                    time: "$details.time"
                                 }
                             }
                         ],
@@ -164,7 +174,7 @@ export class TrainerRepository implements ITrainerRepository {
                         name: 1,
                         userId: 1,
                         message: { $arrayElemAt: ["$latestMessage.message", 0] },
-                        time: { $arrayElemAt: ["$latestMessage.time", 0] } 
+                        time: { $arrayElemAt: ["$latestMessage.time", 0] }
                     }
                 }
             ]);
@@ -173,7 +183,7 @@ export class TrainerRepository implements ITrainerRepository {
             throw new Error(`Error fetching already chatted users: ${error.message}`);
         }
     }
-    
+
 
     async ratingUpdate(trainerId: string, updatedAverageRating: number) {
         try {

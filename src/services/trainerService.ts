@@ -277,6 +277,15 @@ export class TrainerService implements ITrainerService {
         }
     }
 
+    async deleteDiet(dietId: string) {
+        try {
+            const result = await this._trainerRepository.deleteDiet(dietId)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+
     async fetchAlreadyChatted(alreadyChatted: string[], trainerId: string) {
         try {
             const users = await this._trainerRepository.fetchAlreadyChatted(alreadyChatted, trainerId);
@@ -353,6 +362,7 @@ export class TrainerService implements ITrainerService {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+
 
     async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: any, thumbnail: any): Promise<{ success: boolean; message: string; data?: any }> {
         try {

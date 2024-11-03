@@ -36,5 +36,6 @@ router.get(`/dashboard-data`, verifyToken, trainerController.getDashBoardData)
 router.get(`/totalcounts`, verifyToken, trainerController.getTotalCountOfTrainerData)
 router.get(`/fetch-review`, verifyToken, trainerController.getAllReview)
 router.get(`/single-video`, verifyToken, trainerController.singleTrainerVideo)
+router.delete(`/delete-diet`, verifyToken, trainerController.deleteDiet)
 
 export default router

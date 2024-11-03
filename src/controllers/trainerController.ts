@@ -326,4 +326,20 @@ export class TrainerController {
         }
     }
 
+    deleteDiet = async (req: Request, res: Response) => {
+        try {
+            const { dietId } = req.body;
+            const response = await this._trainerService.deleteDiet(dietId);
+
+            if (response.deletedCount) {
+                return res.status(200).json({ success: true, message: "Diet plan deleted successfully" });
+            } else {
+                return res.status(404).json({ success: false, message: "Diet plan not found" });
+            }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+
 }

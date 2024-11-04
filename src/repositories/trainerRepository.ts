@@ -347,7 +347,10 @@ export class TrainerRepository implements ITrainerRepository {
                 }
             },
             {
-                $unwind: "$videoData"
+                $unwind: {
+                    path: "$videoData",
+                    preserveNullAndEmptyArrays: true  
+                }
             },
             {
                 $lookup: {
@@ -356,21 +359,19 @@ export class TrainerRepository implements ITrainerRepository {
                     foreignField: "trainerId",
                     as: "reviewData"
                 }
-            },
-            {
-                $unwind: "$videoData"
-            },
-
-        ])
+            }
+        ]);
+    
         if (data[0]) {
             return {
-                videosCount: data[0]?.videoData.videos.length,
+                videosCount: data[0]?.videoData ? data[0].videoData.videos.length : 0,
                 totalRevenue: data[0]?.wallet,
-                totalReview: data[0]?.reviewData.length,
-                newReviews: data[0].reviewData[0].review
-            }
-        } else return null
+                totalReview: data[0]?.reviewData ? data[0].reviewData.length : 0,
+                newReviews: data[0]?.reviewData && data[0].reviewData.length > 0 ? data[0].reviewData[0].review : null
+            };
+        } else return null;
     }
+    
 
     async getAllReview(trainerId: string): Promise<any> {
         const review = await this._trainerModel.aggregate([

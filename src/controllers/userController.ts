@@ -20,10 +20,23 @@ export class UserController {
             if (serviceResponse === "UserExist") {
                 return res.status(409).json({ success: false, message: "User already exists" });
             } else {
-                return res.status(200).json({ success: true, message: "OTP sent", otp: serviceResponse });
+                return res.status(200).json({ success: true, message: "OTP sent to your email", otp: serviceResponse, validity: 120 });
             }
         } catch (error) {
             console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    resendOtp = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const  email  = req.body.emailId as string
+            await this._userService.resendOtp(email)
+            return res.status(200).json({ success: true, message: "OTP sent",  validity: 120 });
+        } catch (error) {
+            if(error == "emailNotFound"){
+                return res.status(409).json({ success: false, message: "Sorry for the inconvenience, please register again." });
+            }
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
@@ -248,7 +261,7 @@ export class UserController {
     fetchAlreadyChattedTrainer = async (req: CustomRequest, res: Response) => {
         try {
             const { alreadyChatted } = req.body;
-            const userId = req.id as string 
+            const userId = req.id as string
             const response = await this._userService.fetchAlreadyChattedTrainer(alreadyChatted, userId);
             return res.status(200).json({
                 success: true,
@@ -339,7 +352,7 @@ export class UserController {
         }
     }
 
-    fetchSingleVideo = async ( req: CustomRequest, res: Response) => {
+    fetchSingleVideo = async (req: CustomRequest, res: Response) => {
         try {
             const videoUrl = req.query.videoUrl as string
             const response = await this._userService.fetchSingleVideo(videoUrl)

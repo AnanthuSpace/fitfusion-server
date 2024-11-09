@@ -11,7 +11,6 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 import { verifyGoogleToken } from "../config/googleAuth";
-import { stringify } from "querystring";
 
 dotenv.config();
 
@@ -29,6 +28,12 @@ export class UserService implements UserServiceInterface {
     }
 
     private otpStore: { [key: string]: { otp: string; timestamp: number; userData: UserType } } = {};
+
+    storeOtp(email: string, otp: string, userData: UserType) {
+        const timestamp = Date.now();
+        this.otpStore[email] = { otp, timestamp, userData };
+        console.log("Stored OTP data: ", this.otpStore);
+    }
 
 
     async registerUserService(userData: UserType) {
@@ -48,6 +53,30 @@ export class UserService implements UserServiceInterface {
         }
     }
 
+    async resendOtp(email: string) {
+        try {
+            const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
+
+            const isMailSended = await sendMail(email, "otp", OTP);
+
+            if (isMailSended) {
+                if (this.otpStore[email]) {
+                    this.otpStore[email].otp = OTP;
+                    this.otpStore[email].timestamp = Date.now();;
+                    console.log("Updated OTP for:", email, this.otpStore[email]);
+                } else {
+                    throw new Error("emailNotFound");
+                }
+                return OTP;
+            } else {
+                return "OTP not sent";
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+
     async googleSignUpUser(token: string, password: string) {
         const userInfo = await verifyGoogleToken(token)
         if (userInfo?.email_verified === true) {
@@ -65,12 +94,6 @@ export class UserService implements UserServiceInterface {
                 return { result, accessToken, refreshToken }
             }
         }
-    }
-
-    storeOtp(email: string, otp: string, userData: UserType) {
-        const timestamp = Date.now();
-        this.otpStore[email] = { otp, timestamp, userData };
-        console.log("Stored OTP data: ", this.otpStore);
     }
 
     async otpVerificationService(temperoryEmail: string, otp: string) {
@@ -286,12 +309,7 @@ export class UserService implements UserServiceInterface {
             throw new Error("Trainer not found");
         }
 
-        const clientURL = process.env.clientURL;
         const BACKEND_URL = process.env.BACKEND_URL;
-
-        if (!clientURL || !/^https?:\/\/[\w-]+\.[\w-]+/.test(clientURL)) {
-            throw new Error("Invalid clientURL in environment variables");
-        }
 
         try {
             const session = await stripe.checkout.sessions.create({

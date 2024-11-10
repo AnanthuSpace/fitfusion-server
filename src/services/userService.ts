@@ -133,25 +133,35 @@ export class UserService implements UserServiceInterface {
         return { message: "OTP verified", accessToken, refreshToken, userData: userDataWithoutSensitiveInfo };
     }
 
-    async userLoginService(email: string) {
+    async userLoginService(email: string, password: string) {
+        try {
+            const user = await this._userRepository.findUser(email);
+            if (!user) {
+                throw new Error("Invalid email or user not found");
+            }
 
-        const user = await this._userRepository.findUser(email);
-        if (!user) {
-            return "Invalid email";
-        }
+            const bcryptPass = await bcrypt.compare(password, user.password);
+            if (!bcryptPass) {
+                throw new Error("Invalid password");
+            }
 
-        if (user.isBlocked) {
-            return "User is blocked by Admin"
-        }
-        const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
-        const isMailSended = await sendMail(email, "otp", OTP);
-        if (isMailSended) {
-            this.storeOtp(email, OTP, user);
-            return email;
-        } else {
-            return "OTP not sent";
+            if (user.isBlocked) {
+                throw new Error("User is blocked by Admin")
+            }
+
+            await this._userRepository.activeUser(email);
+
+            const accessToken = generateAccessToken(user.userId);
+            const refreshToken = generateRefreshToken(user.userId);
+
+            return { accessToken, refreshToken, userData: user };
+        } catch (error: any) {
+
+            console.error("Error in user login service:", error);
+            throw new Error(error.message || "An error occurred during login");
         }
     }
+
 
     async userLoginVerificationService(email: string, otp: string) {
         const storedData = this.otpStore[email];

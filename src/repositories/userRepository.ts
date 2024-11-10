@@ -20,7 +20,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findUser(email: string): Promise<UserType | null> {
-        return await this._userModel.findOne({ email: email }, { _id: 0, password: 0 }).lean();
+        return await this._userModel.findOne({ email: email }, { _id: 0 }).lean();
     }
 
     async fetchUser(userId: string): Promise<UserType | null> {

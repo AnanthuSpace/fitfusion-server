@@ -59,23 +59,16 @@ export class UserController {
 
     userLogin = async (req: Request, res: Response): Promise<any> => {
         try {
-            const email: string = req.body.email;
-            const serviceResponse = await this._userService.userLoginService(email);
-
-            if (serviceResponse === "Invalid email") {
-                return res.status(400).json({ success: false, message: "User not exist please register" });
-            }
-
-            if (serviceResponse === "User is blocked by Admin") {
-                return res.status(400).json({ success: false, message: "User is blocked by Admin" });
-            }
-
-            return res.status(200).json({ success: true, message: "OTP sent", data: serviceResponse });
-        } catch (error) {
+            const { email, password } = req.body;
+            const serviceResponse = await this._userService.userLoginService(email, password);
+            return res.status(200).json({ success: true, message: "Login successful", data: serviceResponse });
+        } catch (error: any) {
             console.error(error);
-            return res.status(500).json({ success: false, message: "Internal server error" });
+            const errorMessage = error.message || "Internal server error";
+            return res.status(400).json({ success: false, message: errorMessage });
         }
     }
+    
 
     loginVerify = async (req: Request, res: Response): Promise<any> => {
         try {

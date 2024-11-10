@@ -5,7 +5,7 @@ export interface UserServiceInterface {
     registerUserService(userData: UserType): Promise<string | number>;
     otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; accessToken: string; refreshToken: string; userData: Partial<UserType> }>;
     resendOtp(email: string):Promise<any>
-    userLoginService(email: string): Promise<string>;
+    userLoginService(email: string, password: string): Promise<any>;
     userLoginVerificationService(email: string, otp: string): Promise<{ message: string; accessToken: string; refreshToken: string; userData: Partial<UserType> }>;
     googleSignUpUser(token: string, password: string): Promise<any>
     inactiveUser(userId: string): Promise<any>;

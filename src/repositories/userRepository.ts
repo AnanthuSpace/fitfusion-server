@@ -35,6 +35,13 @@ export class UserRepository implements IUserRepository {
         return await this._userModel.updateOne({ email: email }, { $set: { isActive: true } })
     }
 
+    async resetPassword(email: string, password: string): Promise<any> {
+        return await this._userModel.findOneAndUpdate(
+            { email: email },
+            { password: password },
+        );
+    }
+
     async inactiveUser(userId: string): Promise<any> {
         return await this._userModel.updateOne({ userId: userId }, { $set: { isActive: false } })
     }
@@ -126,7 +133,7 @@ export class UserRepository implements IUserRepository {
                                 $project: {
                                     _id: 0,
                                     message: "$details.messages",
-                                    time:"$details.time"
+                                    time: "$details.time"
                                 }
                             }
                         ],
@@ -139,7 +146,7 @@ export class UserRepository implements IUserRepository {
                         name: 1,
                         trainerId: 1,
                         message: { $arrayElemAt: ["$latestMessage.message", 0] },
-                        time: { $arrayElemAt: ["$latestMessage.time", 0] } 
+                        time: { $arrayElemAt: ["$latestMessage.time", 0] }
                     }
                 }
             ]);
@@ -244,11 +251,27 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async getTransactionHostory(userId: string): Promise<TransactionHistory[] | any> {
+    async getTransactionHostory(userId: string): Promise<TransactionHistory[]> {
         try {
-            return await this._userModel.findOne({ userId: userId }, { transactionHistory: 1, _id: 0 })
-        } catch (error: any) {
-            throw new Error(`Error adding review: ${error.message}`);
+            const user = await this._userModel.findOne(
+                { userId: userId },
+                { transactionHistory: 1, _id: 0 }
+            );
+
+            if (!user || !user.transactionHistory) {
+                return [];
+            }
+
+            return user.transactionHistory.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.getTime() : 0;
+                const timeB = b.createdAt ? b.createdAt.getTime() : 0;
+                return timeB - timeA;
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error retrieving transaction history: ${error.message}`);
+            }
+            throw new Error("Unknown error retrieving transaction history");
         }
     }
 }

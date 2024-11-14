@@ -21,10 +21,64 @@ export class TrainerController {
                 console.log(serviceResponse);
                 return res.status(400).json({ success: false, message: "User already exists" });
             } else {
-                return res.status(200).json({ success: true, message: "OTP sent", otp: serviceResponse });
+                return res.status(200).json({ success: true, message: "OTP sent", validity: 120 });
             }
         } catch (error) {
             console.error(error);
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    resendOtp = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const email = req.body.emailId as string
+            await this._trainerService.resendOtp(email)
+            return res.status(200).json({ success: true, message: "OTP sent", validity: 120 });
+        } catch (error) {
+            if (error == "emailNotFound") {
+                return res.status(409).json({ success: false, message: "Sorry for the inconvenience, please register again." });
+            }
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    forgotOtp = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const email = req.body.emailId as string
+            const result = await this._trainerService.forgotOtp(email)
+            if (result === "Invalid email Id") {
+                return res.status(409).json({
+                    success: false,
+                    message: "Email not found. Please register."
+                });
+
+            } else {
+                return res.status(200).json({ success: true, message: "OTP sent", validity: 120 });
+            }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    verifyOTP = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const email = req.body.email as string
+            const otp = req.body.otp as string
+            const result = await this._trainerService.verifyOTP(email, otp)
+            return res.status(200).json({ success: result });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    restPassword = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const { newPassword, confirmPassword } = req.body.values
+            const email = req.body.email as string
+            const result = await this._trainerService.restPassword(email, newPassword, confirmPassword)
+            console.log(result)
+            return res.status(200).json({ success: true })
+        } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
@@ -341,5 +395,16 @@ export class TrainerController {
         }
     }
 
+    editDiet = async (req: Request, res: Response) => {
+        try {
+
+            const { editFormData } = req.body
+            const response = await this._trainerService.editDiet(editFormData);
+            return res.status(200).json({ success: true, message: "Diet plan updated successfully", data: response });
+        } catch (error: any) {
+            const errorMessage = error.message || "Internal server error";
+            return res.status(400).json({ success: false, message: errorMessage });
+        }
+    }
 
 }

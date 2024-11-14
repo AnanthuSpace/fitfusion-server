@@ -29,6 +29,13 @@ export class TrainerRepository implements ITrainerRepository {
         return await this._trainerModel.findOneAndUpdate({ trainerId }, { $set: editTrainerData }, { new: true, projection: { _id: 0, password: 0 } })
     }
 
+    async restPassword(email: string, password: string): Promise<any> {
+        return await this._trainerModel.findOneAndUpdate(
+            { email: email },
+            { password: password },
+        );
+    }
+
     registerThroghGoogle(trainerId: string, name: string, email: string, password: string): Promise<any> {
         return this._trainerModel.create({
             trainerId,
@@ -113,7 +120,7 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async deleteDiet( dietId: string) {
+    async deleteDiet(dietId: string) {
         try {
             const result = await this._dietModel.deleteOne({ _id: dietId })
             return result
@@ -230,12 +237,25 @@ export class TrainerRepository implements ITrainerRepository {
 
     async getTransaction(trainerId: string) {
         try {
-            return await this._trainerModel.findOne({ trainerId: trainerId }, { transactionHistory: 1, _id: 0 })
+            const transaction = await this._trainerModel.findOne(
+                { trainerId: trainerId },
+                { transactionHistory: 1, _id: 0 }
+            );
+
+            if (!transaction || !transaction.transactionHistory) {
+                return [];
+            }
+
+
+            return transaction.transactionHistory.sort((a, b) => {
+                const timerA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+                const timerB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+                return timerB - timerA;
+            });
         } catch (error: any) {
             throw new Error(`Error adding review: ${error.message}`);
         }
     }
-
 
     async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoUploadResult: string, thumbnailUploadResult: string) {
         try {
@@ -349,7 +369,7 @@ export class TrainerRepository implements ITrainerRepository {
             {
                 $unwind: {
                     path: "$videoData",
-                    preserveNullAndEmptyArrays: true  
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
@@ -361,7 +381,7 @@ export class TrainerRepository implements ITrainerRepository {
                 }
             }
         ]);
-    
+
         if (data[0]) {
             return {
                 videosCount: data[0]?.videoData ? data[0].videoData.videos.length : 0,
@@ -371,7 +391,7 @@ export class TrainerRepository implements ITrainerRepository {
             };
         } else return null;
     }
-    
+
 
     async getAllReview(trainerId: string): Promise<any> {
         const review = await this._trainerModel.aggregate([
@@ -387,6 +407,30 @@ export class TrainerRepository implements ITrainerRepository {
         ])
         return {
             reviews: review[0].reviewData[0].review
+        }
+    }
+
+    async editDiet(editFormData: any): Promise<any> {
+        try {
+            const updatedDietPlan = await this._dietModel.findByIdAndUpdate(
+                editFormData._id,
+                {
+                    trainerId: editFormData.trainerId,
+                    dietName: editFormData.dietName,
+                    description: editFormData.description,
+                    meals: editFormData.meals,
+                },
+                { new: true }
+            );
+
+            if (!updatedDietPlan) {
+                throw new Error('Diet plan not found');
+            }
+
+            return updatedDietPlan;
+        } catch (error) {
+            console.error("Error updating diet plan:", error);
+            throw error;
         }
     }
 }

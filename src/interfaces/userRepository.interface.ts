@@ -5,6 +5,7 @@ export interface IUserRepository {
   findUser(email: string): Promise<UserType | null>;
   fetchUser(userId: string): Promise<UserType | null>;
   registerUser(userData: UserType): Promise<UserType>;
+  resetPassword(email: string, password: string): Promise<any>;
   activeUser(email: string): Promise<any>;
   inactiveUser(userId: string): Promise<any>;
   editUser(editUserData: EditUserInterface, userId: string): Promise<any>;

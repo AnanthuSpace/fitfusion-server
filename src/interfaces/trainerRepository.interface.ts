@@ -6,6 +6,7 @@ import { UserType } from "./common/types";
 export interface ITrainerRepository {
     findTrainerInRegister(email: string): Promise<TrainerType | null>;
     registerTrainer(trainerData: TrainerType): Promise<TrainerType>;
+    restPassword(email: string, password: string): Promise<any>;
     registerThroghGoogle(trainerId: string, name: string, email: string, password: string): Promise<any>
     editTrainer(editTrainerData: EditTrainerInterface, trainerId: string): Promise<any>;
     changePass(newPassword: string, trainerId: string): Promise<any>;
@@ -29,4 +30,5 @@ export interface ITrainerRepository {
     getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
     getTotalCountOfTrainerData(trainerId: string): Promise<any>
     getAllReview(trainerId: string): Promise<any>
+    editDiet(editFormData:any): Promise<any>
 }

@@ -17,6 +17,10 @@ const trainerController = new TrainerController(trainerService)
 router.post("/signup", trainerController.registerController);
 router.post("/verify", trainerController.otpVerification);
 router.post("/login", trainerController.trainerLogin);
+router.post("/resent-otp", trainerController.resendOtp);
+router.post("/forgot-otp", trainerController.forgotOtp);
+router.post("/resett-password", trainerController.restPassword);
+router.post("/otp-email", trainerController.verifyOTP);
 router.post("/google-login", trainerController.googleLogin);
 router.post("/google-signup", trainerController.googleSignUp)
 router.put("/edit-trainer", verifyToken, trainerController.editTrainerData)
@@ -37,5 +41,6 @@ router.get(`/totalcounts`, verifyToken, trainerController.getTotalCountOfTrainer
 router.get(`/fetch-review`, verifyToken, trainerController.getAllReview)
 router.get(`/single-video`, verifyToken, trainerController.singleTrainerVideo)
 router.delete(`/delete-diet`, verifyToken, trainerController.deleteDiet)
+router.post(`/edit-diet`, verifyToken, trainerController.editDiet)
 
 export default router

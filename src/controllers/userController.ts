@@ -20,7 +20,7 @@ export class UserController {
             if (serviceResponse === "UserExist") {
                 return res.status(409).json({ success: false, message: "User already exists" });
             } else {
-                return res.status(200).json({ success: true, message: "OTP sent to your email", otp: serviceResponse, validity: 120 });
+                return res.status(200).json({ success: true, message: "OTP sent to your email", validity: 120 });
             }
         } catch (error) {
             console.error(error);
@@ -30,13 +30,54 @@ export class UserController {
 
     resendOtp = async (req: Request, res: Response): Promise<any> => {
         try {
-            const  email  = req.body.emailId as string
+            const email = req.body.emailId as string
             await this._userService.resendOtp(email)
-            return res.status(200).json({ success: true, message: "OTP sent",  validity: 120 });
+            return res.status(200).json({ success: true, message: "OTP sent", validity: 120 });
         } catch (error) {
-            if(error == "emailNotFound"){
+            if (error == "emailNotFound") {
                 return res.status(409).json({ success: false, message: "Sorry for the inconvenience, please register again." });
             }
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    forgotOtp = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const email = req.body.emailId as string
+            const result = await this._userService.forgotOtp(email)
+            if (result === "Invalid email Id") {
+                return res.status(409).json({
+                    success: false,
+                    message: "Email not found. Please register."
+                });
+
+            } else {
+                return res.status(200).json({ success: true, message: "OTP sent", validity: 120 });
+            }
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    verifyOTP = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const email = req.body.email as string
+            const otp = req.body.otp as string
+            const result = await this._userService.verifyOTP(email, otp)
+            return res.status(200).json({ success: result });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+    resetPassword = async (req: Request, res: Response): Promise<any> => {
+        try {
+            const { newPassword } = req.body.values
+            const email = req.body.email as string
+            const result = await this._userService.resetPassword(email, newPassword)
+            console.log(result)
+            return res.status(200).json({ success: true })
+        } catch (error) {
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
@@ -68,7 +109,7 @@ export class UserController {
             return res.status(400).json({ success: false, message: errorMessage });
         }
     }
-    
+
 
     loginVerify = async (req: Request, res: Response): Promise<any> => {
         try {

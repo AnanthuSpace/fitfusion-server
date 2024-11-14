@@ -35,6 +35,14 @@ export class UserService implements UserServiceInterface {
         console.log("Stored OTP data: ", this.otpStore);
     }
 
+    
+    forgotOtpStore: { [key: string]: { otp: string; timestamp: number } } = {}
+
+    forgotOTP(email: string, otp: string) {
+        const timestamp = Date.now()
+        this.forgotOtpStore[email] = { otp, timestamp }
+        console.log("Stored OTP data: ", this.forgotOtpStore);
+    }
 
     async registerUserService(userData: UserType) {
         const alreadyExists = await this._userRepository.findEditingData(userData.email);
@@ -76,6 +84,53 @@ export class UserService implements UserServiceInterface {
         }
     }
 
+    async forgotOtp(email: string) {
+        try {
+            const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
+
+            const isEmail = await this._userRepository.findUser(email);
+
+            if (!isEmail) {
+                return "Invalid email Id"
+            }
+
+            const isMailSended = await sendMail(email, "otp", OTP);
+
+            if (isMailSended) {
+                this.forgotOTP(email, OTP);
+                console.log("OTP stored successfully");
+                return OTP;
+            } else {
+                return "OTP not sent";
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+    async verifyOTP(email: string, otp: string) {
+        try {
+            const otpss = this.forgotOtpStore[email]
+            if (otpss.otp == otp) {
+                return true
+            } else {
+                return false
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+    async resetPassword(email: string, newPassword: string): Promise<any> {
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            let password = hashedPassword;
+            const result = await this._userRepository.resetPassword(email, password)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
 
     async googleSignUpUser(token: string, password: string) {
         const userInfo = await verifyGoogleToken(token)
@@ -528,6 +583,7 @@ export class UserService implements UserServiceInterface {
     async getTransactionHostory(userId: string): Promise<TransactionHistory[] | any> {
         try {
             const result = await this._userRepository.getTransactionHostory(userId)
+            console.log(result)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };

@@ -5,6 +5,10 @@ import { ProfileUpdateResult } from "./common/Interfaces";
 export interface ITrainerService {
     registerTrainerService(trainerData: TrainerType): Promise<string | number>;
     storeOtp(email: string, otp: string, trainerData: TrainerType): void;
+    resendOtp(email: string): Promise<any>;
+    forgotOtp(email: string): Promise<any>;
+    verifyOTP(email: string, otp: string): Promise<any>;
+    restPassword(email: string, newPassword: string, confirmPassword: string): Promise<any>;
     otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; trainerData: Omit<TrainerType, "password"> }>;
     trainerLoginService(email: string, enteredPassword: string): Promise<{ trainerNotExisted?: boolean; trainerData: Omit<TrainerType, "password"> | null; bcryptPass: boolean; accessToken?: string; refreshToken?: string; verifiedTrainer?: "pending" | "rejected" | "verified"; isBlocked?: boolean; }>;
     googleSignUp(token: string, password: string): Promise<any>
@@ -28,5 +32,6 @@ export interface ITrainerService {
     getAllReview(trainerId: string): Promise<any>
     singleTrainerVideo(videoUrl: string): Promise<any>
     deleteDiet(dietId: string): Promise<any>
+    editDiet(editFormData: any): Promise<any>
 }
 

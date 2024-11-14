@@ -76,4 +76,5 @@ export interface TrainerHistory {
     userId: string;
     userName: string;
     amount: number;
+    createdAt?: Date;
 }

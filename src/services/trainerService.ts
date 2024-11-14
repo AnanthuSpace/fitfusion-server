@@ -18,6 +18,20 @@ export class TrainerService implements ITrainerService {
     }
     private otpStore: { [key: string]: { otp: string; timestamp: number; trainerData: TrainerType } } = {};
 
+    storeOtp(email: string, otp: string, trainerData: TrainerType) {
+        const timestamp = Date.now();
+        this.otpStore[email] = { otp, timestamp, trainerData };
+        console.log("Stored OTP data: ", this.otpStore);
+    }
+
+    forgotOtpStore: { [key: string]: { otp: string; timestamp: number } } = {}
+
+    forgotOTP(email: string, otp: string) {
+        const timestamp = Date.now()
+        this.forgotOtpStore[email] = { otp, timestamp }
+        console.log("Stored OTP data: ", this.forgotOtpStore);
+    }
+
     async registerTrainerService(trainerData: TrainerType) {
         const alreadyExists = await this._trainerRepository.findTrainerInRegister(trainerData.email);
         if (alreadyExists) {
@@ -36,13 +50,76 @@ export class TrainerService implements ITrainerService {
         }
     }
 
+    async resendOtp(email: string) {
+        try {
+            const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
 
-    storeOtp(email: string, otp: string, trainerData: TrainerType) {
-        const timestamp = Date.now();
-        this.otpStore[email] = { otp, timestamp, trainerData };
-        console.log("Stored OTP data: ", this.otpStore);
+            const isMailSended = await sendMail(email, "otp", OTP);
+            console.log(OTP);
+            if (isMailSended) {
+                if (this.otpStore[email]) {
+                    this.otpStore[email].otp = OTP;
+                    this.otpStore[email].timestamp = Date.now();;
+                    console.log("Updated OTP for:", email, this.otpStore[email])
+                } else {
+                    throw new Error("emailNotFound");
+                }
+                return OTP;
+            } else {
+                return "OTP not sent";
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
     }
 
+    async forgotOtp(email: string) {
+        try {
+            const OTP: string = Math.floor(1000 + Math.random() * 9000).toString();
+
+            const isEmail = await this._trainerRepository.findTrainerInRegister(email);
+
+            if (!isEmail) {
+                return "Invalid email Id"
+            }
+
+            const isMailSended = await sendMail(email, "otp", OTP);
+
+            if (isMailSended) {
+                this.forgotOTP(email, OTP);
+                console.log("OTP stored successfully");
+                return OTP;
+            } else {
+                return "OTP not sent";
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+    async verifyOTP(email: string, otp: string) {
+        try {
+            const otpss = this.forgotOtpStore[email]
+            if (otpss.otp == otp) {
+                return true
+            } else {
+                return false
+            }
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
+
+    async restPassword(email: string, newPassword: string, confirmPassword: string): Promise<any> {
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            let password = hashedPassword;
+            const result = await this._trainerRepository.restPassword(email, password)
+            return result
+        } catch (error: any) {
+            return { success: false, message: error.message || "Internal server error" };
+        }
+    }
 
     async otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; trainerData: Omit<TrainerType, "password"> }> {
         console.log("Current OTP store: ", this.otpStore);
@@ -357,6 +434,7 @@ export class TrainerService implements ITrainerService {
     async getTransaction(trainerId: string): Promise<TrainerHistory[] | any> {
         try {
             const result = await this._trainerRepository.getTransaction(trainerId)
+            console.log(result)
             return result
         } catch (error: any) {
             return { success: false, message: error.message || 'Internal server error' };
@@ -454,4 +532,12 @@ export class TrainerService implements ITrainerService {
         }
     }
 
+    async editDiet(editFormData: any): Promise<any> {
+        try {
+            const responds = await this._trainerRepository.editDiet(editFormData)
+            return responds
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
 }

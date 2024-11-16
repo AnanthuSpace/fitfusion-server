@@ -21,11 +21,11 @@ export interface ITrainerRepository {
     addNewConnectionToAlreadyChattedTrainerListRepository(trainerId: string, userId: string): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[], trainerId: string): Promise<Partial<UserType>[]>;
     ratingUpdate(trainerId: string, updatedAverageRating: number): Promise<any>;
-    videoUpload(trainerId: string, videoUploadResult: any, thumbnailUploadResult: any, title: string, description: string, videoId: string): Promise<any>
+    videoUpload(trainerId: string, videoUploadResult: any, thumbnailUploadResult: any, title: string, description: string, videoId: string, category: string): Promise<any>
     profileFetch(trainerId: string): Promise<any>
     getVideos(trainerId: string, page: number): Promise<ITutorialVideo>
     getTransaction(userId: string): Promise<TrainerHistory[] | any>
-    editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: string, thumbnail: string): Promise<any>
+    editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: string, thumbnail: string, category: string): Promise<any>
     toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any>
     getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
     getTotalCountOfTrainerData(trainerId: string): Promise<any>

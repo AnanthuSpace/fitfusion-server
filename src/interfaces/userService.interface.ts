@@ -4,7 +4,7 @@ import { PaymentSessionResponse } from "./common/Interfaces";
 export interface UserServiceInterface {
     registerUserService(userData: UserType): Promise<string | number>;
     otpVerificationService(temperoryEmail: string, otp: string): Promise<{ message: string; accessToken: string; refreshToken: string; userData: Partial<UserType> }>;
-    resendOtp(email: string):Promise<any>
+    resendOtp(email: string): Promise<any>
     forgotOtp(email: string): Promise<any>;
     verifyOTP(email: string, otp: string): Promise<any>;
     resetPassword(email: string, newPassword: string): Promise<any>
@@ -28,7 +28,7 @@ export interface UserServiceInterface {
     fetchReview(trainerId: string): Promise<any>
     fetchSingleTrainer(trainerId: string): Promise<any>
     fetchVideos(trainerId: string): Promise<any>
-    fetchAllVideos(trainerIds: string[]): Promise<any>
+    fetchAllVideos(trainerIds: string[], searchTerm: string, categories: string[], sortOption: string): Promise<any>;
     getTransactionHostory(userId: string): Promise<any>
     verifyThePayment(session_id: string): Promise<any>
     fetchSingleVideo(videoUrl: string): Promise<any>

@@ -260,9 +260,8 @@ export class TrainerController {
             const videoFile = files?.videoFile ? files.videoFile[0] : null;
             const thumbnail = files?.thumbnail ? files.thumbnail[0] : null;
             const trainerId = req.id as string
-            const { title, description } = req.body;
-
-            const result = await this._trainerService.saveVideoUrl(trainerId, videoFile, thumbnail, title, description);
+            const { title, description, category } = req.body;
+            const result = await this._trainerService.saveVideoUrl(trainerId, videoFile, thumbnail, title, description, category);
             res.status(200).json({ message: "Video uploaded successfully", result });
         } catch (error) {
             console.error("Error uploading video:", error);
@@ -309,9 +308,9 @@ export class TrainerController {
             const videoFile = files?.videoFile ? files.videoFile[0] : null;
             const thumbnail = files?.thumbnail ? files.thumbnail[0] : null;
 
-            const { title, description, videoId } = req.body;
+            const { title, description, videoId, category } = req.body;
 
-            const response = await this._trainerService.editVideoDetails(trainerId, title, description, videoId, videoFile, thumbnail);
+            const response = await this._trainerService.editVideoDetails(trainerId, title, description, videoId, videoFile, thumbnail, category);
             if (response.success) {
                 return res.status(200).json({ success: true, message: response.message });
             } else {

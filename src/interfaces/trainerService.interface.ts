@@ -21,11 +21,11 @@ export interface ITrainerService {
     fetchDeitPlans(trainerId: string): Promise<any>;
     addDietPlan(trainerId: string, dietPlan: Omit<IDietPlan, "trainerId">): Promise<any>;
     fetchAlreadyChatted(alreadyChatted: string[], trainerId: string): Promise<any>;
-    saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any>;
+    saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string, category: string): Promise<any>;
     profileFetch(trainerId: string): Promise<any>;
     getVideos(trainerId: string, page: number): Promise<any>
     getTransaction(userId: string): Promise<any>
-    editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: any, thumbnail: any): Promise<any>
+    editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: any, thumbnail: any, category: string): Promise<any>
     toggleVideoListing(trainerId: string, videoId: string, listed: string): Promise<any>
     getDashBoardData(trainerId: string, startDate: string, endDate: string): Promise<any>
     getTotalCountOfTrainerData(trainerId: string): Promise<any>

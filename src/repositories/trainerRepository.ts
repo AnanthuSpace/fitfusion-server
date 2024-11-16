@@ -201,11 +201,11 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async videoUpload(trainerId: string, videoUploadResult: string, thumbnailUploadResult: string, title: string, description: string, videoId: string): Promise<void> {
+    async videoUpload(trainerId: string, videoUploadResult: string, thumbnailUploadResult: string, title: string, description: string, videoId: string, category: string): Promise<void> {
         try {
             await this._tutorialModal.updateOne(
                 { trainerId: trainerId },
-                { $push: { videos: { videoId: videoId, videoUrl: videoUploadResult, thumbnail: thumbnailUploadResult, title: title, description: description } } },
+                { $push: { videos: { videoId: videoId, videoUrl: videoUploadResult, thumbnail: thumbnailUploadResult, title: title, description: description, category: category } } },
                 { upsert: true }
             );
         } catch (error: any) {
@@ -257,11 +257,12 @@ export class TrainerRepository implements ITrainerRepository {
         }
     }
 
-    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoUploadResult: string, thumbnailUploadResult: string) {
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoUploadResult: string, thumbnailUploadResult: string, category: string) {
         try {
             const updateFields: any = {
                 "videos.$.title": title,
                 "videos.$.description": description,
+                "videos.$.category": category,
             };
 
             if (videoUploadResult) {

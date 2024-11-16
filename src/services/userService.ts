@@ -35,7 +35,7 @@ export class UserService implements UserServiceInterface {
         console.log("Stored OTP data: ", this.otpStore);
     }
 
-    
+
     forgotOtpStore: { [key: string]: { otp: string; timestamp: number } } = {}
 
     forgotOTP(email: string, otp: string) {
@@ -546,39 +546,42 @@ export class UserService implements UserServiceInterface {
         }
     }
 
-    async fetchAllVideos(trainerIds: string[]): Promise<any> {
+    async fetchAllVideos(trainerIds: string[], searchTerm: string, categories: string[], sortOption: string): Promise<any> {
         try {
-            let videosList = await this._userRepository.fetchAllVideos(trainerIds);
-            videosList = videosList.flat();
-            let allVideosWithUrlsId = videosList.map((trainer: any) => {
-                return trainer.videos.map((video: any) => ({
+            let videosList = await this._userRepository.fetchAllVideos(trainerIds, searchTerm, categories, sortOption);
+
+            let allVideosWithUrlsId = videosList.flatMap((trainer: any) => {
+                const videoDetails = Array.isArray(trainer.videos)
+                    ? trainer.videos
+                    : [trainer.videos];
+
+                return videoDetails.map((video: any) => ({
                     videoUrl: video.videoUrl,
                     thumbnail: video.thumbnail,
                     uploadDate: video.uploadDate,
                     title: video.title,
-                    description: video.description
+                    description: video.description,
                 }));
-            }).flat();
+            });
 
             const allVideosWithUrls = await Promise.all(
                 allVideosWithUrlsId.map(async (video: any) => {
-                    // const videoLink = await getVideos(`trainer/Videos/${video.videoUrl}`)
-                    const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`)
-
+                    const thumbnailLink = await getVideos(`trainer/thumbnails/${video.thumbnail}`);
                     return {
                         ...video,
-                        // videoUrl: videoLink,
-                        thumbnail: thumbnailLink
-                    }
+                        thumbnail: thumbnailLink,
+                    };
                 })
-            )
+            );
 
-            return allVideosWithUrls
+            return allVideosWithUrls;
 
         } catch (error: any) {
+            console.error(error);
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+
 
     async getTransactionHostory(userId: string): Promise<TransactionHistory[] | any> {
         try {

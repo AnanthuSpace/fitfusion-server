@@ -372,7 +372,7 @@ export class TrainerService implements ITrainerService {
         }
     }
 
-    async saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string): Promise<any> {
+    async saveVideoUrl(trainerId: string, videoFile: any, thumbnail: any, title: string, description: string, category: string): Promise<any> {
         try {
             const bucketName = "fitfusion-tutorial"
             const Key = `trainer/Videos/`;
@@ -390,7 +390,7 @@ export class TrainerService implements ITrainerService {
             const thumbnailUploadResult = await UpdateToAws(bucketName, thumnailKey, thumbnail)
             const thumbnailURL = await getObjectURL(`trainers/thumbnails/,${thumbnailUploadResult}`)
 
-            const result = await this._trainerRepository.videoUpload(trainerId, videoUploadResult, thumbnailUploadResult, title, description, videoId);
+            const result = await this._trainerRepository.videoUpload(trainerId, videoUploadResult, thumbnailUploadResult, title, description, videoId, category);
             return { videoURL, thumbnailURL, result }
 
         } catch (error: any) {
@@ -442,7 +442,7 @@ export class TrainerService implements ITrainerService {
     }
 
 
-    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: any, thumbnail: any): Promise<{ success: boolean; message: string; data?: any }> {
+    async editVideoDetails(trainerId: string, title: string, description: string, videoId: string, videoFile: any, thumbnail: any, category: string): Promise<{ success: boolean; message: string; data?: any }> {
         try {
             const bucketName = "fitfusion-tutorial"
             const Key = `trainer/Videos/`;
@@ -464,7 +464,7 @@ export class TrainerService implements ITrainerService {
                 thumbnailURL = await getObjectURL(`trainers/thumbnails/,${thumbnailUploadResult}`)
             }
 
-            const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId, videoUploadResult, thumbnailUploadResult);
+            const result = await this._trainerRepository.editVideoDetails(trainerId, title, description, videoId, videoUploadResult, thumbnailUploadResult, category);
 
             if (result.matchedCount === 0) {
                 return { success: false, message: "No video found with the given video ID" };

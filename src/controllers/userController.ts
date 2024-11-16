@@ -368,8 +368,11 @@ export class UserController {
 
     fetchAllVideos = async (req: Request, res: Response) => {
         try {
-            const trainerIds = req.query.subcriptionList as string[]
-            const response = await this._userService.fetchAllVideos(trainerIds)
+            const trainerIds = req.query.subscriptionList ? req.query.subscriptionList as string[] : []
+            const searchTerm = req.query.searchTerm ? req.query.searchTerm as string : ""
+            const categories = req.query.categories ? req.query.categories as string[] : []
+            const sortOption = req.query.sortOption ? req.query.sortOption as string : ""
+            const response = await this._userService.fetchAllVideos(trainerIds, searchTerm, categories, sortOption)
             return res.status(200).json({ success: true, data: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });

@@ -27,6 +27,9 @@ const tutorialVideoSchema = new Schema<ITutorialVideo>({
             description: {
                 type: String,
             },
+            category:{
+                type: String,
+            },
             uploadDate: {
                 type: Date,
                 default: Date.now,

@@ -243,13 +243,57 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async fetchAllVideos(trainerIds: string[]): Promise<any> {
+    async fetchAllVideos(trainerIds: string[], searchTerm: string, categories: string[], sortOption: string): Promise<any> {
         try {
-            return await this._tutorialVideoModel.find({ trainerId: { $in: trainerIds } }, { _id: 0 })
+    
+            const matchStage: any = { trainerId: { $in: trainerIds } };
+    
+            if (searchTerm) {
+                matchStage["videos.title"] = { $regex: searchTerm, $options: "i" };
+            }
+    
+            if (categories && categories.length > 0) {
+                matchStage["videos.category"] = { $in: categories };
+            }
+    
+            let sortStage: any = {};
+            switch (sortOption) {
+                case "AtoZ":
+                    sortStage["videos.title"] = 1; 
+                    break;
+                case "ZtoA":
+                    sortStage["videos.title"] = -1; 
+                    break;
+                case "Latest":
+                    sortStage["videos.uploadDate"] = -1; 
+                    break;
+                case "Oldest":
+                    sortStage["videos.uploadDate"] = 1; 
+                    break;
+                default:
+                    break;
+            }
+    
+            const videos = await this._tutorialVideoModel.aggregate([
+                { $unwind: "$videos" }, 
+                { $match: matchStage }, 
+                { $sort: sortStage },
+                {
+                    $project: {
+                        _id: 0,
+                        trainerId: 1,
+                        videos: 1,
+                    },
+                },
+            ]);
+
+            return videos;
         } catch (error: any) {
-            throw new Error(`Error adding review: ${error.message}`);
+            throw new Error(`Error fetching videos: ${error.message}`);
         }
     }
+    
+
 
     async getTransactionHostory(userId: string): Promise<TransactionHistory[]> {
         try {

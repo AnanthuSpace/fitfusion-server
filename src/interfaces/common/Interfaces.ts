@@ -81,6 +81,7 @@ export interface ITutorialVideo {
         title: string;
         thumbnail: string;
         description?: string;
+        category?: string;
         uploadDate?: Date; 
         listed: boolean;
     }[];

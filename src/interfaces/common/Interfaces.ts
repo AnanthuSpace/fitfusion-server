@@ -91,3 +91,12 @@ export interface ProfileUpdateResult {
     url: string;
     result: UpdateResult;
 }
+
+export interface ITransaction {
+    userId: string;
+    trainerId: string;
+    amount: number;
+    status: string,
+    createdAt: Date;
+    expiredAt: Date;
+}

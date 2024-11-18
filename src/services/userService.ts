@@ -11,6 +11,7 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 import { verifyGoogleToken } from "../config/googleAuth";
+import moment from 'moment';
 
 dotenv.config();
 
@@ -374,7 +375,7 @@ export class UserService implements UserServiceInterface {
             throw new Error("Trainer not found");
         }
 
-        const BACKEND_URL = process.env.BACKEND_URL;
+        const BACKEND_URL = process.env.BASE_URL;
 
         try {
             const session = await stripe.checkout.sessions.create({
@@ -592,6 +593,58 @@ export class UserService implements UserServiceInterface {
             return { success: false, message: error.message || 'Internal server error' };
         }
     }
+
+    async unsubscribeTransaction(userId: string, transactionId: string): Promise<TransactionHistory[] | any> {
+        try {
+            const transaction = await this._userRepository.findTransaction(userId, transactionId);
+    
+            if (!transaction) {
+                return { success: false, message: 'Transaction not found.' };
+            }
+    
+            const createdAt = moment(transaction.createdAt);
+            const expiredAt = moment(transaction.expiredAt);
+            const currentDate = moment();
+            const daysUsed = currentDate.diff(createdAt, 'days');
+            const totalDays = expiredAt.diff(createdAt, 'days');
+    
+            let refundPercentage = 0;
+            if (daysUsed <= 10) {
+                refundPercentage = 75;
+            } else if (daysUsed > 10 && daysUsed <= 20) {
+                refundPercentage = 50;
+            } else {
+                refundPercentage = 0;
+            }
+            const refundAmount = (transaction.amount * refundPercentage) / 100;
+            const trainerId = transaction.trainerId;
+    
+            const [trainerWalletUpdate, userDataAfterRefund] = await Promise.all([
+                this._trainerRepository.reduceWalletAndUpdateSubscription(trainerId, refundAmount, userId),
+                this._userRepository.updateUserTransactionAndSubscription(userId, transactionId, trainerId, refundAmount),
+            ]);
+    
+            if (!trainerWalletUpdate) {
+                return { success: false, message: 'Failed to update trainer wallet.' };
+            }
+            if (!userDataAfterRefund) {
+                return { success: false, message: 'Failed to update user subscription and wallet.' };
+            }
+    
+            return {
+                success: true,
+                message: 'Unsubscription successful.',
+                refundAmount,
+                daysUsed,
+                totalDays,
+                userDataAfterRefund,
+                trainerWalletUpdate
+            };
+        } catch (error: any) {
+            return { success: false, message: error.message || 'Internal server error' };
+        }
+    }
+    
 
     async fetchSingleVideo(videoUrl: string): Promise<any> {
         try {

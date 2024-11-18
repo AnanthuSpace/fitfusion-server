@@ -277,7 +277,7 @@ export class UserController {
             const session_id = req.query.session_id as string
             const response = await this._userService.verifyThePayment(session_id)
             if (response.success) {
-                return res.redirect(302, `${process.env.clientURL}/payment-success`);
+                return res.redirect(302, `${process.env.localhostURL}/payment-success`);
             }
         } catch (error: any) {
             res.status(500).json({ message: 'Error verifying payment', error: error.message });
@@ -286,7 +286,7 @@ export class UserController {
 
     canclePayment = async (req: Request, res: Response): Promise<any> => {
         try {
-            return res.redirect(`${process.env.clientURL}/payment-failed`);
+            return res.redirect(`${process.env.localhostURL}/payment-failed`);
         } catch (error: any) {
             res.status(500).json({ message: 'Error verifying payment', error: error.message });
         }
@@ -384,6 +384,18 @@ export class UserController {
             const userId = req.id as string
             const response = await this._userService.getTransactionHostory(userId)
             return res.status(200).json({ success: true, data: response });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    unsubscribeTransaction = async (req: CustomRequest, res: Response) => {
+        try {
+            console.log("first")
+            const userId = req.id as string
+            const transactionId = req.body.transactionId as string
+            const response = await this._userService.unsubscribeTransaction(userId, transactionId)
+            return res.status(200).json({ success: true, response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }

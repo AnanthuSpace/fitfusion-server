@@ -18,9 +18,9 @@ export interface UserType extends Document {
     profileIMG?: string;
     address?: string;
     createdAt: Date;
-    followed?: string[];
     subscribeList?: string[];
     alreadychattedTrainers?: string[];
+    wallet?: number
     isActive: boolean;
     transactionHistory: TransactionHistory[];
 }
@@ -34,9 +34,7 @@ export interface TrainerType extends Document {
     password: string;
     gender?: string;
     rating: number;
-    followers?: string[];
     isBlocked: boolean;
-    level: number;
     qualification?: string;
     createdAt: Date;
     profileIMG?: string;

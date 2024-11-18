@@ -31,4 +31,5 @@ export interface ITrainerRepository {
     getTotalCountOfTrainerData(trainerId: string): Promise<any>
     getAllReview(trainerId: string): Promise<any>
     editDiet(editFormData:any): Promise<any>
+    reduceWalletAndUpdateSubscription(trainerId: string, balanceAmount: Number, userId: string): Promise<any>
 }

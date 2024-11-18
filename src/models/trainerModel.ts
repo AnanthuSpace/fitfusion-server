@@ -5,9 +5,16 @@ const transactionSchema = new Schema({
     userId: String,
     userName: String,
     amount: Number,
+    status: String,
     createdAt: {
         type: Date,
         default: Date.now,
+    },
+    expiredAt: {
+        type: Date,
+        default: function () {
+            return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        },
     },
 });
 
@@ -49,16 +56,9 @@ const trainerSchema = new Schema<TrainerType>({
         type: Date,
         default: Date.now
     },
-    followers: [{
-        type: String
-    }],
     rating: {
         type: Number,
         default: 0
-    },
-    level: {
-        type: Number,
-        default: 3
     },
     achivements: {
         type: String

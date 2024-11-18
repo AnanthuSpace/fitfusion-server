@@ -30,6 +30,7 @@ export interface UserServiceInterface {
     fetchVideos(trainerId: string): Promise<any>
     fetchAllVideos(trainerIds: string[], searchTerm: string, categories: string[], sortOption: string): Promise<any>;
     getTransactionHostory(userId: string): Promise<any>
+    unsubscribeTransaction(userId: string, transactionId: string): Promise<any>
     verifyThePayment(session_id: string): Promise<any>
     fetchSingleVideo(videoUrl: string): Promise<any>
 }

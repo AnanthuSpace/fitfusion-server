@@ -86,6 +86,7 @@ export class UserRepository implements IUserRepository {
                         trainerId: trainerId,
                         trainerName: trainerName,
                         amount: amount,
+                        status: "valid"
                     }
                 }
             },
@@ -245,38 +246,38 @@ export class UserRepository implements IUserRepository {
 
     async fetchAllVideos(trainerIds: string[], searchTerm: string, categories: string[], sortOption: string): Promise<any> {
         try {
-    
+
             const matchStage: any = { trainerId: { $in: trainerIds } };
-    
+
             if (searchTerm) {
                 matchStage["videos.title"] = { $regex: searchTerm, $options: "i" };
             }
-    
+
             if (categories && categories.length > 0) {
                 matchStage["videos.category"] = { $in: categories };
             }
-    
+
             let sortStage: any = {};
             switch (sortOption) {
                 case "AtoZ":
-                    sortStage["videos.title"] = 1; 
+                    sortStage["videos.title"] = 1;
                     break;
                 case "ZtoA":
-                    sortStage["videos.title"] = -1; 
+                    sortStage["videos.title"] = -1;
                     break;
                 case "Latest":
-                    sortStage["videos.uploadDate"] = -1; 
+                    sortStage["videos.uploadDate"] = -1;
                     break;
                 case "Oldest":
-                    sortStage["videos.uploadDate"] = 1; 
+                    sortStage["videos.uploadDate"] = 1;
                     break;
                 default:
                     break;
             }
-    
+
             const videos = await this._tutorialVideoModel.aggregate([
-                { $unwind: "$videos" }, 
-                { $match: matchStage }, 
+                { $unwind: "$videos" },
+                { $match: matchStage },
                 { $sort: sortStage },
                 {
                     $project: {
@@ -292,7 +293,7 @@ export class UserRepository implements IUserRepository {
             throw new Error(`Error fetching videos: ${error.message}`);
         }
     }
-    
+
 
 
     async getTransactionHostory(userId: string): Promise<TransactionHistory[]> {
@@ -318,4 +319,66 @@ export class UserRepository implements IUserRepository {
             throw new Error("Unknown error retrieving transaction history");
         }
     }
+
+    async findTransaction(userId: string, transactionId: string): Promise<any> {
+
+        const result = await this._userModel.findOne(
+            {
+                userId: userId,
+                "transactionHistory._id": transactionId
+            },
+            { "transactionHistory.$": 1 }
+        );
+        return result ? result.transactionHistory[0] : null;
+    }
+
+
+    async unsubscribeTransaction(userId: string, trainerId: string): Promise<TransactionHistory[] | any> {
+        try {
+
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error cancel subscriptio: ${error.message}`);
+            }
+            throw new Error("Unknown error cancel subscription");
+        }
+    }
+
+    async updateUserTransactionAndSubscription(
+        userId: string,
+        transactionId: string,
+        trainerId: string,
+        refundAmount: number
+    ): Promise<any> {
+        try {
+            const updatedUser = await this._userModel.findOneAndUpdate(
+                {
+                    userId: userId,
+                    "transactionHistory._id": transactionId
+                },
+                {
+                    $set: {
+                        "transactionHistory.$.status": "canceled"
+                    },
+                    $inc: { wallet: refundAmount },
+                    $pull: { subscribeList: trainerId }
+                },
+                { new: true }
+            ).select("-_id -password");
+
+            if (!updatedUser) {
+                throw new Error("User or transaction not found.");
+            }
+
+            return {
+                success: true,
+                message: "Transaction canceled, refund added to wallet, and trainer removed from subscription list.",
+                updatedUser: updatedUser,
+            };
+        } catch (error: any) {
+            console.error("Error updating user transaction and subscription:", error);
+            return { success: false, message: error.message || "Internal server error." };
+        }
+    }
+
 }

@@ -3,12 +3,19 @@ import { UserType } from "../interfaces/common/types";
 
 
 const transactionSchema = new Schema({
-    trainnerId: String,
+    trainerId: String,
     trainerName: String,
     amount: Number,
+    status: String,
     createdAt: {
         type: Date,
-        default: Date.now, 
+        default: Date.now,
+    },
+    expiredAt: {
+        type: Date,
+        default: function () {
+            return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        },
     },
 });
 
@@ -68,15 +75,16 @@ const userSchema = new Schema<UserType>({
         type: Date,
         default: Date.now
     },
-    followed: [{
-        type: String
-    }],
     subscribeList: [{
         type: String
     }],
     alreadychattedTrainers: [{
         type: String
     }],
+    wallet: {
+        type: Number,
+        default: 0
+    },
     isActive: {
         type: Boolean,
         default: false

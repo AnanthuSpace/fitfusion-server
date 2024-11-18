@@ -26,4 +26,7 @@ export interface IUserRepository {
   fetchVideos(trainerId: string): Promise<any>
   fetchAllVideos(trainerIds: string[], searchTerm: string, categories: string[], sortOption: string): Promise<any>
   getTransactionHostory(userId: string): Promise<TransactionHistory[] | any>
+  findTransaction(userId: string, transactionId: string): Promise<any>
+  unsubscribeTransaction(userId: string, trainerId: string): Promise<TransactionHistory[] | any>
+  updateUserTransactionAndSubscription(userId: string, transactionId: string, trainerId: string, refundAmount: number): Promise<any>
 }

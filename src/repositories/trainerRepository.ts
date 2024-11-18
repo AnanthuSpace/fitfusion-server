@@ -73,7 +73,8 @@ export class TrainerRepository implements ITrainerRepository {
                     transactionHistory: {
                         userId: userId,
                         userName: userName,
-                        amount: amount
+                        amount: amount,
+                        status: "valid"
                     }
                 },
                 $inc: { wallet: amount }
@@ -434,4 +435,35 @@ export class TrainerRepository implements ITrainerRepository {
             throw error;
         }
     }
+
+    async reduceWalletAndUpdateSubscription(trainerId: string, balanceAmount: number, userId: string) {
+        try {
+            const result = await this._trainerModel.findOneAndUpdate(
+                { 
+                    trainerId: trainerId,
+                    "transactionHistory.userId": userId 
+                },
+                { 
+                    $inc: { wallet: -balanceAmount }, 
+                    $set: { "transactionHistory.$.status": "canceld" }, 
+                    $pull: { subscribedUsers: userId } 
+                },
+                { new: true }
+            );
+    
+            if (!result) {
+                throw new Error("Trainer or transaction not found.");
+            }
+    
+            return {
+                success: true,
+                message: "Wallet updated, subscription refunded, and user removed from the subscription list.",
+                updatedTrainer: result,
+            };
+        } catch (error: any) {
+            console.error("Error updating wallet and subscription:", error);
+            return { success: false, message: error.message || "Internal server error." };
+        }
+    }
+    
 }

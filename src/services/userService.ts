@@ -11,7 +11,6 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import { ITrainerRepository } from "../interfaces/trainerRepository.interface";
 import { verifyGoogleToken } from "../config/googleAuth";
-import moment from 'moment';
 
 dotenv.config();
 
@@ -596,18 +595,27 @@ export class UserService implements UserServiceInterface {
 
     async unsubscribeTransaction(userId: string, transactionId: string): Promise<TransactionHistory[] | any> {
         try {
-            const transaction = await this._userRepository.findTransaction(userId, transactionId);
-    
+            const transaction = await this._userRepository.findTransaction(
+                userId,
+                transactionId
+            );
+
             if (!transaction) {
-                return { success: false, message: 'Transaction not found.' };
+                return { success: false, message: "Transaction not found." };
             }
-    
-            const createdAt = moment(transaction.createdAt);
-            const expiredAt = moment(transaction.expiredAt);
-            const currentDate = moment();
-            const daysUsed = currentDate.diff(createdAt, 'days');
-            const totalDays = expiredAt.diff(createdAt, 'days');
-    
+
+            const createdAt = new Date(transaction.createdAt);
+            const expiredAt = new Date(transaction.expiredAt);
+            const currentDate = new Date();
+
+            const daysUsed = Math.floor(
+                (currentDate.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+            );
+
+            const totalDays = Math.floor(
+                (expiredAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+            );
+
             let refundPercentage = 0;
             if (daysUsed <= 10) {
                 refundPercentage = 75;
@@ -616,35 +624,40 @@ export class UserService implements UserServiceInterface {
             } else {
                 refundPercentage = 0;
             }
+
             const refundAmount = (transaction.amount * refundPercentage) / 100;
             const trainerId = transaction.trainerId;
-    
+
             const [trainerWalletUpdate, userDataAfterRefund] = await Promise.all([
                 this._trainerRepository.reduceWalletAndUpdateSubscription(trainerId, refundAmount, userId),
                 this._userRepository.updateUserTransactionAndSubscription(userId, transactionId, trainerId, refundAmount),
             ]);
-    
+
             if (!trainerWalletUpdate) {
-                return { success: false, message: 'Failed to update trainer wallet.' };
+                return { success: false, message: "Failed to update trainer wallet." };
             }
             if (!userDataAfterRefund) {
-                return { success: false, message: 'Failed to update user subscription and wallet.' };
+                return {
+                    success: false,
+                    message: "Failed to update user subscription and wallet.",
+                };
             }
-    
+
             return {
                 success: true,
-                message: 'Unsubscription successful.',
+                message: "Unsubscription successful.",
                 refundAmount,
                 daysUsed,
                 totalDays,
                 userDataAfterRefund,
-                trainerWalletUpdate
+                trainerWalletUpdate,
             };
         } catch (error: any) {
-            return { success: false, message: error.message || 'Internal server error' };
+            return { success: false, message: error.message || "Internal server error" };
         }
     }
-    
+
+
 
     async fetchSingleVideo(videoUrl: string): Promise<any> {
         try {

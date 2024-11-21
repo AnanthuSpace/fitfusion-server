@@ -374,7 +374,7 @@ export class UserService implements UserServiceInterface {
             throw new Error("Trainer not found");
         }
 
-        const BACKEND_URL = process.env.BASE_URL;
+        const BACKEND_URL = process.env.BACKEND_URL;
 
         try {
             const session = await stripe.checkout.sessions.create({

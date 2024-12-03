@@ -1,7 +1,7 @@
 import { Request, response, Response } from "express";
 import { UserType } from "../interfaces/common/types";
 import { UserServiceInterface } from "../interfaces/userService.interface";
-import { streamVideoFromS3 } from "../config/awsConfig";
+// import { streamVideoFromS3 } from "../config/awsConfig";
 
 interface CustomRequest extends Request {
     id?: string;
@@ -402,23 +402,13 @@ export class UserController {
         }
     }
 
-    // fetchSingleVideo = async (req: CustomRequest, res: Response) => {
-    //     try {
-    //         const videoUrl = req.query.videoUrl as string
-    //         const response = await this._userService.fetchSingleVideo(videoUrl)
-    //         return res.status(200).json({ success: true, data: response });
-    //     } catch (error) {
-    //         return res.status(500).json({ success: false, message: 'Internal server error' });
-    //     }
-    // }
-
     fetchSingleVideo = async (req: CustomRequest, res: Response) => {
         try {
-            const videoUrl = req.query.videoUrl as string; 
-            await streamVideoFromS3(`trainer/Videos/${videoUrl}`, res);  
+            const videoUrl = req.query.videoUrl as string
+            const response = await this._userService.fetchSingleVideo(videoUrl)
+            return res.status(200).json({ success: true, data: response });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
-    };
-    
+    }
 }

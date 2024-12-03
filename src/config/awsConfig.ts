@@ -1,8 +1,6 @@
 import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as crypto from 'crypto';
-import { Response } from 'express';
-import { PassThrough } from 'stream';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -21,7 +19,7 @@ export const UpdateToAws = async (bucketName: string, profileKey: string, file: 
         const uniqueName = crypto.randomBytes(16).toString('hex') + '-' + file.originalname;
 
         console.log("uniqueName : ", uniqueName)
-        
+
         const params = {
             Bucket: bucketName,
             Key: `${profileKey}${uniqueName}`,
@@ -59,37 +57,6 @@ export const getVideos = async (key: string): Promise<string> => {
         Bucket: process.env.S3_BUCKET_NAME_VIDEOS,
         Key: key,
     });
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 24 * 7 });
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 5 });
     return url;
 }
-
-export const streamVideoFromS3 = async (key: string, res: Response) => {
-    try {
-        const params = {
-            Bucket: process.env.S3_BUCKET_NAME_VIDEOS,
-            Key: key,
-        };
-
-        const command = new GetObjectCommand(params);
-        const data = await s3Client.send(command);
-
-        if (data.Body) {
-            res.setHeader('Content-Type', 'video/mp4'); 
-            res.setHeader('Content-Length', data.ContentLength || 0);
-            res.setHeader('Accept-Ranges', 'bytes');
-            
-            const bodyStream = data.Body as any;
-            bodyStream.on('error', (streamError: any) => {
-                console.error('Stream Error:', streamError.message);
-                res.status(500).json({ success: false, message: 'Error while streaming video.' });
-            });
-
-            bodyStream.pipe(res);
-        } else {
-            res.status(404).json({ success: false, message: 'Video not found.' });
-        }
-    } catch (error: any) {
-        console.error('Error streaming video from S3:', error.message);
-        res.status(500).json({ success: false, message: 'Internal server error while streaming video.' });
-    }
-};

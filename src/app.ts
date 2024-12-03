@@ -9,6 +9,7 @@ import { dbConnection } from './config/dbConfig';
 import cors from 'cors';
 import http from 'http';
 import { configureSocket } from './config/socketConfig';
+import errorHandler from './config/errorHandler';
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
@@ -35,6 +36,8 @@ app.use('/admin', adminRouter);
 app.use('/trainer', trainRouter);
 app.use('/chat', chatRouter);
 app.use('/', userRouter);
+
+app.use(errorHandler)
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

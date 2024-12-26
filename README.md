@@ -1,10 +1,10 @@
-# FitFusion Server 🚀
+# FitFusion Server 
 
 Welcome to **FitFusion Server** — the powerhouse behind your fitness journey! Whether you're a fitness enthusiast looking to level up your routine or a certified trainer ready to share your expertise, FitFusion is here to connect you with the best resources for your health goals. 
 
-This backend system powers **real-time communication**, **fitness content**, **trainer management**, and much more. Get ready to transform your fitness experience, one API request at a time! 💪
+This backend system powers **real-time communication**, **fitness content**, **trainer management**, and much more. Get ready to transform your fitness experience, one API request at a time! 
 
-## ⚡ Features
+##  Features
 
 - **User & Trainer Management**: Create, manage, and authenticate users and trainers. Easily approve or block trainers, and offer personalized workout plans.
 - **Real-Time Communication**: Say goodbye to lag! Real-time chat and video calls powered by **WebSockets** and **WebRTC** ensure you're always in touch with your fitness journey.
@@ -16,7 +16,7 @@ This backend system powers **real-time communication**, **fitness content**, **t
 - **Secure Authentication**: Stay safe with JWT-based authentication, ensuring only the right users get access to what they need.
 - **Scalable & Modular**: Built to scale and evolve — extend and update the system as you see fit.
 
-## 🛠️ Technologies & Tools
+##  Technologies & Tools
 
 - **Backend Framework**: Node.js + Express
 - **Database**: MongoDB (with Mongoose for schemas)
@@ -26,7 +26,7 @@ This backend system powers **real-time communication**, **fitness content**, **t
 - **Payment Gateway**: Stripe for secure payments
 - **Environment Management**: `.env` configuration for flexibility
 
-## 🏗️ Project Structure
+## 🏗 Project Structure
 
 Here’s how I’ve laid out the code for maximum clarity and organization:
 
@@ -45,20 +45,20 @@ fitfusion-server/
 │
 ├── .env                 # Environment variables (keep them secret!)
 ├── package.json         # Manage dependencies, scripts, and more
-└── README.md            # You're here! 🙌
+└── README.md            # You're here! 
 ```
 
-## 🤝 Contributing
+##  Contributing
 
 I love a good contribution! Whether it’s a bug fix, a feature request, or a cool new idea — if you think you’ve got something to add, fork this repo and create a pull request. Let’s make FitFusion even better, together!
 
-## 👨‍💻 Author
+##  Author
 
-Made with 💖 by **Ananthu Mohan**  
+Made with Love by **Ananthu Mohan**  
 Let’s connect! [GitHub](https://github.com/AnanthuSpace)
 
 ---
 
-Thank you for checking out **FitFusion Server**. I'm excited to have you on this fitness adventure with me! 🌟
+Thank you for checking out **FitFusion Server**. I'm excited to have you on this fitness adventure with me! 
 
-If you like what you see, don't forget to give me a star ⭐. It’s like a protein shake for my repo — it helps me grow stronger! 💪
+If you like what you see, don't forget to give me a star . It’s like a protein shake for my repo — it helps me grow stronger! 
